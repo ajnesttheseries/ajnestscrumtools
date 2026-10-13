@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เครื่องมือเทียบ · สื่อสอน Scrum</title>
+<style>
+:root{
+  --bg:#3b4e63; --panel:#2b3a4c; --col:#354a5f; --bar:#26323f;
+  --txt:#f3f6f9; --mut:#b8c6d4; --dark:#15222e; --neutral:#dce4ec;
+  --blue:#4fb0f0; --purple:#c3b0f0; --green:#4fc97f; --orange:#f5a04a;
+  --red:#a11d2a; --redl:#ff8f8f; --redx:#e0343f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
+body{font-family:"Sarabun","Noto Sans Thai","Leelawadee UI","Tahoma",sans-serif;color:var(--txt)}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;background:var(--bg);
+  transform:translate(-50%,-50%) scale(var(--k,1));overflow:hidden}
+#scene{position:absolute;left:0;top:0;width:1920px;height:984px;overflow:hidden}
+#ttl{position:absolute;left:60px;top:18px;font-size:30px;font-weight:700;color:var(--mut);z-index:5}
+#part{position:absolute;right:60px;top:18px;font-size:30px;font-weight:700;z-index:5}
+#part span{color:var(--mut);font-weight:500}
+
+/* ---------- แถบล่าง ---------- */
+#nav{position:absolute;left:0;top:984px;width:1920px;height:96px;background:var(--bar);
+  display:flex;align-items:center;gap:10px;padding:0 24px}
+#nav button{font:inherit;font-size:28px;font-weight:600;height:64px;padding:0 18px;border-radius:10px;
+  border:0;cursor:pointer;white-space:nowrap;color:var(--txt);background:#4a6079;transition:background .4s ease,color .4s ease}
+#nav button.seen{background:#3a424c;color:#c9d2db}
+#nav button.cur{background:#2f9e5f;color:#fff}
+#nav .sp{flex:1}
+#nav button.ctl{background:transparent;border:2px solid #8fa3b6}
+#nav button.ctl:hover{background:#34475c}
+
+/* ---------- ตัวช่วยแอนิเมชัน ---------- */
+.g{position:absolute;inset:0}
+.a{opacity:0;animation:fin .9s ease var(--d,0s) both,fout .7s ease var(--o,9999s) forwards}
+.pop{opacity:0;animation:pop .7s ease var(--d,0s) both}
+@keyframes fin{from{opacity:0;translate:0 18px}to{opacity:1;translate:0 0}}
+@keyframes fout{to{opacity:0}}
+@keyframes show{to{opacity:1}}
+@keyframes pop{from{opacity:0;scale:.2}60%{opacity:1;scale:1.15}to{opacity:1;scale:1}}
+@keyframes sx{from{opacity:0;translate:var(--fx) 0}to{opacity:1;translate:0 0}}
+@keyframes sep{to{translate:var(--sx) 0}}
+@keyframes gx{to{transform:scaleX(var(--w,1))}}
+@keyframes gy{to{transform:scaleY(1)}}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes shr{to{scale:var(--k2,.3)}}
+@keyframes blink{0%,100%{opacity:0}20%,60%{opacity:1}40%{opacity:.2}}
+@keyframes flashb{0%,100%{border-color:var(--txt)}25%,65%{border-color:var(--redx)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* การ์ด/วัตถุที่ย้ายตำแหน่งเป็นช่วง ๆ */
+.mv{position:absolute;left:0;top:0;opacity:var(--o0,1);
+  transform:translate(var(--x0),var(--y0)) scale(var(--s0,1));
+  animation:
+   m1 var(--d1,1s) var(--e1,ease-in-out) var(--t1,9999s) forwards,
+   m2 var(--d2,1s) var(--e2,ease-in-out) var(--t2,9999s) forwards,
+   m3 var(--d3,1s) var(--e3,ease-in-out) var(--t3,9999s) forwards,
+   oin .6s ease var(--ti,9999s) forwards,
+   oout .6s ease var(--to,9999s) forwards,
+   c1 .8s ease var(--tc1,9999s) forwards,
+   c2 .8s ease var(--tc2,9999s) forwards}
+@keyframes m1{to{transform:translate(var(--x1),var(--y1)) scale(var(--s1,1))}}
+@keyframes m2{to{transform:translate(var(--x2),var(--y2)) scale(var(--s2,1))}}
+@keyframes m3{to{transform:translate(var(--x3),var(--y3)) scale(var(--s3,1))}}
+@keyframes oin{to{opacity:1}}
+@keyframes oout{to{opacity:0}}
+@keyframes c1{to{background:var(--c1)}}
+@keyframes c2{to{background:var(--c2)}}
+
+/* ---------- ข้อความ ---------- */
+.t{position:absolute;white-space:nowrap;font-size:32px;font-weight:600;line-height:1.35}
+.c{left:0;right:0;text-align:center}
+.big{font-size:46px;font-weight:700}
+.mut{color:var(--mut)}
+.rule{position:absolute;left:160px;right:160px;height:104px;line-height:104px;background:var(--red);
+  border-radius:12px;text-align:center;font-size:40px;font-weight:700;color:#fff;white-space:nowrap}
+
+/* ---------- บอร์ด ---------- */
+.board{position:absolute;width:800px;height:400px;background:var(--panel);border-radius:14px}
+.col{position:absolute;top:14px;width:248px;height:372px;background:var(--col);border-radius:10px}
+.col h4{margin:0;height:58px;line-height:58px;text-align:center;font-size:28px;font-weight:600;color:#e8eef4}
+.card{display:block;width:220px;height:56px;border-radius:8px;background:var(--c0,var(--neutral));
+  color:var(--dark);font-style:normal;font-size:28px;font-weight:700;line-height:56px;text-align:center}
+.card:empty::after{content:"";position:absolute;left:16px;top:24px;width:55%;height:8px;border-radius:4px;background:rgba(0,0,0,.18)}
+.wip{position:absolute;left:276px;top:-28px;width:248px;text-align:center}
+.wip b{display:inline-block;padding:0 20px;height:48px;line-height:48px;border-radius:24px;background:var(--txt);
+  color:var(--dark);font-size:28px;font-weight:700}
+.hit{position:absolute;left:276px;top:14px;width:248px;height:372px;border:5px solid var(--redx);border-radius:10px;opacity:0}
+
+/* ---------- ฉาก 1 ---------- */
+.pile{position:absolute;width:110px;height:70px}
+.pile i{position:absolute;left:0;width:100px;height:34px;border-radius:6px;background:var(--orange);border:2px solid var(--bg)}
+.track{position:absolute;height:10px;border-radius:5px;background:var(--panel)}
+.track i{position:absolute;inset:0;border-radius:5px;background:var(--blue);transform-origin:left;transform:scaleX(0)}
+.dash{position:absolute;border:4px dashed var(--txt);border-radius:22px}
+.tb{position:absolute;left:260px;top:92px;width:1400px}
+.tr{display:grid;grid-template-columns:420px 1fr 1fr;height:58px;line-height:58px;font-size:30px;font-weight:600;
+  margin-bottom:6px;background:var(--panel);border-radius:8px;white-space:nowrap}
+.tr>*{padding:0 26px}
+.tr>:first-child{color:var(--mut);font-weight:500}
+.tr.th{background:transparent;font-weight:700;font-size:32px}
+
+/* ---------- ฉาก 2 ---------- */
+.gt{position:absolute;left:480px;width:1080px;height:240px}
+.gt .wk{position:absolute;top:0;width:360px;text-align:center;font-size:28px;color:var(--mut)}
+.gt .tk{position:absolute;top:46px;width:2px;height:194px;background:#6f859b}
+.ln{position:absolute;left:0;width:1080px;height:50px;background:var(--panel);border-radius:8px}
+.ln b{position:absolute;left:-76px;top:0;width:60px;height:50px;line-height:50px;text-align:center;font-size:28px;
+  border-radius:8px;background:var(--blue);color:var(--dark);animation:c1 .6s ease var(--g) forwards}
+.ln i{position:absolute;top:0;height:50px;border-radius:8px;background:var(--blue);transform-origin:left;transform:scaleX(0);
+  animation:gx var(--du) linear var(--st) forwards,c1 .6s ease var(--g) forwards}
+.vl{position:absolute;width:4px;transform-origin:top;transform:scaleY(0);
+  background:repeating-linear-gradient(to bottom,var(--cl) 0 14px,transparent 14px 24px);animation:gy 1s ease var(--d) forwards}
+.dot{position:absolute;width:26px;height:26px;border-radius:50%;border:4px solid var(--bg)}
+
+/* ---------- ฉาก 3 ---------- */
+.ch{position:absolute;border-bottom:4px solid #8fa3b6}
+.vb{position:absolute;bottom:0;width:130px}
+.vb .bar{position:absolute;inset:0;background:var(--green);border-radius:10px 10px 0 0;transform-origin:bottom;
+  animation:grow .9s cubic-bezier(.2,.8,.2,1) var(--g1) both,grow .9s cubic-bezier(.2,.8,.2,1) var(--g2,9999s) forwards}
+.vb .vv{position:absolute;left:0;right:0;top:50%;margin-top:-32px;text-align:center;font-size:46px;font-weight:700;color:var(--dark)}
+.vb .xl{position:absolute;left:-30px;right:-30px;bottom:-52px;text-align:center;font-size:28px;color:var(--mut)}
+.avg{position:absolute;height:0;border-top:5px dashed #fff;transform-origin:left;transform:scaleX(0);animation:gx 1.1s ease var(--d) forwards}
+.heap{position:absolute;background:var(--orange);border-radius:10px}
+.heap i{position:absolute;left:0;right:0;height:5px;margin-top:-2px;background:var(--bg);transform-origin:left;transform:scaleX(0);
+  animation:gx .6s ease var(--d) forwards}
+.rb{position:absolute;top:610px;width:130px;height:56px;line-height:56px;text-align:center;font-size:28px;font-weight:700;
+  background:var(--blue);color:var(--dark);border-radius:8px}
+.mc{position:absolute;top:190px;width:290px;height:340px;background:var(--panel);border-radius:12px;
+  animation:sx 1s ease var(--d) both,sep .9s ease-in-out 17s forwards}
+.mc i{position:absolute;bottom:72px;width:60px;background:var(--green);border-radius:6px 6px 0 0}
+.mc b{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-size:30px}
+.pb{position:absolute;bottom:0;width:76px;background:var(--green);border-radius:8px 8px 0 0;transform-origin:bottom;
+  display:flex;align-items:flex-end;justify-content:center;font-size:28px;font-weight:700;color:var(--dark);padding-bottom:8px}
+.pb.up{background:#a5e6bf;transform:scaleY(0);animation:grow 1.1s cubic-bezier(.2,.8,.2,1) var(--d) forwards}
+.inc{position:absolute;width:130px;height:130px;border-radius:12px;background:var(--green);animation:shr 3.2s ease-in-out 20.6s forwards}
+
+/* ---------- ฉาก 4 ---------- */
+.wb{position:absolute;width:250px;height:48px;line-height:48px;text-align:center;font-size:28px;font-weight:600;border-radius:8px;
+  background:var(--panel);color:#8fa3b6;white-space:nowrap;
+  animation:lit .5s ease var(--t) forwards,lck .5s ease var(--l,9999s) forwards}
+@keyframes lit{to{background:var(--blue);color:var(--dark)}}
+@keyframes lck{to{background:#55697d;color:#e8eef4}}
+.lk{position:absolute;right:-14px;top:-18px;width:40px;height:40px;border-radius:50%;background:var(--dark);
+  display:flex;align-items:center;justify-content:center;opacity:0;animation:pop .6s ease var(--l) both}
+.lk svg{width:20px;height:24px}
+.wo{position:absolute;width:250px;display:flex;justify-content:flex-end;white-space:nowrap;font-size:28px;color:#cfe0ee}
+.usr{position:absolute;fill:var(--txt)}
+.gbox{position:absolute;border-radius:10px;background:var(--green)}
+.ring{position:absolute;left:420px;top:765px;width:0;height:0;
+  animation:sp1 2.2s ease-in-out 11.4s forwards,sp2 2s ease-in-out 15.8s forwards,sp3 2s ease-in-out 18.9s forwards}
+@keyframes sp1{from{rotate:0deg}to{rotate:360deg}}
+@keyframes sp2{from{rotate:360deg}to{rotate:720deg}}
+@keyframes sp3{from{rotate:720deg}to{rotate:1080deg}}
+@keyframes cs1{from{rotate:0deg}to{rotate:-360deg}}
+@keyframes cs2{from{rotate:-360deg}to{rotate:-720deg}}
+@keyframes cs3{from{rotate:-720deg}to{rotate:-1080deg}}
+.ring .trk{position:absolute;left:-140px;top:-140px;width:280px;height:280px;border-radius:50%;border:3px dashed #7f95aa}
+.rn{position:absolute;left:0;top:0;width:0;height:0;transform:rotate(var(--an)) translateY(-140px) rotate(calc(-1*var(--an)))}
+.rc{position:absolute;left:0;top:0;width:0;height:0;
+  animation:cs1 2.2s ease-in-out 11.4s forwards,cs2 2s ease-in-out 15.8s forwards,cs3 2s ease-in-out 18.9s forwards}
+.rc b{position:absolute;left:-62px;top:-22px;width:124px;height:44px;line-height:44px;text-align:center;font-size:28px;font-weight:600;
+  border-radius:8px;background:var(--blue);color:var(--dark);white-space:nowrap}
+.bub{width:76px;height:48px;border-radius:16px;background:var(--txt);color:var(--dark);font-size:28px;font-weight:700;line-height:44px;text-align:center}
+.seg{position:absolute;top:948px;width:190px;height:12px;border-radius:6px;background:var(--panel)}
+.seg i{position:absolute;inset:0;border-radius:6px;background:var(--green);transform-origin:left;transform:scaleX(0);
+  animation:gx var(--du) linear var(--d) forwards}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="u" viewBox="0 0 40 40"><circle cx="20" cy="11" r="9"/><path d="M3 40c0-11 7-17 17-17s17 6 17 17z"/></symbol>
+  <symbol id="lock" viewBox="0 0 24 28"><path d="M6 12V8a6 6 0 0 1 12 0v4" fill="none" stroke="#f3f6f9" stroke-width="3"/><rect x="3" y="12" width="18" height="14" rx="3" fill="#f3f6f9"/></symbol>
+</svg>
+
+<div id="stage">
+  <div id="ttl"></div>
+  <div id="part"></div>
+  <div id="scene"></div>
+  <div style="position:absolute;right:24px;top:946px;font-size:22px;font-weight:400;color:var(--mut);z-index:5">Aj. NesT the Series</div>
+  <div id="nav"></div>
+</div>
+
+<!-- ═════════════ ฉาก 1 · Scrum Board vs Kanban Board ═════════════ -->
+<template id="s1">
+<div class="g a" style="--d:0s;--o:15s">
+  <!-- ป้ายชื่อ -->
+  <div class="t a" style="left:210px;top:112px;font-size:44px;font-weight:700;color:var(--blue);--d:3.5s">Scrum Board</div>
+  <div class="t a" style="left:1090px;top:112px;font-size:44px;font-weight:700;color:var(--purple);--d:3.5s">Kanban Board</div>
+
+  <!-- กอง Product Backlog -->
+  <div class="t a" style="right:1045px;top:120px;font-size:28px;color:var(--orange);--d:4.4s">Product Backlog</div>
+  <div class="pile a" style="left:890px;top:105px;--d:4.4s"><i style="top:36px;left:10px"></i><i style="top:18px;left:0"></i><i style="top:0;left:8px"></i></div>
+
+  <!-- บอร์ดซ้าย : Scrum -->
+  <div class="board" style="left:210px;top:200px;--fx:-1100px;animation:sx 1.3s cubic-bezier(.2,.7,.2,1) .2s both">
+    <div class="col" style="left:14px"><h4>To Do</h4></div>
+    <div class="col" style="left:276px"><h4>In Progress</h4></div>
+    <div class="col" style="left:538px"><h4>Done</h4></div>
+    <!-- งานค้าง ลอยกลับกองส้ม -->
+    <i class="card mv" style="--x0:28px;--y0:86px;--tc1:3.5s;--c1:var(--blue);--t1:6.7s;--x1:625px;--y1:-88px;--s1:.45;--tc2:6.7s;--c2:var(--orange);--to:7.3s"></i>
+    <i class="card mv" style="--x0:28px;--y0:154px;--tc1:3.5s;--c1:var(--blue);--t1:6.8s;--x1:625px;--y1:-88px;--s1:.45;--tc2:6.8s;--c2:var(--orange);--to:7.4s"></i>
+    <i class="card mv" style="--x0:28px;--y0:222px;--tc1:3.5s;--c1:var(--blue);--t1:6.9s;--x1:625px;--y1:-88px;--s1:.45;--tc2:6.9s;--c2:var(--orange);--to:7.5s"></i>
+    <i class="card mv" style="--x0:290px;--y0:86px;--tc1:3.5s;--c1:var(--blue);--t1:7s;--x1:625px;--y1:-88px;--s1:.45;--tc2:7s;--c2:var(--orange);--to:7.6s"></i>
+    <i class="card mv" style="--x0:290px;--y0:154px;--tc1:3.5s;--c1:var(--blue);--t1:7.1s;--x1:625px;--y1:-88px;--s1:.45;--tc2:7.1s;--c2:var(--orange);--to:7.7s"></i>
+    <!-- งานเสร็จ หายไป -->
+    <i class="card mv" style="--x0:552px;--y0:86px;--tc1:3.5s;--c1:var(--green);--to:6.7s"></i>
+    <i class="card mv" style="--x0:552px;--y0:154px;--tc1:3.5s;--c1:var(--green);--to:6.7s"></i>
+    <!-- ชุดใหม่ลงมาเติม -->
+    <i class="card mv" style="--c0:var(--blue);--x0:625px;--y0:-88px;--s0:.45;--o0:0;--ti:8.2s;--t1:8.2s;--x1:28px;--y1:86px"></i>
+    <i class="card mv" style="--c0:var(--blue);--x0:625px;--y0:-88px;--s0:.45;--o0:0;--ti:8.5s;--t1:8.5s;--x1:28px;--y1:154px"></i>
+    <i class="card mv" style="--c0:var(--blue);--x0:625px;--y0:-88px;--s0:.45;--o0:0;--ti:8.8s;--t1:8.8s;--x1:28px;--y1:222px"></i>
+    <i class="card mv" style="--c0:var(--blue);--x0:625px;--y0:-88px;--s0:.45;--o0:0;--ti:9.1s;--t1:9.1s;--x1:28px;--y1:290px"></i>
+  </div>
+  <!-- เส้นเวลา Sprint -->
+  <div class="a" style="--d:4.4s">
+    <div class="track" style="left:210px;top:625px;width:800px">
+      <i style="animation:gx 1.9s linear 4.7s forwards,fout .5s ease 7.4s forwards"></i>
+      <i style="--w:.4;animation:gx 2.6s linear 8.2s forwards"></i>
+    </div>
+    <div style="position:absolute;left:1005px;top:610px;width:6px;height:40px;border-radius:3px;background:var(--redl)"></div>
+    <div class="t" style="right:910px;top:646px;font-size:28px;color:var(--redl)">จบ Sprint</div>
+  </div>
+
+  <!-- บอร์ดขวา : Kanban -->
+  <div class="board" style="left:1090px;top:200px;--fx:1100px;animation:sx 1.3s cubic-bezier(.2,.7,.2,1) .2s both">
+    <div class="col" style="left:14px"><h4>To Do</h4></div>
+    <div class="col" style="left:276px"><h4>In Progress</h4></div>
+    <div class="col" style="left:538px"><h4>Done</h4></div>
+    <div class="wip a" style="--d:10.8s"><b>สูงสุด 3</b></div>
+    <div class="hit" style="animation:blink 1.4s ease 12.8s"></div>
+    <i class="card mv" style="--x0:28px;--y0:86px;--tc1:3.5s;--c1:var(--purple);--t1:5s;--x1:290px;--y1:86px;--t2:8.6s;--x2:552px;--y2:86px;--tc2:8.6s;--c2:var(--green)"></i>
+    <i class="card mv" style="--x0:28px;--y0:154px;--tc1:3.5s;--c1:var(--purple);--t1:6.8s;--x1:290px;--y1:154px"></i>
+    <i class="card mv" style="--x0:28px;--y0:222px;--tc1:3.5s;--c1:var(--purple);--t1:11s;--x1:290px;--y1:222px"></i>
+    <i class="card mv" style="--x0:290px;--y0:86px;--tc1:3.5s;--c1:var(--purple);--t1:5s;--x1:552px;--y1:86px;--tc2:5s;--c2:var(--green);--t2:8.6s;--x2:760px;--y2:86px;--to:8.6s"></i>
+    <i class="card mv" style="--x0:290px;--y0:154px;--tc1:3.5s;--c1:var(--purple);--t1:6.8s;--x1:552px;--y1:154px;--tc2:6.8s;--c2:var(--green)"></i>
+    <i class="card mv" style="--x0:552px;--y0:86px;--tc1:3.5s;--c1:var(--green);--t1:5s;--x1:760px;--y1:86px;--to:5s"></i>
+    <i class="card mv" style="--x0:552px;--y0:154px;--tc1:3.5s;--c1:var(--green);--t1:6.8s;--x1:760px;--y1:154px;--to:6.8s"></i>
+    <!-- การ์ดใหม่ไหลเข้าหัวแถว -->
+    <i class="card mv" style="--c0:var(--purple);--x0:-70px;--y0:86px;--o0:0;--ti:5s;--t1:5s;--x1:28px;--y1:86px;--t2:8.6s;--x2:290px;--y2:86px"></i>
+    <i class="card mv" style="--c0:var(--purple);--x0:-70px;--y0:154px;--o0:0;--ti:6.8s;--t1:6.8s;--x1:28px;--y1:154px"></i>
+    <i class="card mv" style="--c0:var(--purple);--x0:-70px;--y0:86px;--o0:0;--ti:8.6s;--t1:8.6s;--x1:28px;--y1:86px"></i>
+    <!-- ใบที่ชนเพดาน แล้วรอ -->
+    <i class="card mv" style="--c0:var(--purple);--x0:-70px;--y0:222px;--o0:0;--ti:11.9s;--t1:11.9s;--d1:.9s;--e1:ease-in;--x1:62px;--y1:222px;--t2:12.8s;--d2:.6s;--e2:ease-out;--x2:28px;--y2:222px"><span class="a" style="--d:13.3s;display:block">รอ…</span></i>
+  </div>
+
+  <!-- ขอบเขตที่ล็อก + การ์ดที่เด้งกลับ -->
+  <div class="dash" style="left:196px;top:186px;width:828px;height:428px;opacity:0;animation:fin .9s ease 10.7s both,flashb 1.2s ease 11.9s"></div>
+  <i class="card mv" style="width:120px;--c0:var(--orange);--x0:-150px;--y0:372px;--t1:11.2s;--d1:.7s;--e1:ease-in;--x1:72px;--y1:372px;--t2:11.9s;--d2:.8s;--e2:ease-out;--x2:14px;--y2:372px"></i>
+
+  <!-- คำบรรยาย -->
+  <div class="t c a" style="top:690px;font-size:40px;font-weight:700;--d:1.4s;--o:4.1s">วางข้างกันแล้วแยกไม่ออก</div>
+  <div class="t c a" style="top:762px;font-size:34px;--d:2.3s;--o:4.1s">ความต่างไม่ได้อยู่ที่หน้าตาของบอร์ด — อยู่ที่กฎที่อยู่ข้างหลัง</div>
+  <div class="t a" style="left:210px;top:710px;font-size:34px;--d:7.4s;--o:10.3s">Scrum Board ล้างใหม่ทุก Sprint</div>
+  <div class="t a" style="left:1090px;top:710px;font-size:34px;--d:8.8s;--o:10.3s">Kanban Board ไม่เคยล้าง ไหลต่อเนื่อง</div>
+  <div class="t c a" style="top:720px;font-size:38px;font-weight:700;--d:13.3s">Scrum คุมด้วยขอบเขตที่ล็อก — Kanban คุมด้วยเพดานจำนวนงาน</div>
+</div>
+
+<!-- ตารางเทียบ + ข้อความปิด -->
+<div class="g">
+  <div class="tb">
+    <div class="tr th a" style="--d:15.6s"><span></span><span style="color:var(--blue)">Scrum Board</span><span style="color:var(--purple)">Kanban Board</span></div>
+    <div class="tr a" style="--d:16.2s"><span>อายุของบอร์ด</span><span>ล้างทุก Sprint</span><span>ไม่เคยล้าง</span></div>
+    <div class="tr a" style="--d:16.9s"><span>รับงานกลางทาง</span><span>ไม่รับ</span><span>รับได้</span></div>
+    <div class="tr a" style="--d:17.6s"><span>WIP Limit</span><span>ไม่บังคับ</span><span>เป็นหัวใจ</span></div>
+    <div class="tr a" style="--d:18.3s"><span>บทบาท</span><span>3 บทบาท</span><span>ไม่กำหนด</span></div>
+    <div class="tr a" style="--d:19s"><span>ตัวเลขที่ดู</span><span>Velocity · Burndown</span><span>Cycle Time · Throughput</span></div>
+  </div>
+  <div class="t c big a" style="top:512px;--d:20.2s">ถ้าบอร์ดมีวันหมดอายุ ต้อง<span style="color:var(--blue)">ล็อกขอบเขต</span></div>
+  <div class="t c big a" style="top:584px;--d:21.3s">ถ้าบอร์ดไม่มีวันหมดอายุ ต้องมี<span style="color:var(--purple)">เพดานจำนวนงาน</span></div>
+  <div class="a" style="position:absolute;left:560px;right:560px;top:690px;height:3px;background:#7f95aa;--d:22.6s"></div>
+  <div class="t c a" style="top:724px;font-size:34px;--d:22.8s">ทีม Scrum ใช้บอร์ดหน้าตาแบบ Kanban ได้ และยังเป็น Scrum อยู่</div>
+  <div class="t c a mut" style="top:792px;font-size:32px;--d:24s">Scrum Guide ไม่ได้บังคับให้มีบอร์ด — บังคับแค่ว่า Sprint Backlog ต้องโปร่งใส</div>
+</div>
+</template>
+
+<!-- ═════════════ ฉาก 2 · WIP Limit ═════════════ -->
+<template id="s2">
+<div class="g a" style="--d:.2s;--o:14.8s">
+  <!-- บน : ทำพร้อมกัน -->
+  <div class="t" style="left:60px;top:150px;font-size:38px;font-weight:700">ทำพร้อมกัน 3 งาน</div>
+  <div class="t a" style="left:60px;top:226px;font-size:30px;--d:5.7s">ผู้ใช้ได้ของชิ้นแรก<br>ที่<span style="color:var(--redl)">สัปดาห์ที่ 3</span></div>
+  <div class="gt" style="top:100px;--c1:var(--green)">
+    <div class="wk" style="left:0">สัปดาห์ 1</div><div class="wk" style="left:360px">สัปดาห์ 2</div><div class="wk" style="left:720px">สัปดาห์ 3</div>
+    <div class="ln" style="top:56px"><b style="--g:5.5s">A</b><i style="width:1080px;--du:4.5s;--st:1s;--g:5.5s"></i></div>
+    <div class="ln" style="top:118px"><b style="--g:5.5s">B</b><i style="width:1080px;--du:4.5s;--st:1s;--g:5.5s"></i></div>
+    <div class="ln" style="top:180px"><b style="--g:5.5s">C</b><i style="width:1080px;--du:4.5s;--st:1s;--g:5.5s"></i></div>
+    <div class="tk" style="left:0"></div><div class="tk" style="left:360px"></div><div class="tk" style="left:720px"></div><div class="tk" style="left:1078px"></div>
+  </div>
+
+  <div style="position:absolute;left:60px;right:60px;top:452px;height:2px;background:#6f859b"></div>
+
+  <!-- ล่าง : ทำทีละงาน -->
+  <div class="t" style="left:60px;top:550px;font-size:38px;font-weight:700">ทำทีละงาน</div>
+  <div class="t a" style="left:60px;top:626px;font-size:30px;--d:7.6s">ผู้ใช้ได้ของชิ้นแรก<br>ที่<span style="color:var(--green)">สัปดาห์ที่ 1</span></div>
+  <div class="gt" style="top:500px;--c1:var(--green)">
+    <div class="wk" style="left:0">สัปดาห์ 1</div><div class="wk" style="left:360px">สัปดาห์ 2</div><div class="wk" style="left:720px">สัปดาห์ 3</div>
+    <div class="ln" style="top:56px"><b style="--g:7.4s">A</b><i style="left:0;width:360px;--du:1.5s;--st:5.9s;--g:7.4s"></i></div>
+    <div class="ln" style="top:118px"><b style="--g:8.9s">B</b><i style="left:360px;width:360px;--du:1.5s;--st:7.4s;--g:8.9s"></i></div>
+    <div class="ln" style="top:180px"><b style="--g:10.4s">C</b><i style="left:720px;width:360px;--du:1.5s;--st:8.9s;--g:10.4s"></i></div>
+    <div class="tk" style="left:0"></div><div class="tk" style="left:360px"></div><div class="tk" style="left:720px"></div><div class="tk" style="left:1078px"></div>
+  </div>
+
+  <!-- เส้นเทียบจุดที่ของชิ้นแรกเสร็จ -->
+  <div class="vl" style="left:838px;top:150px;height:586px;--cl:var(--green);--d:10.8s"></div>
+  <div class="vl" style="left:1558px;top:150px;height:586px;--cl:var(--redl);--d:11.2s"></div>
+  <div class="dot pop" style="left:827px;top:568px;background:var(--green);--d:11s"></div>
+  <div class="dot pop" style="left:1547px;top:168px;background:var(--redl);--d:11.4s"></div>
+  <svg class="a" style="position:absolute;left:840px;top:345px;--d:11.9s" width="720" height="30">
+    <line x1="18" y1="15" x2="702" y2="15" stroke="#ff8f8f" stroke-width="4"/>
+    <path d="M4 15l18-10v20zM716 15l-18-10v20z" fill="#ff8f8f"/>
+  </svg>
+  <div class="t a" style="left:840px;width:720px;text-align:center;top:374px;font-size:30px;color:var(--redl);--d:12s">รอนานกว่ากัน 2 สัปดาห์</div>
+
+  <div class="t c a" style="top:782px;font-size:42px;font-weight:700;--d:12.5s">เวลารวมเท่ากัน — แต่การรอไม่เท่ากัน</div>
+  <div class="t c a mut" style="top:858px;font-size:32px;--d:13.4s">และนี่ยังไม่นับเวลาที่เสียไปกับการสลับงานไปมา</div>
+</div>
+
+<!-- กลับมาที่บอร์ด -->
+<div class="g a" style="--d:15.2s">
+  <div class="board" style="left:520px;top:120px;transform:scale(1.1);transform-origin:0 0">
+    <div class="col" style="left:14px"><h4>To Do</h4></div>
+    <div class="col" style="left:276px"><h4>In Progress</h4></div>
+    <div class="col" style="left:538px"><h4>Done</h4></div>
+    <div class="wip"><b>สูงสุด 3</b></div>
+    <div class="hit" style="animation:blink 1.4s ease 17.1s"></div>
+    <i class="card mv" style="--c0:var(--blue);--x0:28px;--y0:86px"></i>
+    <i class="card mv" style="--c0:var(--blue);--x0:28px;--y0:154px"></i>
+    <i class="card mv" style="--c0:var(--blue);--x0:290px;--y0:86px;--t1:18.1s;--x1:552px;--y1:154px;--tc1:18.5s;--c1:var(--green)"></i>
+    <i class="card mv" style="--c0:var(--blue);--x0:290px;--y0:154px"></i>
+    <i class="card mv" style="--c0:var(--blue);--x0:290px;--y0:222px"></i>
+    <i class="card mv" style="--c0:var(--green);--x0:552px;--y0:86px"></i>
+    <i class="card mv" style="--c0:var(--blue);--x0:-470px;--y0:222px;--o0:0;--ti:16.1s;--t1:16.2s;--d1:.9s;--e1:ease-in;--x1:62px;--y1:222px;--t2:17.1s;--d2:.8s;--e2:ease-out;--x2:-260px;--y2:222px;--t3:19.3s;--d3:1.2s;--x3:290px;--y3:86px">ใบที่ 4</i>
+  </div>
+  <div class="t c a" style="top:592px;font-size:36px;--d:20.3s">จะเอางานใหม่เข้า ต้องเอางานเก่าออกก่อน</div>
+  <div class="t c a" style="top:690px;font-size:50px;font-weight:700;--d:21.8s">งานที่ทำค้างไว้หลายชิ้น ไม่ได้แปลว่าทำงานเยอะ</div>
+  <div class="t c a" style="top:782px;font-size:70px;font-weight:700;color:var(--green);--d:23.3s">แปลว่ายังไม่มีอะไรเสร็จ</div>
+</div>
+</template>
+
+<!-- ═════════════ ฉาก 3 · Velocity ═════════════ -->
+<template id="s3">
+<div class="g a" style="--d:0s;--o:14.1s">
+  <div class="ch" style="left:100px;top:130px;width:720px;height:430px">
+    <div class="vb" style="left:80px;height:286px">
+      <div class="bar" style="--g1:.5s"></div><div class="vv a" style="--d:1s">52</div><div class="xl">Sprint 1</div></div>
+    <div class="vb" style="left:280px;height:336px;animation:fout .5s ease 3.9s forwards,show .2s linear 5.6s forwards">
+      <div class="bar" style="--g1:1.5s;--g2:5.6s"></div><div class="vv a" style="--d:2s">61</div><div class="xl">Sprint 2</div></div>
+    <div class="vb" style="left:480px;height:319px;animation:fout .5s ease 3.9s forwards,show .2s linear 6.2s forwards">
+      <div class="bar" style="--g1:2.5s;--g2:6.2s"></div><div class="vv a" style="--d:3s">58</div><div class="xl">Sprint 3</div></div>
+    <div class="t a" style="left:360px;top:120px;font-size:220px;font-weight:700;line-height:1;--d:4.3s;--o:5.3s">?</div>
+    <div class="avg" style="left:20px;right:-20px;bottom:311px;--d:7s"></div>
+    <div class="t a" style="left:628px;bottom:322px;font-size:30px;--d:7.8s">เฉลี่ย ≈ 57</div>
+  </div>
+  <div class="t a" style="left:100px;top:648px;--d:.9s">Velocity คือคะแนนที่ทีมทำเสร็จจริงในแต่ละรอบ</div>
+  <div class="t a" style="left:100px;top:710px;--d:7.9s">3 รอบขึ้นไปถึงเริ่มใช้พยากรณ์ได้ — รอบเดียวยังไม่พอ</div>
+
+  <!-- กองงาน 300 คะแนน -->
+  <div class="t a" style="left:1040px;top:86px;font-size:44px;font-weight:700;color:var(--orange);--d:8.6s">300 คะแนน</div>
+  <div class="heap a" style="left:1040px;top:160px;width:300px;height:430px;--d:8.6s">
+    <i style="top:82px;--d:9.4s"></i><i style="top:163px;--d:9.6s"></i><i style="top:245px;--d:9.8s"></i><i style="top:327px;--d:10s"></i><i style="top:408px;--d:10.2s"></i>
+  </div>
+  <div class="t a" style="left:1362px;top:182px;font-size:28px;--d:9.5s">รอบ 1 · 57</div>
+  <div class="t a" style="left:1362px;top:263px;font-size:28px;--d:9.7s">รอบ 2 · 57</div>
+  <div class="t a" style="left:1362px;top:345px;font-size:28px;--d:9.9s">รอบ 3 · 57</div>
+  <div class="t a" style="left:1362px;top:427px;font-size:28px;--d:10.1s">รอบ 4 · 57</div>
+  <div class="t a" style="left:1362px;top:509px;font-size:28px;--d:10.3s">รอบ 5 · 57</div>
+  <div class="t a mut" style="left:1362px;top:556px;font-size:28px;--d:10.5s">รอบ 6 · ที่เหลือ 15</div>
+  <!-- แถบเวลา 6 รอบ -->
+  <div class="rb a" style="left:1000px;top:640px;--d:11s">รอบ 1</div>
+  <div class="rb a" style="left:1142px;top:640px;--d:11.15s">รอบ 2</div>
+  <div class="rb a" style="left:1284px;top:640px;--d:11.3s">รอบ 3</div>
+  <div class="rb a" style="left:1426px;top:640px;--d:11.45s">รอบ 4</div>
+  <div class="rb a" style="left:1568px;top:640px;--d:11.6s">รอบ 5</div>
+  <div class="rb a" style="left:1710px;top:640px;--d:11.75s">รอบ 6</div>
+  <div class="t a" style="left:1000px;top:724px;font-size:42px;font-weight:700;--d:12.2s">300 หารด้วย 57 = ประมาณ 6 รอบ</div>
+  <div class="t a" style="left:1000px;top:800px;--d:13s">นี่คือคำตอบที่ให้ผู้บริหารได้ โดยไม่ต้องเดา</div>
+</div>
+
+<!-- ข้อห้ามที่ 1 -->
+<div class="g">
+  <div class="t a" style="left:80px;top:96px;font-size:38px;font-weight:700;color:var(--redl);--d:14.6s">ข้อห้ามที่ 1</div>
+  <div class="mc" style="left:185px;--fx:-320px;--sx:-70px;--d:14.9s">
+    <i style="left:35px;height:70px"></i><i style="left:115px;height:92px"></i><i style="left:195px;height:80px"></i><b>ทีม A</b></div>
+  <div class="mc" style="left:515px;--fx:320px;--sx:70px;--d:14.9s">
+    <i style="left:35px;height:190px"></i><i style="left:115px;height:224px"></i><i style="left:195px;height:206px"></i><b>ทีม B</b></div>
+  <svg style="position:absolute;left:365px;top:230px;animation:shr .9s ease-in-out 17s forwards;--k2:.58" width="260" height="260">
+    <line x1="24" y1="24" x2="236" y2="236" stroke="#e0343f" stroke-width="30" stroke-linecap="round" stroke-dasharray="302" stroke-dashoffset="302" style="opacity:0;animation:show .01s linear 16s forwards,draw .45s ease 16s forwards"/>
+    <line x1="236" y1="24" x2="24" y2="236" stroke="#e0343f" stroke-width="30" stroke-linecap="round" stroke-dasharray="302" stroke-dashoffset="302" style="opacity:0;animation:show .01s linear 16.4s forwards,draw .45s ease 16.4s forwards"/>
+  </svg>
+  <div class="t a" style="left:80px;top:580px;font-size:34px;--d:17.6s">ห้ามเทียบข้ามทีม — 8 ของแต่ละทีมไม่เท่ากัน</div>
+  <div class="a" style="position:absolute;left:959px;top:100px;width:2px;height:600px;background:#6f859b;--d:19s"></div>
+</div>
+
+<!-- ข้อห้ามที่ 2 -->
+<div class="g a" style="--d:19s">
+  <div class="t" style="left:1010px;top:96px;font-size:38px;font-weight:700;color:var(--redl)">ข้อห้ามที่ 2</div>
+  <div class="ch" style="left:1010px;top:170px;width:540px;height:350px">
+    <div class="pb" style="left:20px;height:187px">52</div>
+    <div class="pb" style="left:122px;height:220px">61</div>
+    <div class="pb" style="left:224px;height:209px">58</div>
+    <div class="pb up" style="left:326px;height:270px;--d:20.6s">75</div>
+    <div class="pb up" style="left:428px;height:302px;--d:21.6s">84</div>
+    <div class="avg" style="left:0;width:560px;bottom:250px;border-top:6px solid var(--redx);--d:19.8s"></div>
+    <div class="t a" style="left:574px;bottom:232px;font-size:30px;font-weight:700;color:var(--redl);--d:20.2s">เป้า 70</div>
+  </div>
+  <div class="t" style="left:1010px;top:596px;font-size:30px">Increment ที่ส่งมอบจริง</div>
+  <div class="inc" style="left:1370px;top:550px"></div>
+  <div class="rule a" style="top:800px;--d:23.6s">ตั้ง velocity เป็นเป้า = ทีมจะปั่นคะแนน ไม่ใช่ทำงานมากขึ้น</div>
+</div>
+</template>
+
+<!-- ═════════════ ฉาก 4 · Waterfall vs Agile ═════════════ -->
+<template id="s4">
+<div class="g">
+  <div class="t a" style="left:60px;top:84px;font-size:44px;font-weight:700;--d:.1s">Waterfall</div>
+
+  <div class="wb a" style="left:60px;top:150px;--d:.2s;--t:1s;--l:2s;animation:fin .9s ease .2s both,lit .5s ease 1s forwards,lck .5s ease 2s forwards">เก็บความต้องการ<span class="lk" style="--l:2s"><svg><use href="#lock"/></svg></span></div>
+  <div class="wb a" style="left:325px;top:198px;animation:fin .9s ease .3s both,lit .5s ease 2s forwards,lck .5s ease 3s forwards">ออกแบบ<span class="lk" style="--l:3s"><svg><use href="#lock"/></svg></span></div>
+  <div class="wb a" style="left:590px;top:246px;animation:fin .9s ease .4s both,lit .5s ease 3s forwards,lck .5s ease 4s forwards">พัฒนา<span class="lk" style="--l:4s"><svg><use href="#lock"/></svg></span></div>
+  <div class="wb a" style="left:855px;top:294px;animation:fin .9s ease .5s both,lit .5s ease 4s forwards,lck .5s ease 5s forwards">ทดสอบ<span class="lk" style="--l:5s"><svg><use href="#lock"/></svg></span></div>
+  <div class="wb a" style="left:1120px;top:342px;animation:fin .9s ease .6s both,lit .5s ease 5s forwards,lck .5s ease 6s forwards">ติดตั้งใช้งาน<span class="lk" style="--l:6s"><svg><use href="#lock"/></svg></span></div>
+  <div class="wb a" style="left:1385px;top:390px;animation:fin .9s ease .7s both,lit .5s ease 6s forwards">ดูแลรักษา</div>
+
+  <div class="wo a" style="left:60px;top:202px;--d:1.5s">เอกสารความต้องการ</div>
+  <div class="wo a" style="left:325px;top:250px;--d:2.5s">แบบระบบ</div>
+  <div class="wo a" style="left:590px;top:298px;--d:3.5s">โค้ด</div>
+  <div class="wo a" style="left:855px;top:346px;--d:4.5s">รายงานผลทดสอบ</div>
+  <div class="wo a" style="left:1120px;top:394px;--d:5.5s">ระบบที่ขึ้นใช้งาน</div>
+  <div class="wo a" style="left:1385px;top:442px;--d:6.5s">บันทึกการแก้ไข</div>
+
+  <svg class="usr a" style="left:330px;top:130px;--d:.6s;--o:2s" width="58" height="58"><use href="#u"/></svg>
+  <svg class="usr pop" style="left:1216px;top:272px;--d:5.2s" width="58" height="58"><use href="#u"/></svg>
+  <div class="gbox pop" style="left:1700px;top:330px;width:110px;height:110px;--d:5.8s"></div>
+
+  <div class="track" style="left:60px;top:496px;width:1575px;height:12px"><i style="background:var(--mut);animation:gx 6s linear 1s forwards"></i></div>
+  <div class="t a" style="left:1655px;top:478px;font-size:30px;font-weight:700;--d:6.8s">8 เดือน</div>
+
+  <div class="t a" style="right:60px;top:90px;font-size:30px;--d:7.3s">ผู้ใช้เห็นของจริงครั้งแรกตอนเกือบจบ</div>
+  <div class="t a" style="right:60px;top:140px;font-size:30px;color:var(--redl);--d:8.4s">ถ้าสิ่งที่สร้างไม่ตรงกับที่ต้องการ รู้ตอนนี้ก็สายไปแล้ว</div>
+
+  <div class="a" style="position:absolute;left:60px;right:60px;top:530px;height:2px;background:#6f859b;--d:9.6s"></div>
+
+  <!-- Agile -->
+  <div class="t a" style="left:60px;top:542px;font-size:44px;font-weight:700;--d:9.8s">Agile</div>
+  <div class="ring">
+    <div class="trk a" style="--d:10s"></div>
+    <div class="rn" style="--an:0deg"><div class="rc"><b class="a" style="--d:10s">ต้องการ</b></div></div>
+    <div class="rn" style="--an:60deg"><div class="rc"><b class="a" style="--d:10.15s">ออกแบบ</b></div></div>
+    <div class="rn" style="--an:120deg"><div class="rc"><b class="a" style="--d:10.3s">พัฒนา</b></div></div>
+    <div class="rn" style="--an:180deg"><div class="rc"><b class="a" style="--d:10.45s">ทดสอบ</b></div></div>
+    <div class="rn" style="--an:240deg"><div class="rc"><b class="a" style="--d:10.6s">ติดตั้ง</b></div></div>
+    <div class="rn" style="--an:300deg"><div class="rc"><b class="a" style="--d:10.75s">ดูแล</b></div></div>
+  </div>
+
+  <div class="gbox pop" style="left:700px;top:838px;width:70px;height:70px;--d:13.6s"></div>
+  <div class="gbox pop" style="left:700px;top:760px;width:70px;height:70px;--d:17.8s"></div>
+  <div class="gbox pop" style="left:700px;top:682px;width:70px;height:70px;--d:20.9s"></div>
+
+  <svg class="usr" style="left:840px;top:800px;--fx:150px;animation:sx 1s ease 13.9s both" width="66" height="66"><use href="#u"/></svg>
+  <div class="bub mv" style="--x0:806px;--y0:738px;--o0:0;--ti:14.7s;--t1:15s;--d1:.8s;--x1:382px;--y1:741px;--s1:.5;--to:15.5s">•••</div>
+  <div class="bub mv" style="--x0:806px;--y0:738px;--o0:0;--ti:17.95s;--t1:18.2s;--d1:.7s;--x1:382px;--y1:741px;--s1:.5;--to:18.6s">•••</div>
+
+  <div class="seg a" style="left:60px;--d:10.6s"><i style="--du:2.2s;--d:11.4s"></i></div>
+  <div class="seg a" style="left:260px;--d:10.6s"><i style="--du:2s;--d:15.8s"></i></div>
+  <div class="seg a" style="left:460px;--d:10.6s"><i style="--du:2s;--d:18.9s"></i></div>
+  <div class="t a" style="left:672px;top:928px;font-size:30px;font-weight:700;--d:21.1s">3 เดือน · มีของแล้ว 3 ชิ้น</div>
+
+  <div class="t a" style="left:980px;top:548px;font-size:30px;--d:13.9s">Agile ทำครบทั้ง 6 ขั้นเหมือนกัน — แต่ทำในรอบที่สั้นลง</div>
+  <div class="t a" style="left:980px;top:598px;font-size:30px;color:var(--green);--d:21.1s">ทุกรอบมีของให้ดู ทุกรอบแก้ทางได้</div>
+
+  <div class="t a" style="left:980px;top:690px;font-size:40px;font-weight:700;--d:22.2s">ไม่ได้ทำน้อยขั้นกว่า — ทำขั้นเดิมแต่ถี่กว่า</div>
+  <div class="t a" style="left:980px;top:772px;font-size:34px;--d:23.2s"><span class="mut">Waterfall ถามว่า</span> ระบบต้องมีฟังก์ชันอะไร</div>
+  <div class="t a" style="left:980px;top:836px;font-size:34px;--d:24.2s"><span class="mut">Agile ถามว่า</span> ใครเจ็บปวดเรื่องอะไร</div>
+</div>
+</template>
+
+<script>
+(function(){
+  var PART='เครื่องมือเทียบ';
+  var NAMES=['Scrum Board vs Kanban Board','WIP Limit','Velocity','Waterfall vs Agile'];
+  var stage=document.getElementById('stage'),scene=document.getElementById('scene'),
+      nav=document.getElementById('nav'),ttl=document.getElementById('ttl'),part=document.getElementById('part');
+  var cur=0,seen={},btns=[];
+
+  function mk(txt,cls,fn){
+    var b=document.createElement('button');b.textContent=txt;if(cls)b.className=cls;
+    b.addEventListener('click',function(){fn();b.blur();});nav.appendChild(b);return b;
+  }
+  NAMES.forEach(function(n,i){btns.push(mk((i+1)+' · '+n,'',function(){show(i);}));});
+  var sp=document.createElement('div');sp.className='sp';nav.appendChild(sp);
+  mk('↻ เล่นซ้ำ','ctl',function(){show(cur);});
+  mk('◀ ย้อนกลับ','ctl',function(){if(cur>0)show(cur-1);});
+  mk('ถัดไป ▶','ctl',function(){if(cur<NAMES.length-1)show(cur+1);});
+
+  // สลับฉาก = ล้างแล้วโคลนเทมเพลตใหม่ แอนิเมชัน CSS ทั้งหมดจึงเริ่มจากศูนย์
+  function show(i){
+    cur=i;seen[i]=true;
+    scene.textContent='';
+    scene.appendChild(document.getElementById('s'+(i+1)).content.cloneNode(true));
+    ttl.textContent='ฉาก '+(i+1)+' · '+NAMES[i];
+    part.innerHTML='<span>Part · </span>'+PART+'<span> &nbsp;|&nbsp; ฉาก </span>'+(i+1)+'<span> / '+NAMES.length+'</span>';
+    btns.forEach(function(b,j){b.className=j===i?'cur':(seen[j]?'seen':'');});
+  }
+
+  function fit(){stage.style.setProperty('--k',Math.min(innerWidth/1920,innerHeight/1080));}
+  addEventListener('resize',fit);fit();
+
+  addEventListener('keydown',function(e){
+    if(e.code==='Space'){e.preventDefault();show(cur);}
+    else if(e.key==='ArrowRight'){e.preventDefault();if(cur<NAMES.length-1)show(cur+1);}
+    else if(e.key==='ArrowLeft'){e.preventDefault();if(cur>0)show(cur-1);}
+  });
+  addEventListener('keyup',function(e){if(e.code==='Space')e.preventDefault();});
+
+  show(0);
+})();
+</script>
+</body>
+</html>

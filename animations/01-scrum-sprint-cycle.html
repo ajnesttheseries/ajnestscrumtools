@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scrum หนึ่งรอบ Sprint — สื่อสอนแบบแอนิเมชัน</title>
+<style>
+@property --m { syntax: '<integer>'; inherits: false; initial-value: 15; }
+@property --s { syntax: '<integer>'; inherits: false; initial-value: 0; }
+
+:root {
+  --bg: #3b495c;
+  --ink: #1c2633;
+  --or: #f28c28;
+  --bl: #4aa8e8;
+  --gr: #2fb24a;
+  --rd: #e03131;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+body { font-family: "Leelawadee UI", "Noto Sans Thai", "Sarabun", "Thonburi", Tahoma, sans-serif; color: #fff; }
+
+#app { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; background: var(--bg); transform-origin: center; }
+#stage { position: absolute; left: 0; top: 0; width: 1600px; height: 800px; overflow: hidden; }
+#stage svg.main { position: absolute; left: 0; top: 0; width: 1600px; height: 800px; }
+svg text { font-size: 28px; font-weight: 700; font-family: inherit; }
+
+#title { position: absolute; right: 24px; top: 12px; font-size: 30px; font-weight: 700; z-index: 5; white-space: nowrap; }
+#title .no { display: inline-block; background: rgba(20,28,40,.7); border-radius: 10px; padding: 0 14px; margin-right: 10px; }
+
+#credit { position: absolute; right: 28px; top: 871px; font-size: 18px; line-height: 24px; font-weight: 400; color: rgba(255,255,255,.75); z-index: 5; white-space: nowrap; }
+
+/* ---------- แถบล่าง ---------- */
+#nav { position: absolute; left: 0; top: 800px; width: 1600px; height: 100px; background: #2b3645; display: flex; align-items: flex-start; gap: 12px; padding: 7px 28px 0; }
+#nav button { font: inherit; font-size: 28px; font-weight: 700; color: #fff; border: 0; border-radius: 12px; height: 62px; cursor: pointer; background: #6f7f93; }
+#nav .num { width: 62px; }
+#nav .num.seen { background: #3a3f47; }
+#nav .num.cur { background: var(--gr); }
+#nav .act { padding: 0 26px; background: #4d5d72; }
+#nav .act:hover, #nav .num:hover { filter: brightness(1.15); }
+#nav .sp { flex: 1; }
+
+/* ---------- ชิ้นส่วน HTML บนเวที ---------- */
+.tag { position: absolute; translate: -50% 0; white-space: nowrap; font-size: 28px; font-weight: 700; line-height: 1.45; padding: 1px 16px; border-radius: 10px; background: rgba(20,28,40,.88); text-align: center; }
+.tag.tl { translate: 0 0; }
+.tag.tr { translate: -100% 0; }
+.tag.two { font-weight: 400; padding: 6px 18px; }
+.tag.flag { background: #fff; color: var(--ink); border: 3px solid var(--ink); }
+.chip { display: inline-block; padding: 0 12px; border-radius: 8px; font-weight: 700; color: #fff; }
+.cap { position: absolute; left: 50%; bottom: 14px; translate: -50% 0; white-space: nowrap; font-size: 30px; font-weight: 600; line-height: 1.5; padding: 3px 22px; border-radius: 12px; background: rgba(20,28,40,.9); opacity: 0; }
+.cnt { position: absolute; width: 180px; height: 96px; font-size: 76px; font-weight: 800; line-height: 96px; }
+.cnt span { position: absolute; left: 0; top: 0; opacity: 0; }
+.plain { position: absolute; font-size: 28px; font-weight: 700; white-space: nowrap; }
+.timer { font-size: 64px; line-height: 1.3; padding: 0 22px; border: 4px solid #fff; }
+.tm { --m: 15; --s: 0; counter-reset: m var(--m) s var(--s); }
+.tm::after { content: counter(m, decimal-leading-zero) ":" counter(s, decimal-leading-zero); }
+.panel { position: absolute; padding: 8px 10px 10px; background: rgba(20,28,40,.94); border: 3px solid #8fa0b5; border-radius: 14px; text-align: center; font-size: 28px; line-height: 1.32; }
+.panel .ph { font-weight: 700; line-height: 40px; }
+.panel .no { display: inline-block; width: 36px; height: 36px; line-height: 36px; border-radius: 50%; background: #fff; color: var(--ink); margin-right: 8px; }
+.panel svg { display: block; margin: 0 auto; }
+.sign { position: absolute; width: 318px; padding: 6px 14px 10px; background: rgba(20,28,40,.94); border-radius: 14px; color: #8be9ff; border: 4px solid currentColor; box-shadow: 0 0 16px currentColor; font-size: 28px; line-height: 1.45; }
+.sign .sh { color: #fff; font-weight: 700; text-align: center; }
+.sign .row { color: #fff; display: flex; align-items: center; gap: 12px; margin-top: 3px; }
+.sign .bx { position: relative; flex: none; width: 32px; height: 32px; border: 3px solid #fff; border-radius: 6px; }
+.sign .bx svg { position: absolute; left: -2px; top: -2px; width: 30px; height: 30px; }
+.closing { position: absolute; left: 50%; bottom: 6px; translate: -50% 0; text-align: center; }
+.closing div { margin: 0 auto 4px; width: max-content; white-space: nowrap; font-size: 28px; line-height: 38px; padding: 0 20px; border-radius: 10px; background: rgba(20,28,40,.92); }
+.closing .last { color: #ffe066; font-weight: 700; }
+
+/* ---------- แอนิเมชันกลาง ---------- */
+.mv { transform: translate(var(--x0, 0px), var(--y0, 0px)); }
+@keyframes m1 { from { transform: translate(var(--x0), var(--y0)); } to { transform: translate(var(--x1), var(--y1)); } }
+@keyframes m2 { from { transform: translate(var(--x1), var(--y1)); } to { transform: translate(var(--x2), var(--y2)); } }
+@keyframes m3 { from { transform: translate(var(--x2), var(--y2)); } to { transform: translate(var(--x3), var(--y3)); } }
+@keyframes m4 { from { transform: translate(var(--x3), var(--y3)); } to { transform: translate(var(--x4), var(--y4)); } }
+@keyframes m5 { from { transform: translate(var(--x4), var(--y4)); } to { transform: translate(var(--x5), var(--y5)); } }
+@keyframes m6 { from { transform: translate(var(--x5), var(--y5)); } to { transform: translate(var(--x6), var(--y6)); } }
+@keyframes fi { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fo { to { opacity: 0; } }
+@keyframes dim { to { opacity: .5; } }
+@keyframes dim2 { to { opacity: .25; } }
+@keyframes undim { from { opacity: .5; } to { opacity: 1; } }
+@keyframes bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+@keyframes hop { 0%, 100% { translate: 0 0; } 40% { translate: 0 -16px; } }
+@keyframes swA { 0%, 100% { rotate: 0deg; } 25% { rotate: 16deg; } 75% { rotate: -16deg; } }
+@keyframes swB { 0%, 100% { rotate: 0deg; } 25% { rotate: -16deg; } 75% { rotate: 16deg; } }
+@keyframes shake { 0%, 100% { translate: 0 0; } 25% { translate: -5px 0; } 75% { translate: 5px 0; } }
+@keyframes unrot { to { rotate: 0deg; } }
+@keyframes toBlue { to { fill: #4aa8e8; } }
+@keyframes toGreen { to { fill: #3ddc5f; } }
+@keyframes toOrange { to { fill: #f28c28; } }
+@keyframes lnG { to { stroke: #2fe05a; } }
+@keyframes lnR { from { stroke: #2fe05a; } to { stroke: #ff4d4d; } }
+@keyframes lnG2 { from { stroke: #ff4d4d; } to { stroke: #2fe05a; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes tilt { to { rotate: -14deg; } }
+@keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes capIn { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes capUp { from { opacity: 1; transform: none; } to { opacity: .55; transform: translateY(-56px); } }
+@keyframes capUpK { from { opacity: 1; transform: none; } to { opacity: 1; transform: translateY(-56px); } }
+@keyframes capOut { from { opacity: .55; transform: translateY(-56px); } to { opacity: 0; transform: translateY(-92px); } }
+@keyframes capOutA { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-30px); } }
+@keyframes mins { from { --m: 15; } to { --m: 0; } }
+@keyframes secs { from { --s: 60; } to { --s: 0; } }
+@keyframes tred { to { color: #ff6b6b; border-color: #ff6b6b; } }
+@keyframes ripple { 0% { opacity: 0; transform: scale(.2); } 12% { opacity: .95; } 100% { opacity: 0; transform: scale(3.2); } }
+@keyframes flash { 50% { stroke-width: 10; } }
+@keyframes doorUp { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes dOpen { from { transform: scaleY(1); } to { transform: scaleY(.05); } }
+@keyframes dClose { from { transform: scaleY(.05); } to { transform: scaleY(1); } }
+@keyframes cG { from { color: #8be9ff; } to { color: #2fe05a; } }
+@keyframes cC { from { color: #2fe05a; } to { color: #8be9ff; } }
+@keyframes cR { from { color: #8be9ff; } to { color: #ff4d4d; } }
+@keyframes gather { from { transform: translate(var(--fx), var(--fy)) scale(1.9); } to { transform: translate(0, 0) scale(1); } }
+@keyframes spin { to { transform: rotate(1080deg); } }
+@keyframes growX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes bdBlink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+.ring { filter: drop-shadow(0 0 6px #ffe066); }
+.door { fill: currentColor; filter: drop-shadow(0 0 10px currentColor); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="title"></div>
+  <div id="stage"></div>
+  <div id="credit">Aj. NesT the Series</div>
+  <div id="nav"></div>
+</div>
+
+<script>
+/* ===== ค่ากลาง ===== */
+const C = { or: '#f28c28', bl: '#4aa8e8', gr: '#2fb24a', gr2: '#3ddc5f', rd: '#e03131', ink: '#1c2633', note: '#ffe066' };
+const P = { po: '#1f3a6e', g: '#2f9e44', y: '#f2c230', r: '#e8504f', sm: '#8e5bd0' };
+const FY = 520; // ระดับพื้นที่ทุกคนยืน — ระดับเดียวกันทุกบทบาท
+
+const PB = [['ระบบแจ้งเตือน', 8], ['หน้าค้นหา', 13], ['รายงานสรุป', 18], ['แชตช่วยเหลือ', 13], ['ล็อกอินมือถือ', 8],
+            ['ตะกร้าสินค้า', 21], ['ชำระเงินออนไลน์', 5], ['หน้าโปรไฟล์', 8], ['ส่งออก Excel', 3]];
+const pslot = i => [495, 100 + i * 49];            // แถว Product Backlog กลางเวที
+const cslot = i => [36, 112 + i * 49];             // Product Backlog ที่มุมจอ
+const bslot = j => [790, 296 - j * 49];            // ช่องในกล่อง capacity
+const slot = (c, i) => [612 + c * 213 + (i % 2) * 98, 142 + Math.floor(i / 2) * 52]; // ช่องบนบอร์ด
+
+/* ===== ตัวช่วยสร้างชิ้นส่วน ===== */
+function A(o) {
+  const v = [], a = [];
+  (o.p || []).forEach((s, i) => {
+    v.push(`--x${i}:${s[0]}px;--y${i}:${s[1]}px`);
+    if (i) a.push(`m${i} ${s[3] || 1.4}s ${s[4] || 'ease-in-out'} ${s[2]}s forwards`);
+  });
+  if (o.in != null) a.push(`fi ${o.ind || .8}s ease ${o.in}s both`);
+  if (o.out != null) a.push(`fo ${o.outd || .8}s ease ${o.out}s forwards`);
+  if (o.a) a.push(o.a);
+  return `class="mv" style="${v.join(';')}${o.s ? ';' + o.s : ''}${a.length ? ';animation:' + a.join(',') : ''}"`;
+}
+const an = a => a.length ? ` style="animation:${a.join(',')}"` : '';
+
+function person(col, p, o = {}) {
+  const ba = [], la = [], lb = [];
+  p.forEach((s, i) => {
+    if (!i) return;
+    const d = s[3] || 1.4, n = Math.max(2, Math.round(d / .5));
+    ba.push(`bob .5s ease-in-out ${s[2]}s ${n}`);
+    la.push(`swA .5s linear ${s[2]}s ${n}`);
+    lb.push(`swB .5s linear ${s[2]}s ${n}`);
+  });
+  (o.hop || []).forEach(t => ba.push(`hop .6s ease-out ${t}s 1`));
+  const folder = o.folder
+    ? `<rect x="-47" y="-98" width="30" height="40" rx="3" fill="${C.or}" stroke="#b8650f" stroke-width="2"/><rect x="-47" y="-98" width="13" height="6" fill="#b8650f"/>` : '';
+  return `<g ${A({ p, in: o.in, out: o.out })}><ellipse cx="0" cy="2" rx="32" ry="9" fill="rgba(0,0,0,.18)"/><g${an(ba)}>
+    <g transform="translate(-9,-54)"><rect x="-7" y="0" width="14" height="54" rx="6" fill="#27303c"${an(la)}/></g>
+    <g transform="translate(9,-54)"><rect x="-7" y="0" width="14" height="54" rx="6" fill="#27303c"${an(lb)}/></g>
+    <rect x="-36" y="-118" width="12" height="50" rx="6" fill="${col}"/><rect x="24" y="-118" width="12" height="50" rx="6" fill="${col}"/>
+    <rect x="-25" y="-122" width="50" height="74" rx="12" fill="${col}"/>
+    <circle cx="0" cy="-142" r="17" fill="#ecd3bd"/>${folder}</g></g>`;
+}
+
+function card(o) {
+  const w = o.w || 280, h = o.h || 44, tc = o.tc || C.ink;
+  const rs = o.re ? ` style="animation:${o.re.map(r => `${r[0]} .6s ease ${r[1]}s forwards`).join(',')}"` : '';
+  let t = '';
+  if (o.txt != null) t += o.pts != null
+    ? `<text x="12" y="${h / 2 + 10}" fill="${tc}">${o.txt}</text><text x="${w - 12}" y="${h / 2 + 10}" text-anchor="end" fill="${tc}">${o.pts}</text>`
+    : `<text x="${w / 2}" y="${h / 2 + 10}" text-anchor="middle" fill="${tc}">${o.txt}</text>`;
+  return `<g ${A(o)}><g${o.inner ? ` style="${o.inner}"` : ''}><rect width="${w}" height="${h}" rx="7" fill="${o.fill || C.or}" stroke="rgba(0,0,0,.28)" stroke-width="1.5"${rs}/>${t}</g></g>`;
+}
+const sc = (pts, o) => card(Object.assign({ w: 92, fill: C.bl, txt: pts }, o)); // การ์ดเล็กบนบอร์ด
+
+const floor = `<polygon points="140,400 800,781 800,795 140,414" fill="#aeb7c2"/><polygon points="1460,400 800,781 800,795 1460,414" fill="#9aa4b0"/><polygon points="800,19 1460,400 800,781 140,400" fill="#dde2e8"/>`;
+const legs = `<rect x="640" y="338" width="10" height="36" fill="#6b7785"/><rect x="1190" y="338" width="10" height="36" fill="#6b7785"/>`;
+const board = legs + `<rect x="600" y="80" width="640" height="265" rx="10" fill="#f6f8fa" stroke="#6b7785" stroke-width="4"/>
+  <line x1="813" y1="92" x2="813" y2="333" stroke="#c3cbd4" stroke-width="3"/><line x1="1026" y1="92" x2="1026" y2="333" stroke="#c3cbd4" stroke-width="3"/>
+  <line x1="612" y1="132" x2="1228" y2="132" stroke="#c3cbd4" stroke-width="3"/>
+  <text x="706" y="121" text-anchor="middle" fill="${C.ink}">To Do</text><text x="919" y="121" text-anchor="middle" fill="${C.ink}">In Progress</text><text x="1133" y="121" text-anchor="middle" fill="${C.ink}">Done</text>`;
+
+function ring(t, extra) {
+  const d = t == null ? '' : ` style="stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.4s ease-in-out ${t}s forwards"`;
+  return `<defs><mask id="rm" maskUnits="userSpaceOnUse" x="560" y="40" width="720" height="345"><rect x="588" y="68" width="664" height="289" rx="14" fill="none" stroke="#fff" stroke-width="16" pathLength="1"${d}/></mask></defs>
+  <rect class="ring" mask="url(#rm)" x="588" y="68" width="664" height="289" rx="14" fill="none" stroke="#ffe066" stroke-width="4" stroke-dasharray="16 10"${extra ? ` style="animation:${extra}"` : ''}/>`;
+}
+function lock(t) {
+  return `<g transform="translate(1252,68)"><g${t == null ? '' : ` style="animation:pop .8s cubic-bezier(.3,1.5,.5,1) ${t}s both"`}><circle r="24" fill="#ffe066" stroke="${C.ink}" stroke-width="3"/><rect x="-11" y="-4" width="22" height="17" rx="3" fill="${C.ink}"/><path d="M-7,-4 v-5 a7,7 0 0 1 14,0 v5" fill="none" stroke="${C.ink}" stroke-width="4"/></g></g>`;
+}
+function cube(a, c1 = '#249a3e', c2 = '#1d8434', c3 = '#46cf63', noTop) {
+  const w = +(a * .866).toFixed(1), h = a / 2;
+  return `<polygon points="0,0 ${-w},${-h} ${-w},${-h - a} 0,${-a}" fill="${c1}"/><polygon points="0,0 ${w},${-h} ${w},${-h - a} 0,${-a}" fill="${c2}"/>` +
+    (noTop ? '' : `<polygon points="0,${-a} ${-w},${-h - a} 0,${-2 * h - a} ${w},${-h - a}" fill="${c3}"/>`);
+}
+
+const tag = (x, y, html, t, cls = '') => `<div class="tag ${cls}" style="left:${x}px;top:${y}px${t == null ? '' : `;animation:rise .9s ease ${t}s both`}">${html}</div>`;
+function caps(list) {
+  return list.map((c, i) => {
+    const a = [`capIn .9s ease ${c[0]}s both`];
+    if (list[i + 1]) a.push(`${c[2] ? 'capUpK' : 'capUp'} .9s ease ${list[i + 1][0]}s forwards`);
+    if (list[i + 2]) a.push(`capOut .9s ease ${list[i + 2][0]}s forwards`);
+    return `<div class="cap" style="animation:${a.join(',')}">${c[1]}</div>`;
+  }).join('');
+}
+const S = (svg, html = '') => `<svg class="main" viewBox="0 0 1600 800">${floor}${svg}</svg>${html}`;
+const crew = () => person(P.po, [[440, FY]], { folder: 1 }) + person(P.g, [[820, FY]]) + person(P.y, [[920, FY]]) + person(P.r, [[1020, FY]]) + person(P.sm, [[1190, FY]]);
+const sbTag = tag(920, 22, 'Sprint Backlog'), pbTag = tag(176, 58, 'Product Backlog');
+const cornerPB = (extra = () => ({})) => [5, 6, 7, 8].map((k, i) => card(Object.assign({ txt: PB[k][0], p: [cslot(i)], s: 'opacity:.5' }, extra(i)))).join('');
+
+/* ===== 10 ฉาก ===== */
+const SCENES = [
+
+/* 1 */ { name: 'ตัวละคร 3 บทบาท', build: () => S(
+  person(P.po, [[-120, FY], [440, FY, .5, 3]], { folder: 1 }) +
+  person(P.g, [[1700, FY], [820, FY, 5.5, 3]]) + person(P.y, [[1800, FY], [920, FY, 5.7, 3]]) + person(P.r, [[1900, FY], [1020, FY, 5.9, 3]]) +
+  person(P.sm, [[1760, FY], [1190, FY, 10.8, 2.6]]) +
+  `<line x1="920" y1="240" x2="920" y2="336" stroke="${C.ink}" stroke-width="3" stroke-dasharray="6 6" style="animation:fi .8s ease 9.4s both"/>`,
+  tag(440, 238, `<span class="chip" style="background:${P.po}">Product Owner</span><br>ตัดสินว่าอะไรสำคัญก่อนหลัง`, 3.6, 'two') +
+  tag(920, 140, `<span class="chip" style="background:${P.g}">Developers</span><br>ตัดสินว่ารับงานได้เท่าไหร่ และลงมือทำ`, 9, 'two') +
+  tag(1250, 238, `<span class="chip" style="background:${P.sm}">Scrum Master</span><br>ทำให้ทีมทำงานได้ ไม่ใช่สั่งว่าให้ทำอะไร`, 13.5, 'two') +
+  caps([[16, '3 บทบาท ไม่ใช่ 3 ตำแหน่ง — คนเดียวอาจทำได้หลายบทบาท']])) },
+
+/* 2 */ { name: 'Product Backlog', build: () => {
+  const from = [[-320, 100], [700, -80], [1700, 150], [1700, 620], [900, 860], [-320, 650], [200, -80], [1300, -80]];
+  const pile = [[450, 130], [560, 150], [480, 180], [590, 205], [455, 230], [540, 255], [470, 275], [585, 298]];
+  const rot = [-14, 9, -6, 16, 11, -10, 5, -17];
+  const txt = PB.filter((_, i) => i !== 3).map(x => x[0]);
+  let cards = '';
+  txt.forEach((t, i) => {
+    const p = [from[i], [pile[i][0], pile[i][1], .5 + i * .45, 1.7, 'ease-out'], [...pslot(i), 7 + i * .42, 1.1]];
+    if (i >= 3) p.push([...pslot(i + 1), 12.4, 1.1]);
+    cards += card({ txt: t, p, inner: `rotate:${rot[i]}deg;animation:unrot 1s ease ${7 + i * .42}s forwards` });
+  });
+  cards += card({ txt: PB[3][0], p: [[1700, 247], [830, 247, 11.6, 1.6, 'ease-out'], [...pslot(3), 13.4, 1.3]] });
+  return S(
+    person(P.po, [[440, FY], [468, FY, 6, .8], [440, FY, 11, .8]], { folder: 1, hop: [7.4, 8.6, 9.8] }) +
+    person(P.g, [[820, FY]]) + person(P.y, [[920, FY]]) + person(P.r, [[1020, FY]]) + person(P.sm, [[1190, FY]]) + cards,
+    tag(635, 46, 'Product Backlog', 15.4) +
+    caps([[2.5, 'ความต้องการเข้ามาจากทุกทิศ'], [7.2, 'Product Owner เรียงลำดับ — บนสุดคือสำคัญที่สุด'], [13.6, 'Product Backlog เปลี่ยนได้ตลอดเวลา ไม่มีวันปิด']]));
+} },
+
+/* 3 */ { name: 'Sprint Planning', build: () => {
+  let cards = '';
+  PB.forEach((c, i) => {
+    const o = { txt: c[0], pts: c[1], p: [pslot(i)] };
+    if (i < 5) { const t = 3.5 + i * 1.5; o.p.push([...bslot(i), t, 1.2]); o.re = [['toBlue', t + .9]]; o.inner = 'animation:shake .3s ease-in-out 13.8s 4'; }
+    if (i === 5) { o.p.push([790, 50, 12, 1.8], [...pslot(5), 15.2, 2.6]); o.inner = 'animation:shake .3s ease-in-out 13.8s 4'; }
+    cards += card(o);
+  });
+  const cv = (v, a, b, col = '#fff') => `<span style="color:${col};animation:fi .3s ease ${a}s both${b ? `,fo .3s ease ${b}s forwards` : ''}">${v}</span>`;
+  return S(
+    person(P.po, [[440, FY]], { folder: 1 }) +
+    person(P.g, [[820, FY]], { hop: [3.5, 8, 15.2] }) + person(P.y, [[920, FY]], { hop: [5, 9.5] }) + person(P.r, [[1020, FY]], { hop: [6.5, 12] }) + person(P.sm, [[1190, FY]]) +
+    `<g ${A({ p: [[900, 0], [0, 0, .5, 1.4]] })}><g style="animation:shake .3s ease-in-out 13.8s 4">
+      <path d="M780,42 V344 H1080 V42" fill="rgba(255,255,255,.28)" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+      <line x1="780" y1="97" x2="1080" y2="97" stroke="#fff" stroke-width="6" style="animation:lnG .5s ease 10.7s forwards,lnR .4s ease 13.8s forwards,lnG2 .6s ease 17.6s forwards"/>
+      <text x="1092" y="107" fill="#fff">60</text></g></g>` + cards,
+    `<div class="cnt" style="left:1105px;top:140px">${cv(0, 1.6, 4.7)}${cv(8, 4.7, 6.2)}${cv(21, 6.2, 7.7)}${cv(39, 7.7, 9.2)}${cv(52, 9.2, 10.7)}${cv(60, 10.7, 13.8, '#2fe05a')}${cv(81, 13.8, 17.6, '#ff6b6b')}${cv(60, 17.6, 0, '#2fe05a')}</div>
+     <div class="plain" style="left:1108px;top:232px;animation:fi .8s ease 1.6s both">คะแนน</div>` +
+    tag(930, 0, 'Sprint Goal', 18.2, 'flag') +
+    caps([[1.6, 'ทีมทำได้ 60 คะแนนต่อรอบ — นี่คือเพดาน'], [4.2, 'Developers เป็นคนหยิบ ไม่ใช่คนอื่นยัดให้'], [14, 'เกิน capacity = วางกลับ ไม่ใช่ยัดเข้าไป'], [18.6, 'Sprint Goal — ประโยคเดียวที่บอกว่ารอบนี้ทำไปเพื่ออะไร']]));
+} },
+
+/* 4 */ { name: 'Sprint Backlog ล็อก', build: () => {
+  let cards = '';
+  for (let k = 0; k < 5; k++) {
+    const j = 4 - k, t = 2.8 + k * .6, b = bslot(j), s = slot(0, j);
+    cards += card({ txt: PB[j][0], pts: PB[j][1], fill: C.bl, p: [b, [s[0] - 94, s[1], t, 1.3]], out: t + .1, outd: .7 });
+    cards += sc(PB[j][1], { p: [[b[0] + 94, b[1]], [...s, t, 1.3]], in: t + .2, ind: .7 });
+  }
+  const left = [5, 6, 7, 8].map((k, i) => card({ txt: PB[k][0], pts: PB[k][1], p: [pslot(k), [...cslot(i), 12, 1.8]], a: 'dim 1.8s ease 12s forwards' })).join('');
+  return S(
+    `<g ${A({ p: [[0, -420], [0, 0, .3, 1.3]] })}>${board}</g>` + crew() + left +
+    `<g transform="translate(780,344)"><g style="animation:tilt 1s ease-in-out 1.7s forwards,fo .9s ease 6s forwards">
+      <path d="M0,-302 V0 H300 V-302" fill="rgba(255,255,255,.28)" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+      <line x1="0" y1="-247" x2="300" y2="-247" stroke="#2fe05a" stroke-width="6"/></g></g>` + cards + ring(7.6) + lock(10),
+    tag(920, 22, 'Sprint Backlog', 10.3) + tag(176, 58, 'Product Backlog', 14.2) +
+    caps([[8, 'Sprint Backlog ล็อกแล้ว — ของในนี้ไม่เปลี่ยนจนจบรอบ'], [12.6, 'ของที่ไม่ได้เข้ารอบนี้ ไม่ได้ถูกทิ้ง — รออยู่ใน Product Backlog']]));
+} },
+
+/* 5 */ { name: 'Daily Scrum', build: () => S(
+  board + ring() + lock() + cornerPB() +
+  sc(13, { p: [slot(0, 0), [...slot(1, 1), 5, 1.2]] }) +
+  sc(18, { p: [slot(0, 1), [...slot(1, 2), 5.8, 1.2]], inner: 'animation:shake .3s ease-in-out 9.5s 7' }) +
+  sc(13, { p: [slot(0, 2)] }) + sc(8, { p: [slot(0, 3)] }) +
+  sc(8, { p: [slot(1, 0), [...slot(2, 0), 7.2, 1.2]], re: [['toGreen', 8.1]] }) +
+  `<ellipse cx="920" cy="535" rx="104" ry="40" fill="none" stroke="#6b7785" stroke-width="4" stroke-dasharray="10 8" style="animation:fi .8s ease 2.2s both,fo .8s ease 16.4s forwards"/>` +
+  person(P.po, [[440, FY]], { folder: 1 }) +
+  person(P.g, [[820, FY], [850, 500, .6, 1.6], [820, FY, 16.6, 1.4]], { hop: [5] }) +
+  person(P.r, [[1020, FY], [990, 500, .6, 1.6], [1020, FY, 16.6, 1.4]], { hop: [7.2] }) +
+  person(P.y, [[920, FY], [920, 566, .6, 1.6], [920, FY, 16.6, 1.4]], { hop: [5.8] }) +
+  person(P.sm, [[1190, FY], [1100, FY, 10.3, 1.1], [1760, FY, 12.7, 2.2], [1190, FY, 15.4, 1.8]]) +
+  `<g ${A({ p: [[912, 196], [1128, 425, 11.6, 1], [1788, 425, 12.7, 2.2]], in: 9.5, ind: .5 })}><path d="M-17,2 q-2,-15 10,-17 q9,-6 17,2 q11,4 6,15 q-2,10 -15,10 q-14,2 -18,-10z" fill="${C.rd}" stroke="#8f1717" stroke-width="2"/></g>`,
+  sbTag + pbTag +
+  `<div class="tag timer" style="left:460px;top:112px;animation:rise .9s ease 2.4s both,tred .5s ease 16s forwards"><span class="tm" style="animation:mins 13s steps(15,jump-start) 3s forwards,secs .86667s steps(4,jump-start) 3s 15 forwards"></span></div>` +
+  caps([[2.6, 'Daily Scrum — 15 นาที ทุกวัน เวลาเดิม ที่เดิม'], [5.3, 'วันนี้ทำอะไร ติดอะไร พรุ่งนี้จะทำอะไร'], [10.8, 'Scrum Master เอาอุปสรรคออก — ไม่ใช่สั่งงาน ไม่ใช่รับรายงาน'], [16.4, 'เป็นการประชุมของ Developers — ไม่ใช่การรายงานหัวหน้า']])) },
+
+/* 6 */ { name: 'งานแทรกระหว่าง Sprint', build: () => {
+  const mc = (x, y, fill, o = {}) => `<g ${A(Object.assign({ p: [[x, y]] }, o))}><rect width="64" height="40" rx="6" fill="${fill}" stroke="rgba(0,0,0,.28)" stroke-width="1.5"/></g>`;
+  const mini = `<rect x="90" y="4" width="160" height="116" rx="8" fill="#f6f8fa"/><rect x="90" y="4" width="160" height="116" rx="8" fill="none" stroke="#ffe066" stroke-width="4" stroke-dasharray="10 7"/>`;
+  return S(
+    board + ring(null, 'flash .5s ease 1.8s 3') + lock() +
+    cornerPB(i => ({ p: [cslot(i), [...cslot(i + 1), 10.6, .9]], a: 'undim 1s ease 10.6s forwards' })) +
+    sc(13, { p: [slot(0, 0)] }) + sc(8, { p: [slot(0, 1)] }) + sc(13, { p: [slot(1, 0)] }) + sc(18, { p: [slot(1, 2)] }) + sc(8, { p: [slot(2, 0)], fill: C.gr2 }) +
+    person(P.po, [[440, FY], [400, FY, 10.6, .6], [440, FY, 12.3, .6]], { folder: 1, hop: [9.9] }) +
+    person(P.g, [[820, FY]]) + person(P.y, [[920, FY]]) + person(P.r, [[1020, FY]]) + person(P.sm, [[1190, FY]]) +
+    [0, 1, 2].map(k => `<g transform="translate(1252,222)"><circle r="30" fill="none" stroke="#ffe066" stroke-width="4" style="opacity:0;animation:ripple 2s ease-out ${1.8 + k * .45}s both"/></g>`).join('') +
+    card({ w: 200, fill: C.rd, tc: '#fff', txt: 'ด่วนมาก', p: [[1700, 200], [1256, 200, .6, 1.2, 'cubic-bezier(.5,0,.9,.6)'], [1380, 200, 2, 3.2, 'cubic-bezier(.1,.6,.3,1)'],
+      [1330, 590, 6.3, 1.4], [470, 590, 7.7, 1.8], [340, 290, 9.5, .9], [...cslot(0), 10.9, 1.3]] }),
+    sbTag + pbTag +
+    `<div class="panel" style="left:12px;top:380px;width:372px;animation:rise .9s ease 12.8s both"><div class="ph"><span class="no">1</span>แลก 1 ต่อ 1</div>
+      <svg viewBox="0 0 340 150" width="340" height="150">${mini}${mc(100, 14, C.bl)}${mc(176, 14, C.bl)}${mc(176, 68, C.bl)}
+      ${mc(100, 68, C.bl, { p: [[100, 68], [8, 104, 13.9, 1.6]] })}${mc(268, 68, C.rd, { p: [[268, 68], [100, 68, 15.8, 1.6]] })}</svg>
+      <div style="animation:fi .8s ease 15.6s both">เอาออก 1 ใบก่อน<br>แล้วจึงเข้าได้ 1 ใบ</div></div>
+     <div class="panel" style="left:1226px;top:380px;width:360px;animation:rise .9s ease 12.8s both"><div class="ph"><span class="no">2</span>ยกเลิก Sprint</div>
+      <svg viewBox="0 0 340 124" width="340" height="124">${mini}<g style="animation:dim2 .8s ease 14.8s forwards">${mc(100, 14, C.bl)}${mc(176, 14, C.bl)}${mc(100, 68, C.bl)}${mc(176, 68, C.bl)}</g>
+      <path d="M104,14 L236,110 M236,14 L104,110" stroke="${C.rd}" stroke-width="10" stroke-linecap="round" style="animation:fi .7s ease 14.9s both"/></svg>
+      <div style="animation:fi .8s ease 15.6s both">ถ้า Sprint Goal ใช้ไม่ได้แล้ว Product Owner ยกเลิกได้</div></div>` +
+    caps([[2.6, 'Sprint Backlog ล็อกแล้ว — งานใหม่เข้าไม่ได้'], [10.4, 'งานด่วนไม่ได้หาย — เข้าคิวรอบหน้า และได้อยู่บนสุด'], [17.6, 'ไม่มีทางที่สาม — ยัดเพิ่มโดยไม่เอาอะไรออก ไม่ใช่ตัวเลือก']]));
+} },
+
+/* ฉากใหม่ (แทรกเป็นฉากที่ 7) */ { name: 'ติดตาม Burndown', build: () => {
+  const X = d => 540 + (d - 1) * 64, Y = v => +(320 - v / 60 * 230).toFixed(1);
+  const pts = [60, 60, 52, 52, 52, 39, 39, 26, 13, 0];           // คะแนนที่เหลือ วันที่ 1..10
+  // เส้นจริง: เดินแนวนอนก่อน แล้วค่อยดิ่งลง — เก็บระยะสะสมไว้จับจังหวะให้จุดวงกลมโผล่พร้อมปลายเส้น
+  let d = `M${X(1)},${Y(pts[0])}`, len = 0, dots = '';
+  const total = (X(10) - X(1)) + (Y(0) - Y(60)), T0 = 7, DUR = 6;
+  for (let i = 1; i < 10; i++) {
+    d += ` H${X(i + 1)}`; len += 64;
+    if (pts[i] !== pts[i - 1]) {
+      d += ` V${Y(pts[i])}`; len += Y(pts[i]) - Y(pts[i - 1]);
+      dots += `<circle cx="${X(i + 1)}" cy="${Y(pts[i])}" r="8" fill="${C.bl}" stroke="${C.ink}" stroke-width="2.5" style="animation:fi .4s ease ${(T0 + DUR * len / total).toFixed(2)}s both"/>`;
+    }
+  }
+  const yTicks = [60, 45, 30, 15, 0].map((v, i) => `<g style="animation:fi .5s ease ${1.9 + i * .15}s both"><line x1="532" y1="${Y(v)}" x2="540" y2="${Y(v)}" stroke="${C.ink}" stroke-width="3"/><text x="526" y="${Y(v) + 10}" text-anchor="end" fill="${C.ink}">${v}</text></g>`).join('');
+  const xTicks = pts.map((_, i) => `<g style="animation:fi .5s ease ${(2.1 + i * .09).toFixed(2)}s both"><line x1="${X(i + 1)}" y1="320" x2="${X(i + 1)}" y2="328" stroke="${C.ink}" stroke-width="3"/><text x="${X(i + 1)}" y="358" text-anchor="middle" fill="${C.ink}">${i + 1}</text></g>`).join('');
+  const drawn = (t, dur, ease = 'ease-in-out') => `pathLength="1" style="stroke-dasharray:1;stroke-dashoffset:1;animation:draw ${dur}s ${ease} ${t}s forwards"`;
+  return S(
+    `<g ${A({ p: [[0, 760], [0, 0, .5, 1.2]] })}><rect x="450" y="60" width="700" height="330" rx="10" fill="#f6f8fa" stroke="#6b7785" stroke-width="4"/></g>` +
+    `<path d="M540,320 V78" fill="none" stroke="${C.ink}" stroke-width="4" stroke-linecap="round" ${drawn(1.7, 1)}/>` +
+    `<path d="M540,320 H1132" fill="none" stroke="${C.ink}" stroke-width="4" stroke-linecap="round" ${drawn(1.7, 1)}/>` + yTicks + xTicks +
+    // แถบช่วงแบนราบ วันที่ 3–5
+    `<g style="animation:fi .8s ease 14s both"><rect x="${X(3)}" y="${Y(60)}" width="${X(5) - X(3)}" height="230" fill="${C.note}" fill-opacity=".55" style="animation:bdBlink .8s ease-in-out 14.9s 2"/></g>` +
+    `<g style="animation:fi .8s ease 14.4s both"><line x1="${X(4)}" y1="50" x2="${X(4)}" y2="78" stroke="${C.note}" stroke-width="5"/><polygon points="${X(4) - 11},74 ${X(4) + 11},74 ${X(4)},92" fill="${C.note}"/></g>` +
+    // เส้นอุดมคติ: เส้นประ ลากด้วย mask แบบเดียวกับ ring()
+    `<defs><mask id="bm" maskUnits="userSpaceOnUse" x="450" y="60" width="700" height="330"><line x1="${X(1)}" y1="${Y(60)}" x2="${X(10)}" y2="${Y(0)}" stroke="#fff" stroke-width="12" ${drawn(3.5, 2.5)}/></mask></defs>` +
+    `<line mask="url(#bm)" x1="${X(1)}" y1="${Y(60)}" x2="${X(10)}" y2="${Y(0)}" stroke="#8a94a1" stroke-width="4" stroke-dasharray="14 10"/>` +
+    // เส้นจริง: ขั้นบันได
+    `<path d="${d}" fill="none" stroke="${C.bl}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" ${drawn(T0, DUR, 'linear')}/>` + dots +
+    // Developers ย่อครึ่ง + กากบาท
+    `<g transform="translate(1310,300) scale(.5)">${person(P.g, [[-80, 0]], { in: 18 })}${person(P.y, [[0, 0]], { in: 18.3 })}${person(P.r, [[80, 0]], { in: 18.6 })}</g>` +
+    `<path d="M1236,206 L1384,318 M1384,206 L1236,318" fill="none" stroke="${C.rd}" stroke-width="13" stroke-linecap="round" style="animation:fi .7s ease 19.6s both"/>`,
+    tag(440, 180, 'คะแนนที่เหลือ', 2.5, 'tr') + tag(800, 398, 'วันใน Sprint', 2.7) +
+    tag(672, 236, 'เส้นอุดมคติ', 5.2) + tag(1050, 118, 'เส้นจริง', 12.2) +
+    tag(X(4), 6, 'แบนราบ 3 วัน = มีอะไรติดอยู่ ไม่ใช่ทีมขี้เกียจ', 14.4) +
+    caps([[4.2, 'เส้นประ = ถ้าทุกอย่างเป็นไปตามแผนพอดี'], [8, 'เส้นจริงเป็นขั้นบันได — ลดเมื่องานเสร็จ ไม่ใช่ลดทุกวัน'], [11.2, 'เพราะงานที่ทำไปครึ่งหนึ่ง ยังไม่นับว่าเสร็จ'],
+      [19.2, 'Burndown บอกสถานะของงาน ไม่ได้บอกว่าใครทำน้อย'], [21.5, 'ถ้าเอาไปวัดคน ทีมจะรายงานให้กราฟสวย แทนที่จะบอกความจริง']]));
+} },
+
+/* 7 */ { name: 'Definition of Done', build: () => {
+  const colAn = 'cG .4s ease 7.1s forwards,cC .5s ease 9.6s forwards,cR .5s ease 14s forwards';
+  const ok = (t, out) => `<svg viewBox="0 0 30 30" style="animation:fi .35s ease ${t}s both${out ? `,fo .4s ease ${out}s forwards` : ''}"><path d="M5,16 l7,7 l13,-16" stroke="#2fe05a" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`;
+  const no = t => `<svg viewBox="0 0 30 30" style="animation:fi .35s ease ${t}s both"><path d="M6,6 L24,24 M24,6 L6,24" stroke="#ff4d4d" stroke-width="5" stroke-linecap="round"/></svg>`;
+  const items = ['ทดสอบแล้ว', 'รีวิวโค้ดแล้ว', 'เขียนคู่มือแล้ว', 'ขึ้นระบบจริงได้'];
+  return S(
+    board + ring() + lock() + cornerPB() +
+    sc(13, { p: [slot(0, 0)] }) + sc(8, { p: [slot(0, 1)] }) + sc(8, { p: [slot(2, 0)], fill: C.gr2 }) +
+    sc(13, { p: [slot(1, 0), [921, 142, 3.5, 1.2], [...slot(2, 1), 8, 1.3]], re: [['toGreen', 9]] }) +
+    sc(18, { p: [slot(1, 2), [921, 194, 10.2, 1.2], [931, 194, 14, .4], [806, 194, 14.5, 2, 'cubic-bezier(.1,.7,.3,1)'], [...slot(1, 2), 16.5, .7]] }) +
+    `<g transform="translate(1026,340)"><g style="animation:shake .3s ease-in-out 14.4s 3"><rect class="door" x="-7" y="-222" width="14" height="222" rx="7"
+      style="color:#8be9ff;animation:doorUp 1.2s ease .5s both,dOpen .7s ease 7.4s forwards,dClose .7s ease 9.4s forwards,${colAn}"/></g></g>` + crew(),
+    sbTag + pbTag +
+    `<div class="sign" style="left:1262px;top:74px;animation:rise .9s ease .8s both,${colAn}"><div class="sh">Definition of Done</div>` +
+    items.map((s, i) => `<div class="row" style="animation:fi .6s ease ${1.6 + i * .4}s both"><span class="bx">${ok(5 + i * .6, 9.6)}${i < 3 ? ok(11.6 + i * .6) : no(13.6)}</span>${s}</div>`).join('') + `</div>` +
+    caps([[14.6, 'เกือบเสร็จ = ยังไม่เสร็จ'], [17, 'Definition of Done คือข้อตกลงของทีมว่าคำว่าเสร็จแปลว่าอะไร', 1], [18.6, 'ถ้าไม่มี แต่ละคนจะแปลคำว่าเสร็จไม่เหมือนกัน']]));
+} },
+
+/* 8 */ { name: 'Sprint Review', build: () => {
+  const says = ['ตรงนี้ขอเพิ่ม', 'อันนี้ใช้ยาก', 'อยากได้แบบนี้อีก'];
+  const shirts = ['#7d8794', '#5f6975', '#9aa3ae'];
+  return S(
+    board + ring() + lock() + cornerPB(() => ({ a: 'undim 1s ease 12.3s forwards' })) +
+    [8, 13, 13, 8].map((v, i) => sc(v, { fill: C.gr2, p: [slot(2, i), [939, 430, .6 + i * .3, 1.6]], out: 1.8 + i * .3 })).join('') +
+    person(P.po, [[440, FY]], { folder: 1 }) + person(P.sm, [[560, FY]]) +
+    person(P.g, [[700, FY]]) + person(P.y, [[790, FY]]) + person(P.r, [[880, FY]], { hop: [7.1] }) +
+    `<g transform="translate(985,520)"><g style="animation:pop .9s cubic-bezier(.3,1.4,.5,1) 2.4s both">${cube(56, '#249a3e', '#1d8434', '', 1)}
+      <polygon points="0,-56 -48.5,-84 0,-112 48.5,-84" fill="#14561f"/><ellipse cx="0" cy="-84" rx="26" ry="12" fill="#fff3a6" style="animation:fi .8s ease 7.4s both"/>
+      <g ${A({ p: [[0, 0], [0, -34, 7.2, 1]] })}><polygon points="0,-56 -48.5,-84 0,-112 48.5,-84" fill="#46cf63"/></g></g></g>` +
+    shirts.map((c, k) => person(c, [[1700 + k * 70, FY], [1095 + k * 70, FY, 4.5 + k * .3, 2.2]])).join('') +
+    says.map((s, k) => `<g ${A({ p: [[1262, 96 + k * 74]], in: 8.5 + k * .8, out: 11.5 })}><polygon points="40,46 62,46 36,72" fill="#fff"/><rect width="270" height="52" rx="26" fill="#fff"/><text x="135" y="36" text-anchor="middle" fill="${C.ink}">${s}</text></g>`).join('') +
+    says.map((s, k) => card({ txt: s, in: 11.6, p: [[1262, 100 + k * 74], [660, 24, 12.6 + k * .5, 1.2, 'ease-in'], [...cslot(4 + k), 13.8 + k * .5, 1.3, 'ease-out']] })).join('') +
+    sc(18, { p: [slot(1, 0), [...cslot(7), 15.6, 1.9]], re: [['toOrange', 17.2]] }),
+    sbTag + pbTag + tag(985, 536, 'Increment', 2.9) + tag(1185, 536, 'Stakeholders', 6.8) +
+    caps([[3.2, 'Increment — ของที่ใช้งานได้จริง ไม่ใช่รายงานความคืบหน้า'], [13.2, 'เสียงจากผู้ใช้กลายเป็นงานรอบหน้า — วงจรปิดตรงนี้'], [16.2, 'งานที่ไม่เสร็จ กลับไปเข้าคิว ไม่ใช่ลากต่อเงียบ ๆ']]));
+} },
+
+/* 9 */ { name: 'Sprint Retrospective', build: () => {
+  const plus = ['ช่วยกันดี', 'รีวิวไว', 'เป้าชัด'], delta = ['งานแทรกบ่อย', 'DoD ไม่ชัด', 'ประชุมยาว'];
+  const note = (t, x, y, o) => card(Object.assign({ w: 200, h: 48, fill: C.note, txt: t, p: [[x, y]] }, o));
+  const act = (x, t, l1, l2) => `<g ${A({ p: [[x, 590]], in: t })}><rect width="400" height="84" rx="8" fill="${C.note}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/><rect width="12" height="84" rx="4" fill="${C.ink}"/>
+    <text x="26" y="34" fill="${C.ink}">${l1}</text><text x="26" y="72" fill="${C.ink}" style="font-weight:400">${l2}</text></g>`;
+  const back = ['ตะกร้าสินค้า', 'ชำระเงินออนไลน์', 'หน้าโปรไฟล์', 'ส่งออก Excel', 'ตรงนี้ขอเพิ่ม', 'อันนี้ใช้ยาก', 'อยากได้แบบนี้อีก', 'รายงานสรุป'];
+  return S(
+    `<g ${A({ p: [[0, 0], [0, -440, .5, 1.3]] })}>${board}</g>` +
+    `<g ${A({ p: [[0, -440], [0, 0, 1.3, 1.4]] })}>${legs}<rect x="600" y="80" width="640" height="265" rx="10" fill="#f6f8fa" stroke="#6b7785" stroke-width="4"/>
+      <line x1="920" y1="92" x2="920" y2="333" stroke="#c3cbd4" stroke-width="3"/>
+      <text x="760" y="128" text-anchor="middle" fill="${C.ink}" style="font-size:44px">+</text><text x="1080" y="126" text-anchor="middle" fill="${C.ink}" style="font-size:40px">Δ</text></g>` +
+    back.map((t, i) => card({ txt: t, p: [cslot(i)], s: 'opacity:.5' })).join('') +
+    plus.map((t, i) => note(t, 660, 142 + i * 56, { in: 5.5 + i * .7 })).join('') +
+    note(delta[2], 980, 254, { in: 9.9 }) +
+    person(P.po, [[440, FY], [730, FY, 3, 1.6]], { folder: 1, hop: [9.2] }) +
+    person(P.g, [[820, FY]], { hop: [5.5] }) + person(P.y, [[920, FY]], { hop: [6.2, 9.9] }) + person(P.r, [[1020, FY]], { hop: [6.9] }) +
+    person(P.sm, [[1190, FY], [1110, FY, 3, 1.2]], { hop: [8.5] }) +
+    act(500, 12.9, 'ส่งงานแทรกผ่าน PO ทุกครั้ง', 'ผู้รับผิดชอบ: ก้อง') + act(940, 13.7, 'เขียน DoD ติดไว้ที่บอร์ด', 'ผู้รับผิดชอบ: มายด์') +
+    note(delta[0], 980, 142, { in: 8.5, p: [[980, 142], [600, 608, 11.6, 1.5]], out: 12.7 }) +
+    note(delta[1], 980, 198, { in: 9.2, p: [[980, 198], [1040, 608, 12.4, 1.5]], out: 13.5 }),
+    pbTag + tag(920, 540, 'สิ่งที่จะทำรอบหน้า', 11.4) +
+    caps([[2.2, 'รอบที่แล้ว เราทำงานกันอย่างไร — ไม่ใช่เราทำอะไรเสร็จบ้าง'], [6, 'เรื่องที่ดีขึ้นก่อน แล้วค่อยเรื่องที่ต้องปรับ'], [13.4, 'ต้องกลายเป็นการกระทำที่มีคนรับผิดชอบ'], [16.8, 'Retrospective ที่จบแค่บันทึกการประชุม คือประชุมที่เสียเวลาเปล่า']]));
+} },
+
+/* 10 */ { name: 'ครบหนึ่งรอบ แล้วเริ่มใหม่', build: () => {
+  const cx = 800, cy = 330, R = 210, ink = C.ink;
+  const icons = [
+    `<rect x="-22" y="-19" width="44" height="10" rx="2" fill="${C.or}"/><rect x="-22" y="-5" width="44" height="10" rx="2" fill="${C.or}"/><rect x="-22" y="9" width="44" height="10" rx="2" fill="${C.or}"/>`,
+    `<rect x="-13" y="2" width="26" height="14" rx="2" fill="${C.bl}"/><path d="M-19,-20 V20 H19 V-20" fill="none" stroke="${ink}" stroke-width="4"/><line x1="-19" y1="-9" x2="19" y2="-9" stroke="${C.gr}" stroke-width="4"/>`,
+    `<rect x="-17" y="-13" width="15" height="11" rx="2" fill="${C.bl}"/><rect x="2" y="-13" width="15" height="11" rx="2" fill="${C.bl}"/><rect x="-17" y="2" width="15" height="11" rx="2" fill="${C.bl}"/><rect x="-24" y="-20" width="48" height="40" rx="5" fill="none" stroke="#c99a00" stroke-width="3" stroke-dasharray="6 4"/>`,
+    `<circle r="20" fill="none" stroke="${ink}" stroke-width="3" stroke-dasharray="5 4"/><circle cx="0" cy="-10" r="7" fill="${P.g}"/><circle cx="-10" cy="8" r="7" fill="${P.y}"/><circle cx="10" cy="8" r="7" fill="${P.r}"/>`,
+    `<g transform="translate(0,22)">${cube(22)}</g>`,
+    `<polygon points="-8,6 4,6 -12,22" fill="${ink}"/><rect x="-22" y="-18" width="44" height="28" rx="10" fill="${ink}"/><circle cx="-10" cy="-4" r="3" fill="#fff"/><circle cx="0" cy="-4" r="3" fill="#fff"/><circle cx="10" cy="-4" r="3" fill="#fff"/>`,
+    `<text x="0" y="10" text-anchor="middle" fill="${ink}">+Δ</text>`];
+  const names = ['Product Backlog', 'Sprint Planning', 'Sprint Backlog', 'Daily Scrum', 'Increment', 'Sprint Review', 'Retrospective'];
+  const from = [[190, 230], [1000, 190], [690, 250], [930, 520], [1180, 480], [1300, 240], [430, 500]];
+  const lab = [[800, 30, ''], [1014, 178, 'tl'], [1055, 356, 'tl'], [941, 512, 'tl'], [659, 512, 'tr'], [545, 356, 'tr'], [586, 178, 'tr']];
+  let nodes = '', tags = '';
+  names.forEach((n, k) => {
+    const a = (-90 + k * 360 / 7) * Math.PI / 180, x = Math.round(cx + R * Math.cos(a)), y = Math.round(cy + R * Math.sin(a));
+    nodes += `<g transform="translate(${x},${y})"><g style="--fx:${from[k][0] - x}px;--fy:${from[k][1] - y}px;animation:gather 2s ease-in-out .5s both"><circle r="38" fill="#fff" stroke="${ink}" stroke-width="4"/>${icons[k]}</g></g>`;
+    tags += tag(lab[k][0], lab[k][1], n, 2.4 + k * .08, lab[k][2]);
+  });
+  const boxes = [[420, 4.8], [376, 8.3], [332, 11.8]].map(b => `<g ${A({ p: [[800, b[0] - 70], [800, b[0], b[1], .9, 'ease-out']], in: b[1], ind: .5 })}>${cube(44)}</g>`).join('');
+  const bar = [0, 1, 2].map(k => { const t = 2.8 + k * 3.5; return `<g transform="translate(${500 + k * 200},578)"><rect width="196" height="40" rx="6" fill="#4b5868" style="animation:growX 3.5s linear ${t}s both"/><text x="98" y="30" text-anchor="middle" fill="#fff" style="animation:fi .6s ease ${t + .4}s both">Sprint ${k + 1}</text></g>`; }).join('');
+  const cl = (t, html, c = '') => `<div class="${c}" style="animation:rise .9s ease ${t}s both">${html}</div>`;
+  return S(
+    `<circle cx="${cx}" cy="${cy}" r="${R}" transform="rotate(-90 ${cx} ${cy})" fill="none" stroke="#4b5868" stroke-width="7" pathLength="1" style="stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.2s ease-in-out 1.6s forwards"/>` +
+    boxes + nodes + bar +
+    `<g transform="translate(${cx},${cy})"><g style="animation:fi .4s ease 2.5s both,fo .6s ease 13.3s forwards"><g style="animation:spin 10.5s linear 2.8s forwards"><path d="M-16,-232 L20,-210 L-16,-188 Z" fill="#ffe066" stroke="${ink}" stroke-width="4" stroke-linejoin="round"/></g></g></g>`,
+    tags +
+    `<div class="cap" style="animation:capIn .9s ease 6.5s both,capUp .9s ease 10s forwards,capOut .8s ease 13.1s forwards">ทุกรอบเพิ่มของที่ใช้ได้จริง ไม่ใช่เพิ่มแค่ความคืบหน้า</div>
+     <div class="cap" style="animation:capIn .9s ease 10s both,capOutA .8s ease 13.1s forwards">ความยาวของรอบไม่เปลี่ยน — สิ่งที่เปลี่ยนคือสิ่งที่ใส่เข้าไป</div>
+     <div class="closing">` +
+    cl(13.8, '<b>3 Artifacts:</b> Product Backlog · Sprint Backlog · Increment') +
+    cl(15.2, '<b>5 Events:</b> Sprint · Planning · Daily Scrum · Review · Retrospective') +
+    cl(16.6, '<b>3 Accountabilities:</b> Product Owner · Developers · Scrum Master') +
+    cl(18, 'เท่านี้ ไม่มีอะไรมากกว่านี้', 'last') + `</div>`);
+} }
+];
+
+/* ===== ตัวควบคุมฉาก ===== */
+const stage = document.getElementById('stage'), title = document.getElementById('title'), nav = document.getElementById('nav'), app = document.getElementById('app');
+const seen = new Set();
+let cur = 0;
+
+SCENES.forEach((s, i) => {
+  const b = document.createElement('button');
+  b.className = 'num'; b.textContent = i + 1; b.title = s.name;
+  b.onclick = () => { show(i); b.blur(); };
+  nav.appendChild(b);
+});
+nav.insertAdjacentHTML('beforeend', '<span class="sp"></span><button class="act" id="bR">เล่นซ้ำ</button><button class="act" id="bP">ย้อนกลับ</button><button class="act" id="bN">ถัดไป</button>');
+const nums = [...nav.querySelectorAll('.num')];
+
+function show(i) {
+  cur = Math.max(0, Math.min(SCENES.length - 1, i));
+  seen.add(cur);
+  stage.innerHTML = SCENES[cur].build();   // สร้างใหม่ทุกครั้ง = แอนิเมชันเริ่มจากต้น แล้วค้างภาพสุดท้าย
+  title.innerHTML = `<span class="no">${cur + 1} / ${SCENES.length}</span>${SCENES[cur].name}`;
+  nums.forEach((b, k) => { b.classList.toggle('cur', k === cur); b.classList.toggle('seen', k !== cur && seen.has(k)); });
+}
+document.getElementById('bR').onclick = e => { show(cur); e.currentTarget.blur(); };
+document.getElementById('bP').onclick = e => { show(cur - 1); e.currentTarget.blur(); };
+document.getElementById('bN').onclick = e => { show(cur + 1); e.currentTarget.blur(); };
+addEventListener('keydown', e => {
+  if (e.code === 'Space') { e.preventDefault(); show(cur); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); show(cur + 1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); show(cur - 1); }
+});
+function fit() { app.style.transform = `translate(-50%,-50%) scale(${Math.min(innerWidth / 1600, innerHeight / 900)})`; }
+addEventListener('resize', fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

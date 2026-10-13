@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Agile &amp; Scrum Transformation</title>
+<meta name="description" content="ชุดแอนิเมชันประกอบการอบรม Agile &amp; Scrum Transformation โดย Aj. NesT the Series">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: a Scrum board under a slate sky. Hero = the isometric stage the animations use;
+   below it the course is laid out as board lanes (ภาพรวม → ลงมือทำ → มุมมองเปรียบเทียบ). */
+:root{
+  color-scheme:dark;
+  --bg:#1f2b38;        /* slate night, the animations' stage colour pushed darker */
+  --surface:#2a3948;   /* nav-bar slate used in every animation */
+  --raise:#344658;
+  --line:#46596d;
+  --fg:#f3f6f9;
+  --muted:#a8b7c6;
+  --card:#f39a2e;      /* backlog-card orange */
+  --sky:#58b4ee;       /* sprint-backlog blue */
+  --done:#2fb866;      /* "current / done" green */
+  --po:#1f3a6e; --dev1:#2f9e44; --dev2:#f2c230; --dev3:#e8504f; --sm:#8e5bd0;
+  --floor:#dfe4e9; --floor-l:#a3adb8; --floor-r:#b9c2cb; --skin:#ecd3bd; --leg:#27303c;
+  --ink:#1c2633;
+  --display:"Bai Jamjuree","IBM Plex Sans Thai","Leelawadee UI",Tahoma,sans-serif;
+  --body:"IBM Plex Sans Thai","Sarabun","Leelawadee UI","Noto Sans Thai",Tahoma,sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-inline:max(16px,env(safe-area-inset-left,0px));-webkit-font-smoothing:antialiased}
+body.lock{overflow:hidden}
+a{color:inherit}
+img{max-width:100%;display:block}
+:focus-visible{outline:3px solid var(--sky);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px;align-items:center;padding-block:44px 28px}
+.eyebrow{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--card);margin:0 0 10px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(38px,6vw,68px);line-height:1.05;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1 .amp{color:var(--card)}
+.lead{color:var(--muted);font-size:19px;max-width:34em;margin:18px 0 0}
+.facts{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0;padding:0;list-style:none;font-variant-numeric:tabular-nums}
+.facts li{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 14px;font-size:15px;color:var(--muted)}
+.facts b{color:var(--fg);font-weight:600}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.btn{display:inline-flex;align-items:center;gap:10px;font:600 17px/1 var(--body);padding:14px 22px;border-radius:12px;border:0;cursor:pointer;text-decoration:none;transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn.primary{background:var(--done);color:#fff}
+.btn.ghost{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 2px var(--line)}
+.btn svg{width:18px;height:18px;flex:none}
+
+.stage{width:100%;height:auto;overflow:visible}
+.stage .bob{animation:bob 2.4s ease-in-out infinite}
+.stage .bob:nth-of-type(2n){animation-delay:-.8s}
+.stage .bob:nth-of-type(3n){animation-delay:-1.6s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.roles{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:4px;font-size:14px;color:var(--muted)}
+.roles span{display:inline-flex;align-items:center;gap:7px}
+.roles i{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+/* ---------- board lanes ---------- */
+.lane{padding-block:30px 8px}
+.lane-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:20px}
+.lane-head h2{font-family:var(--display);font-weight:700;font-size:28px;line-height:1.2;margin:0}
+.lane-head .tag{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--card);border-radius:6px;padding:2px 9px}
+.lane-head p{margin:0;color:var(--muted);font-size:16px;flex:1 1 320px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+
+.mod{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;min-width:0;transition:border-color .2s,transform .2s,box-shadow .2s}
+.mod:hover{border-color:var(--sky);transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.28)}
+.thumb{position:relative;display:block;aspect-ratio:16/8.4;overflow:hidden;background:var(--raise);border:0;padding:0;width:100%;cursor:pointer}
+.thumb img{width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .5s}
+.mod:hover .thumb img{transform:scale(1.03)}
+.thumb .play{position:absolute;left:50%;top:50%;width:68px;height:68px;margin:-34px 0 0 -34px;border-radius:50%;background:rgba(31,43,56,.82);
+  display:grid;place-items:center;opacity:0;transition:opacity .2s;box-shadow:0 0 0 3px var(--fg)}
+.thumb .play svg{width:26px;height:26px;margin-left:4px}
+.mod:hover .play,.thumb:focus-visible .play{opacity:1}
+.no{position:absolute;left:14px;top:12px;min-width:44px;height:44px;padding:0 10px;border-radius:9px;background:var(--card);color:var(--ink);
+  font:700 22px/44px var(--display);text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.22);font-variant-numeric:tabular-nums}
+.body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pts{display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 8px;border-radius:15px;background:var(--ink);color:var(--fg);font-weight:600;font-size:14px}
+.mod h3{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.25;margin:0;text-wrap:balance}
+.mod p{margin:0;color:var(--muted);font-size:16px}
+.mod .actions{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:6px}
+.open{font:600 16px/1 var(--body);background:var(--sky);color:var(--ink);border:0;border-radius:10px;padding:11px 18px;cursor:pointer}
+.open:hover{filter:brightness(1.08)}
+details{min-width:0}
+summary{cursor:pointer;color:var(--muted);font-size:15px;list-style:none;user-select:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸";display:inline-block;margin-right:6px;transition:transform .2s}
+details[open] summary::before{transform:rotate(90deg)}
+.scenes{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:7px}
+.scenes button{font:500 14px/1.3 var(--body);color:var(--fg);background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;text-align:left}
+.scenes button:hover{background:var(--done);border-color:var(--done)}
+.scenes button b{font-weight:600;color:var(--card);margin-right:6px;font-variant-numeric:tabular-nums}
+.scenes button:hover b{color:#fff}
+.phase{width:100%;font-size:13px;font-weight:600;letter-spacing:.05em;color:var(--sky);margin-top:6px}
+.phase:first-child{margin-top:0}
+
+.mod.wide{flex-direction:row}
+.mod.wide .thumb{flex:0 0 52%;aspect-ratio:auto;min-height:300px}
+
+/* ---------- how-to ---------- */
+.howto{margin-block:40px 18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.howto div{border-top:2px solid var(--line);padding-top:12px;min-width:0}
+.howto h4{font-family:var(--display);font-size:18px;margin:0 0 6px}
+.howto p{margin:0;color:var(--muted);font-size:15px}
+kbd{font:600 13px/1 var(--body);background:var(--raise);border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:3px 7px;color:var(--fg);white-space:nowrap}
+footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--muted);font-size:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer b{color:var(--fg);font-family:var(--display)}
+
+/* ---------- player ---------- */
+#player{position:fixed;inset:0;z-index:50;background:#141c25;display:flex;flex-direction:column}
+#player[hidden]{display:none}
+.pbar{display:flex;align-items:center;gap:8px;padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top,0px));
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));background:var(--surface);border-bottom:1px solid var(--line);min-height:56px}
+.pbar button{font:600 15px/1 var(--body);color:var(--fg);background:var(--raise);border:1px solid var(--line);border-radius:9px;padding:9px 12px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.pbar button:hover{background:var(--line)}
+.pbar button:disabled{opacity:.35;cursor:default}
+.pbar .home{background:var(--card);color:var(--ink);border-color:var(--card)}
+.pbar .home:hover{background:var(--card);filter:brightness(1.08)}
+.ptitle{flex:1;min-width:0;font-family:var(--display);font-weight:700;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline:6px}
+.ptitle small{font-family:var(--body);font-weight:500;color:var(--muted);font-size:14px;margin-right:8px}
+.pbar svg{width:16px;height:16px;flex:none}
+.pframe{position:relative;flex:1;min-height:0}
+#frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#3b495c}
+.rotate{display:none;position:absolute;left:12px;right:12px;top:12px;z-index:2;background:rgba(20,28,37,.92);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;text-align:center}
+@media (orientation:portrait) and (max-width:760px){.rotate{display:block}}
+.hint{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:rgba(20,28,37,.9);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:14px;color:var(--muted);white-space:nowrap;pointer-events:none;animation:hintOut .6s 4.5s forwards}
+@keyframes hintOut{to{opacity:0}}
+
+/* ---------- responsive ---------- */
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;padding-block:28px 10px}
+  .hero .art{order:-1;max-width:520px;margin:0 auto;width:100%}
+  .mod.wide{flex-direction:column}
+  .mod.wide .thumb{flex:none;aspect-ratio:16/8.4;min-height:0}
+}
+@media (max-width:720px){
+  .grid{grid-template-columns:1fr}
+  .howto{grid-template-columns:1fr}
+  .pbar .lbl{display:none}
+  .ptitle{font-size:16px}
+  .ptitle small{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<main class="wrap" id="hub">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">สื่อแอนิเมชันประกอบการอบรม</p>
+      <h1>Agile <span class="amp">&amp;</span> Scrum Transformation</h1>
+      <p class="lead">เลือกชุดที่ต้องการแล้วกดเปิดดู แต่ละชุดเล่นทีละฉาก กดเล่นซ้ำหรือข้ามฉากได้ตลอด เหมาะสำหรับเปิดประกอบการบรรยายหรือทบทวนเองหลังจบคลาส</p>
+      <ul class="facts">
+        <li><b>7</b> ชุดแอนิเมชัน</li>
+        <li><b>54</b> ฉาก</li>
+        <li>3 บทบาท · 5 เหตุการณ์ · 3 Artifacts</li>
+      </ul>
+      <div class="cta">
+        <a class="btn primary" href="#m1"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>เริ่มชุดแรก</a>
+        <a class="btn ghost" href="#m7-s4">เปิดประเด็นด้วย Waterfall vs Agile</a>
+      </div>
+    </div>
+    <div class="art" aria-hidden="true">
+      <svg class="stage" viewBox="0 0 640 380">
+        <polygon points="40,210 320,372 320,382 40,220" fill="var(--floor-l)"/>
+        <polygon points="600,210 320,372 320,382 600,220" fill="var(--floor-r)"/>
+        <polygon points="320,48 600,210 320,372 40,210" fill="var(--floor)"/>
+        <!-- sprint board on the floor -->
+        <g transform="translate(205,60)">
+          <rect x="18" y="104" width="5" height="22" fill="#6b7785"/><rect x="208" y="104" width="5" height="22" fill="#6b7785"/>
+          <rect width="230" height="108" rx="6" fill="#f6f8fa" stroke="#6b7785" stroke-width="3"/>
+          <line x1="77" y1="8" x2="77" y2="100" stroke="#c3cbd4" stroke-width="2"/><line x1="153" y1="8" x2="153" y2="100" stroke="#c3cbd4" stroke-width="2"/>
+          <rect x="10" y="12" width="58" height="16" rx="3" fill="var(--sky)"/><rect x="10" y="34" width="58" height="16" rx="3" fill="var(--sky)"/><rect x="10" y="56" width="58" height="16" rx="3" fill="var(--sky)"/>
+          <rect x="86" y="12" width="58" height="16" rx="3" fill="var(--sky)"/><rect x="86" y="34" width="58" height="16" rx="3" fill="var(--sky)"/>
+          <rect x="162" y="12" width="58" height="16" rx="3" fill="#3ddc5f"/><rect x="162" y="34" width="58" height="16" rx="3" fill="#3ddc5f"/>
+        </g>
+        <!-- product backlog stack -->
+        <g transform="translate(70,150)">
+          <rect width="78" height="16" rx="3" fill="var(--card)"/><rect y="21" width="78" height="16" rx="3" fill="var(--card)"/><rect y="42" width="78" height="16" rx="3" fill="var(--card)"/>
+        </g>
+        <!-- people: PO · Dev · Dev · Dev · SM -->
+        <g id="ppl"></g>
+      </svg>
+      <div class="roles">
+        <span><i style="background:var(--po)"></i>Product Owner</span>
+        <span><i style="background:var(--dev1)"></i><i style="background:var(--dev2)"></i><i style="background:var(--dev3)"></i>Developers</span>
+        <span><i style="background:var(--sm)"></i>Scrum Master</span>
+      </div>
+    </div>
+  </header>
+
+  <div id="lanes"></div>
+
+  <section class="howto" aria-label="วิธีใช้">
+    <div><h4>เปิดดู</h4><p>กดการ์ดเพื่อเล่นตั้งแต่ฉากแรก หรือกด “เลือกฉาก” เพื่อกระโดดไปฉากที่ต้องการ</p></div>
+    <div><h4>ระหว่างดู</h4><p><kbd>←</kbd> <kbd>→</kbd> เปลี่ยนฉาก &nbsp;<kbd>Space</kbd> เล่นซ้ำ &nbsp;<kbd>Esc</kbd> กลับหน้ารวม</p></div>
+    <div><h4>บนจอใหญ่</h4><p>กดปุ่ม “เต็มจอ” ที่แถบด้านบน แอนิเมชันจะปรับขนาดให้พอดีจอโปรเจกเตอร์เอง</p></div>
+  </section>
+
+  <footer>
+    <span><b>Aj. NesT the Series</b> · Agile &amp; Scrum Transformation</span>
+    <span>อ้างอิงตาม The Scrum Guide 2020</span>
+  </footer>
+</main>
+
+<div id="player" hidden role="dialog" aria-modal="true" aria-labelledby="ptitle">
+  <div class="pbar">
+    <button class="home" id="pHome" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span class="lbl">หน้ารวม</span></button>
+    <div class="ptitle" id="ptitle"></div>
+    <button id="pPrev" type="button" title="ชุดก่อนหน้า"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 5v14L6 12z"/></svg><span class="lbl">ชุดก่อน</span></button>
+    <button id="pNext" type="button" title="ชุดถัดไป"><span class="lbl">ชุดถัดไป</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l11-7z"/></svg></button>
+    <button id="pFull" type="button" title="เต็มจอ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="lbl">เต็มจอ</span></button>
+  </div>
+  <div class="pframe">
+    <iframe id="frame" title="แอนิเมชัน" allow="fullscreen" allowfullscreen></iframe>
+    <div class="rotate">หมุนโทรศัพท์เป็นแนวนอนเพื่อให้ภาพใหญ่ขึ้น</div>
+    <div class="hint" id="hint"><kbd>←</kbd> <kbd>→</kbd> เปลี่ยนฉาก · <kbd>Space</kbd> เล่นซ้ำ · <kbd>Esc</kbd> กลับหน้ารวม</div>
+  </div>
+</div>
+
+<script>
+/* ---------- ข้อมูลหลักสูตร ---------- */
+// sel = ปุ่มเลือกฉากในไฟล์แอนิเมชัน (ใช้กระโดดไปฉากที่เลือกจากหน้ารวม)
+var MODS=[
+ {f:'01-scrum-sprint-cycle',t:'Scrum หนึ่งรอบ Sprint',sel:'#nav .num',
+  d:'เห็นภาพทั้งรอบในครั้งเดียว ตั้งแต่ 3 บทบาท Product Backlog การวางแผน Daily Scrum ไปจนถึง Review และ Retrospective',
+  s:['ตัวละคร 3 บทบาท','Product Backlog','Sprint Planning','Sprint Backlog ล็อก','Daily Scrum','งานแทรกระหว่าง Sprint','ติดตาม Burndown','Definition of Done','Sprint Review','Sprint Retrospective','ครบหนึ่งรอบ แล้วเริ่มใหม่']},
+ {f:'02-scrum-20-steps',t:'Scrum 20 ขั้น',sel:'#nav .s',
+  d:'ไล่ทีละขั้นตั้งแต่ตั้งทีมจนวนรอบใหม่ ทุกขั้นบอกชัดว่าใครเป็นคนทำ แบ่งเป็น 7 ช่วงของรอบงาน',
+  ph:[[0,'ก่อน Sprint แรก'],[5,'Refinement'],[6,'Sprint Planning'],[9,'ระหว่าง Sprint'],[15,'Sprint Review'],[17,'Retrospective'],[19,'วนรอบใหม่']],
+  s:['ตั้ง Scrum Team','ตั้ง Product Goal','สร้าง Product Backlog','ตกลง Definition of Done','กำหนดความยาว Sprint','ขัดเกลา Backlog','ทำไมรอบนี้มีคุณค่า','เลือกงานลงรอบนี้','จะทำอย่างไร','ขึ้นบอร์ด ปกป้อง Sprint Goal','Daily Scrum','เคลียร์อุปสรรค','ตรวจผ่าน DoD','งานด่วนแทรก','ติดตาม Burndown','แสดง Increment','รับ Feedback','Retrospective','เลือก 1-2 เรื่องมาทำ','วนรอบใหม่ + สรุป']},
+ {f:'03-writing-user-stories',t:'เขียนงาน',sel:'nav .s',
+  d:'เขียน User Story ให้ครบ 3 ช่อง ตั้ง Acceptance Criteria ที่ตัดสินได้ตรงกัน ตรวจด้วย INVEST และซอย Story ตามคุณค่า',
+  s:['User Story 3 ช่อง','Acceptance Criteria','INVEST','ซอย Story']},
+ {f:'04-estimation',t:'ประเมินขนาด',sel:'#nav .sb',
+  d:'Story Point แบบเทียบกับงาน Anchor ทำไมต้องใช้เลข Fibonacci วิธีเล่น Planning Poker และ Affinity Estimation',
+  s:['Anchor','ทำไมต้อง Fibonacci','Planning Poker','เมื่อผลโหวตต่างกัน','Affinity Estimation']},
+ {f:'05-plan-and-control',t:'วางแผนและคุมรอบ',sel:'#nav .sb',
+  d:'คำนวณ Capacity จาก Velocity ตั้ง Sprint Goal เลือกงานให้พอดีรอบ รับมืองานแทรก และใช้ Daily Scrum คุมทิศทาง',
+  s:['คำนวณ Capacity','Sprint Goal','เลือกงานลงรอบนี้','งานแทรกระหว่าง Sprint','Daily Scrum']},
+ {f:'06-inspect-and-adapt',t:'ตรวจและปรับ',sel:'#bar .sb',
+  d:'Definition of Done ที่ใช้ได้จริง Sprint Review ที่ไม่ใช่ประตูอนุมัติ อ่าน Burndown 5 รูปแบบ และทำ Retrospective ให้กลายเป็นการกระทำ',
+  s:['Definition of Done','Sprint Review','อ่าน Burndown','Retrospective','แปลงเป็นการกระทำ']},
+ {f:'07-tools-compare',t:'เครื่องมือเทียบ',sel:'#nav button:not(.ctl)',
+  d:'Scrum Board กับ Kanban Board ต่างกันตรงไหน WIP Limit และ Velocity ใช้อย่างไร และ Waterfall กับ Agile ต่างกันที่ความถี่ ไม่ใช่จำนวนขั้น',
+  s:['Scrum Board vs Kanban Board','WIP Limit','Velocity','Waterfall vs Agile']}
+];
+var LANES=[
+ {tag:'ช่วงที่ 1',h:'ภาพรวม',p:'เข้าใจว่า Scrum หนึ่งรอบมีอะไรบ้าง ก่อนลงรายละเอียด',m:[0,1]},
+ {tag:'ช่วงที่ 2',h:'ลงมือทำ',p:'เขียนงาน ประเมิน วางแผน แล้วตรวจและปรับ ตามลำดับที่เกิดขึ้นจริงใน Sprint',m:[2,3,4,5]},
+ {tag:'ช่วงที่ 3',h:'มุมมองเปรียบเทียบ',p:'เทียบ Scrum กับวิธีทำงานแบบอื่น ใช้ปิดท้าย หรือเปิดประเด็นตอนต้นคลาสก็ได้',m:[6],wide:1}
+];
+
+/* ---------- ฉากบนเวทีหน้าแรก ---------- */
+(function(){
+  var P=[['var(--po)',150,250,1],['var(--dev1)',270,300],['var(--dev2)',330,320],['var(--dev3)',390,300],['var(--sm)',505,255]],h='';
+  P.forEach(function(p){
+    h+='<g transform="translate('+p[1]+','+p[2]+') scale(.52)"><g class="bob">'+
+      '<ellipse cx="0" cy="2" rx="32" ry="9" fill="rgba(0,0,0,.18)"/>'+
+      '<rect x="-16" y="-54" width="14" height="54" rx="6" fill="var(--leg)"/><rect x="2" y="-54" width="14" height="54" rx="6" fill="var(--leg)"/>'+
+      '<rect x="-36" y="-118" width="12" height="50" rx="6" fill="'+p[0]+'"/><rect x="24" y="-118" width="12" height="50" rx="6" fill="'+p[0]+'"/>'+
+      '<rect x="-25" y="-122" width="50" height="74" rx="12" fill="'+p[0]+'"/><circle cx="0" cy="-142" r="17" fill="var(--skin)"/>'+
+      (p[3]?'<rect x="-47" y="-98" width="30" height="40" rx="3" fill="var(--card)" stroke="#b8650f" stroke-width="2"/>':'')+
+      '</g></g>';
+  });
+  document.getElementById('ppl').innerHTML=h;
+})();
+
+/* ---------- การ์ดแต่ละชุด ---------- */
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>';
+function card(i,wide){
+  var m=MODS[i],n=i+1,list='',unit=m.ph?'ขั้น':'ฉาก';
+  m.s.forEach(function(s,k){
+    if(m.ph)m.ph.forEach(function(p){if(p[0]===k)list+='<li class="phase">'+esc(p[1])+'</li>';});
+    list+='<li><button type="button" data-m="'+n+'" data-s="'+(k+1)+'"><b>'+(k+1)+'</b>'+esc(s)+'</button></li>';
+  });
+  return '<article class="mod'+(wide?' wide':'')+'">'+
+    '<button class="thumb" type="button" data-m="'+n+'" aria-label="เปิดชุด '+n+' '+esc(m.t)+'">'+
+      '<img src="assets/'+m.f+'.jpg" alt="" loading="lazy" width="1280" height="720">'+
+      '<span class="no">'+n+'</span><span class="play">'+PLAY+'</span></button>'+
+    '<div class="body">'+
+      '<div class="meta"><span class="pts">'+m.s.length+'</span>'+unit+(m.ph?' · '+m.ph.length+' ช่วง':'')+'</div>'+
+      '<h3>'+esc(m.t)+'</h3><p>'+esc(m.d)+'</p>'+
+      '<div class="actions"><button class="open" type="button" data-m="'+n+'">เปิดดู</button>'+
+      '<details'+(wide?' open':'')+'><summary>เลือก'+unit+'</summary><ul class="scenes">'+list+'</ul></details></div>'+
+    '</div></article>';
+}
+document.getElementById('lanes').innerHTML=LANES.map(function(L){
+  return '<section class="lane"><div class="lane-head"><span class="tag">'+L.tag+'</span><h2>'+L.h+'</h2><p>'+L.p+'</p></div>'+
+    (L.wide?L.m.map(function(i){return card(i,1);}).join(''):'<div class="grid">'+L.m.map(function(i){return card(i);}).join('')+'</div>')+'</section>';
+}).join('');
+
+/* ---------- ตัวเล่น ---------- */
+var player=document.getElementById('player'),frame=document.getElementById('frame'),ptitle=document.getElementById('ptitle'),
+    pPrev=document.getElementById('pPrev'),pNext=document.getElementById('pNext'),hint=document.getElementById('hint'),
+    curM=0,want=0,lastFocus=null;
+
+function parse(h){var r=/^#m(\d+)(?:-s(\d+))?$/.exec(h||'');if(!r)return null;var m=+r[1];if(m<1||m>MODS.length)return null;return{m:m,s:r[2]?+r[2]:0};}
+function route(){
+  var r=parse(location.hash);
+  if(!r){close();return;}
+  open(r.m,r.s);
+}
+function open(m,s){
+  var mod=MODS[m-1];
+  if(player.hidden)lastFocus=document.activeElement;
+  want=s;
+  ptitle.innerHTML='<small>ชุด '+m+' / '+MODS.length+'</small>'+esc(mod.t);
+  pPrev.disabled=m===1;pNext.disabled=m===MODS.length;
+  document.title=mod.t+' · Agile & Scrum Transformation';
+  if(curM!==m){curM=m;frame.src='animations/'+mod.f+'.html';}
+  else jump();
+  player.hidden=false;document.body.classList.add('lock');
+  hint.style.animation='none';void hint.offsetWidth;hint.style.animation='';
+}
+function close(){
+  if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(function(){});
+  if(curM){curM=0;frame.removeAttribute('src');} // หยุดแอนิเมชันที่เล่นค้างอยู่ เปิดใหม่ครั้งหน้าจะเริ่มจากต้น
+  player.hidden=true;document.body.classList.remove('lock');
+  document.title='Agile & Scrum Transformation';
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+// กระโดดไปฉากที่เลือก โดยกดปุ่มฉากในไฟล์แอนิเมชันเอง แล้วให้โฟกัสอยู่ในแอนิเมชันเพื่อใช้คีย์ลัดได้ทันที
+function jump(){
+  try{
+    var d=frame.contentDocument;
+    if(want>1&&d){var b=d.querySelectorAll(MODS[curM-1].sel)[want-1];if(b)b.click();}
+    want=0;
+    frame.contentWindow.focus();
+  }catch(e){}
+}
+frame.addEventListener('load',function(){
+  try{
+    var d=frame.contentDocument;
+    if(d&&!d.__hub){d.__hub=1;d.addEventListener('keydown',onKey);}
+  }catch(e){}
+  jump();
+});
+function go(h){if(location.hash===h)route();else location.hash=h;}
+function home(){
+  if(history.replaceState){history.replaceState(null,'',location.pathname+location.search);route();}
+  else location.hash='';
+}
+function onKey(e){
+  if(e.key==='Escape'&&!player.hidden){
+    if(document.fullscreenElement)return; // ให้ Esc ออกจากเต็มจอก่อน
+    e.preventDefault();home();
+  }
+}
+document.addEventListener('keydown',onKey);
+document.getElementById('pHome').onclick=home;
+pPrev.onclick=function(){go('#m'+(curM-1));};
+pNext.onclick=function(){go('#m'+(curM+1));};
+document.getElementById('pFull').onclick=function(){
+  var el=player;
+  if(document.fullscreenElement){document.exitFullscreen().catch(function(){});}
+  else if(el.requestFullscreen){el.requestFullscreen().then(function(){try{frame.contentWindow.focus();}catch(e){}}).catch(function(){});}
+  else if(el.webkitRequestFullscreen){el.webkitRequestFullscreen();}
+};
+document.getElementById('lanes').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-m]');if(!b)return;
+  go('#m'+b.dataset.m+(b.dataset.s&&b.dataset.s!=='1'?'-s'+b.dataset.s:''));
+});
+addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>

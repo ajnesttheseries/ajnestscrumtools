@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scrum 20 ขั้น</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#34475a;overflow:hidden;color:#fff;
+  font-family:"Sarabun","Noto Sans Thai","Leelawadee UI","Thonburi",Tahoma,sans-serif}
+#app{position:absolute;left:50%;top:50%;width:1920px;height:1080px;overflow:hidden;background:#34475a}
+#who{position:absolute;left:28px;top:12px;height:58px;padding:0 24px;border-radius:12px;background:#1f2c3a;
+  font-size:30px;font-weight:700;line-height:58px;border-left:12px solid #f39a2e;z-index:6;white-space:nowrap}
+#ttl{position:absolute;right:28px;top:12px;height:58px;line-height:58px;font-size:32px;font-weight:700;z-index:6;white-space:nowrap}
+#stage{position:absolute;left:0;top:80px;width:1920px;height:690px}
+#floor{position:absolute;left:0;top:0}
+#sc{position:absolute;left:0;top:0;width:1920px;height:690px}
+
+/* ---------- actors ---------- */
+.a{position:absolute;left:0;top:0;opacity:0}
+.lb{font-size:28px;line-height:38px;font-weight:700;padding:4px 16px;border-radius:10px;background:#1f2c3a;color:#fff;white-space:nowrap;text-align:center}
+.lb.w{background:#fff;color:#1f2c3a;border:3px solid #1f2c3a;min-width:84px;padding:1px 8px}
+.lb.r{background:#b32121}
+.lb.n{background:none;color:#1f2c3a}
+.lb.l{background:none;color:#fff}
+.sw>div{position:absolute;left:0;right:0;top:4px;text-align:center}
+.cd{width:250px;height:54px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;
+  white-space:nowrap;color:#1c2530;box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.or{background:#f39a2e}.bl{background:#58b4ee}.tk{background:#aab2bb}.gn{background:#35c46f}
+.rd{background:#d83c3c;color:#fff}.ep{background:#8e5bd0;color:#fff}
+.pt{position:absolute;right:-22px;top:5px;width:44px;height:44px;border-radius:50%;background:#1f2c3a;color:#fff;font-size:28px;line-height:44px;text-align:center}
+.ex{position:absolute;left:-20px;top:-14px;width:44px;height:44px;border-radius:50%;background:#e02424;color:#fff;font-size:30px;line-height:44px;text-align:center;font-weight:900}
+.pn{background:#fff;border-radius:16px;padding:20px 26px;font-size:28px;line-height:56px;color:#1f2c3a;box-shadow:0 10px 30px rgba(0,0,0,.25);white-space:nowrap}
+.pn b{color:#b0600a;margin-right:14px}
+.chip{background:#8e5bd0;color:#fff;border-radius:8px;padding:2px 14px;font-weight:700;margin-right:12px}
+.ck{display:inline-block;position:relative;width:32px;height:32px;border:3px solid #35c46f;border-radius:6px;margin-right:16px;vertical-align:-5px;background:#e3f8eb}
+.sbt{font-size:36px;font-weight:800;text-align:center}
+.sbp{border:6px solid #58b4ee;line-height:64px}
+.sbp i{display:inline-block;width:44px;height:30px;border-radius:6px;margin-right:18px;vertical-align:-4px}
+.bub{background:#fff;color:#1f2c3a;border:3px solid #5b6b7c;border-radius:18px;padding:6px 20px;font-size:28px;line-height:40px;font-weight:700;white-space:nowrap}
+.flag{width:550px;height:120px;background:#0f7a8a;color:#fff;font-size:28px;line-height:42px;font-weight:700;text-align:center;padding-top:18px;border-radius:8px 0 0 8px}
+.gate{width:200px;height:290px;border:16px solid;border-bottom:none;border-radius:100px 100px 0 0;background:rgba(57,217,138,.12)}
+.sign{width:760px;height:100px;border:6px solid;border-radius:14px;background:#fff;color:#1f2c3a;font-size:30px;font-weight:700;text-align:center}
+.glass{width:280px;height:440px;border:5px solid #44556a;border-top:none;background:rgba(255,255,255,.45);border-radius:0 0 10px 10px}
+.band{width:270px;overflow:hidden;background:repeating-linear-gradient(45deg,#6c7680,#6c7680 12px,#7c8690 12px,#7c8690 24px);
+  color:#fff;font-size:28px;font-weight:700;text-align:center;line-height:84px;white-space:nowrap}
+.bd{background:#f6f8fa;border:4px solid #5b6b7c;border-radius:14px}
+.bh{width:250px;text-align:center;font-size:30px;font-weight:800;color:#1f2c3a;line-height:44px}
+.vl{width:3px;background:#c9d1d9}
+.park{width:244px;height:66px;border:4px dashed #5b6b7c;border-radius:10px;font-size:28px;font-weight:700;color:#5b6b7c;padding-left:10px;line-height:58px}
+.tile{width:410px;height:110px;background:#fff;border-radius:14px;border:4px solid #5b6b7c;color:#1f2c3a;font-size:28px;font-weight:700;
+  display:flex;align-items:center;gap:16px;padding:0 18px;white-space:nowrap}
+.inc{width:230px;height:190px;background:#2fb866;border-radius:14px;color:#fff;font-size:30px;font-weight:800;text-align:center;line-height:190px;
+  box-shadow:0 0 40px 8px rgba(57,217,138,.8)}
+.sym{font-size:64px;font-weight:900;line-height:80px;width:60px;text-align:center}
+.nt{height:68px;border-radius:6px;font-size:28px;font-weight:700;color:#1f2c3a;text-align:center;line-height:68px;white-space:nowrap;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+.nt.g{background:#c9f2d6;width:420px}.nt.o{background:#ffd9ae;width:450px}
+.rw{line-height:58px}.rw b{display:inline-block;width:290px}
+.sg{width:200px;height:44px;line-height:44px;background:#2fb866;color:#fff;font-size:28px;font-weight:800}
+.spr{height:100px;line-height:94px;background:#6f89a5;color:#fff;font-size:30px;font-weight:800;text-align:center;overflow:hidden;white-space:nowrap;
+  border-radius:8px;border:3px solid #1f2c3a}
+.gap{height:100px;line-height:92px;border:4px dashed #e02424;background:rgba(255,120,120,.55);color:#7a0f0f;font-size:28px;font-weight:800;text-align:center;overflow:hidden;white-space:nowrap}
+.nd{width:64px;height:64px;border-radius:50%;background:#1f2c3a;color:#fff;font-size:28px;font-weight:800;text-align:center;line-height:64px}
+.tb{border-collapse:separate;border-spacing:0;font-size:28px;color:#1f2c3a}
+.tb td,.tb th{height:62px;padding:0 18px;border:2px solid #9aa3ad;text-align:left;white-space:nowrap;background:#fff}
+.tb th{background:#1f2c3a;color:#fff}
+.cap{width:1920px;text-align:center;font-size:32px;line-height:44px;font-weight:600;color:#fff;white-space:nowrap}
+.rule{width:1920px;text-align:center}
+.rule span{display:inline-block;background:#8e1616;color:#fff;font-size:32px;font-weight:700;line-height:60px;padding:0 40px;border-radius:8px;
+  border-left:14px solid #ff5a5a;white-space:nowrap}
+
+.fi{opacity:0;animation:fi .6s ease var(--d,0s) both}
+.fio{opacity:0}
+.dr{stroke-dasharray:1;stroke-dashoffset:1;animation:dr var(--u,1.5s) ease-in-out var(--d,0s) both}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+@keyframes fo{from{opacity:1}to{opacity:0}}
+@keyframes dr{to{stroke-dashoffset:0}}
+@keyframes redb{to{stroke:#ff3b3b}}
+@keyframes dep{from{stroke-dashoffset:0}to{stroke-dashoffset:.6}}
+
+/* ---------- chrome ---------- */
+#phase{position:absolute;left:28px;right:28px;top:938px;height:50px;display:flex;gap:6px;z-index:6}
+#phase div{flex:1;border-radius:8px;background:#5b7088;color:#fff;font-size:28px;font-weight:700;line-height:50px;text-align:center;
+  opacity:.32;transition:opacity .5s,background .5s,color .5s;white-space:nowrap}
+#phase div.on{opacity:1;background:#eaf2f9;color:#1f2c3a}
+#nav{position:absolute;left:0;right:0;top:996px;height:76px;display:flex;align-items:center;justify-content:center;gap:6px;z-index:6;background:#34475a;padding-right:200px}
+#credit{position:absolute;right:24px;top:996px;height:76px;line-height:76px;font-size:20px;font-weight:400;color:#c3d0dc;z-index:7;white-space:nowrap}
+#nav button{font-family:inherit;font-size:28px;font-weight:700;height:58px;border-radius:10px;border:3px solid #7d93a9;background:transparent;color:#dbe6f0;
+  cursor:pointer;transition:background .3s,border-color .3s}
+#nav button.s{width:52px}
+#nav button.seen{background:#4a5560;border-color:#4a5560;color:#fff}
+#nav button.cur{background:#2fb866;border-color:#2fb866;color:#fff}
+#nav button.c{padding:0 14px;background:#1f2c3a;border-color:#1f2c3a;color:#fff;margin-left:10px}
+#nav button.c:hover{background:#101922}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="who"></div>
+  <div id="ttl"></div>
+  <div id="stage">
+    <svg id="floor" width="1920" height="690">
+      <polygon points="400,343 960,666 960,684 400,361" fill="#a3adb8"/>
+      <polygon points="1520,343 960,666 960,684 1520,361" fill="#b9c2cb"/>
+      <polygon points="960,20 1520,343 960,666 400,343" fill="#dfe4e9"/>
+    </svg>
+    <div id="sc"></div>
+  </div>
+  <div id="phase"></div>
+  <div id="nav"></div>
+  <div id="credit">Aj. NesT the Series</div>
+</div>
+
+<script>
+/* =====================================================================
+   เอนจิน: ทุกชิ้นบนเวทีคือ "actor" หนึ่งตัว มี @keyframes ของตัวเอง
+   ที่สร้างจากไทม์ไลน์ [เวลาเริ่ม, ความยาว, ค่าที่เปลี่ยน] — เคลื่อนไหวด้วย CSS ล้วน
+   ===================================================================== */
+let L=[],CSS=[],uid=0,TT=20,caps=[],rl=null;
+const MAP={o:'opacity',bg:'background-color',bc:'border-color',sh:'box-shadow',w:'width',h:'height'};
+function css(s){
+  let t=`transform:translate(${s.x}px,${s.y}px) rotate(${s.r}deg) scale(${s.s});opacity:${s.o};`;
+  for(const k in s){ if(k=='x'||k=='y'||k=='s'||k=='r'||k=='o')continue; const v=s[k]; t+=`${MAP[k]||k}:${typeof v=='number'?v+'px':v};`; }
+  return t;
+}
+function kfs(x,y,k,i){
+  const s=Object.assign({x,y,s:1,r:0,o:0},i||{}), pts=[[0,css(s),'']]; let last=0;
+  const add=(t,c,e)=>{const q=pts[pts.length-1]; if(Math.abs(q[0]-t)<1e-6){q[1]=c; if(e)q[2]=e;} else pts.push([t,c,e]);};
+  (k||[]).slice().sort((a,b)=>a[0]-b[0]).forEach(([t0,d,p,e])=>{
+    const t=Math.min(TT,Math.max(t0,last));
+    add(t,css(s),e||'ease-in-out'); Object.assign(s,p); last=Math.min(TT,t+d); add(last,css(s),'');
+  });
+  add(TT,css(s),'');
+  return pts.map(([t,c,e])=>`${(t/TT*100).toFixed(3)}%{${c}${e?'animation-timing-function:'+e:''}}`).join('');
+}
+function A(h,c,x,y,k,i,st){
+  const n='k'+(uid++); CSS.push(`@keyframes ${n}{${kfs(x,y,k,i)}}`);
+  L.push(`<div class="a ${c||''}" style="animation:${n} ${TT}s linear both;${st||''}">${h==null?'':h}</div>`);
+}
+function G(x,y,k,i,fn,st,c){ const save=L; L=[]; fn(); const inner=L.join(''); L=save; A(inner,c||'',x,y,k,i,st); }
+
+const V={o:1};
+const fin=(t,d=.7,p)=>[t,d,Object.assign({o:1},p)];
+const fout=(t,d=.7,p)=>[t,d,Object.assign({o:0},p)];
+const mv=(t,d,x,y,p)=>[t,d,Object.assign({x,y},p)];
+function shake(t,x,n=6,amp=9,d=.09){const k=[];for(let j=0;j<n;j++)k.push([t+j*d,d,{x:x+(j%2?-amp:amp)}]);k.push([t+n*d,d,{x}]);return k;}
+const fi=(t,h,st)=>`<div class="fi" style="--d:${t}s;${st||''}">${h}</div>`;
+const fis=(t,h,st)=>`<span class="fi" style="--d:${t}s;${st||''}">${h}</span>`;
+const fio=(a,b,h,st,d=.5)=>`<div class="fio" style="animation:fi ${d}s ease ${a}s both${b!=null?`,fo ${d}s ease ${b}s forwards`:''};${st||''}">${h}</div>`;
+const cap=(t,s)=>caps.push([t,s]);
+const rule=(t,s)=>{rl=[t,s];};
+
+/* ---------- สี ---------- */
+const NAVY='#1f3a6e',GRN='#3aa657',YEL='#e3b21c',RED='#d9534f',PUR='#7b4bc4',GRY='#8a939c';
+const OR='#f39a2e',BL='#58b4ee',GN='#35c46f';
+const GG='0 0 30px 6px #39d98a',RG='0 0 30px 6px #ff3b3b',RN='0 0 4px 0px #ff3b3b';
+
+/* ---------- ชิ้นส่วนภาพ ---------- */
+function psvg(c,f){return `<svg width="60" height="130" viewBox="0 0 60 130"><ellipse cx="30" cy="125" rx="24" ry="5" fill="rgba(0,0,0,.18)"/><rect x="18" y="80" width="10" height="44" rx="5" fill="#2b3440"/><rect x="32" y="80" width="10" height="44" rx="5" fill="#2b3440"/><path d="M12 52q0-14 18-14t18 14v32q0 5-5 5H17q-5 0-5-5z" fill="${c}"/><circle cx="30" cy="20" r="15" fill="#e6b890"/>${f?'<rect x="35" y="56" width="22" height="28" rx="3" fill="#f39a2e" stroke="#b86a10" stroke-width="2"/>':''}</svg>`;}
+const P=(c,x,y,k,i)=>A(psvg(c),'',x,y,k,i);
+const PO=(x,y,k,i)=>A(psvg(NAVY,1),'',x,y,k,i);
+const Lb=(t,x,y,k,i,c)=>A(t,'lb '+(c||''),x,y,k,i);
+const C=(c,t,x,y,k,i,st)=>A(t,'cd '+c,x,y,k,i,st);
+const XS=sz=>`<svg width="${sz}" height="${sz}" viewBox="0 0 100 100"><path d="M14 14L86 86M86 14L14 86" stroke="#e02424" stroke-width="13" stroke-linecap="round" fill="none"/></svg>`;
+function XX(x,y,sz,t,tout){A(XS(sz),'',x,y,[[t,.4,{o:1,s:1}]].concat(tout?[[tout,.5,{o:0}]]:[]),{s:.4});}
+function SW(items,c,x,y,w,k,i,d){A(items.map(([a,b,h])=>fio(a,b,h,'',d||.4)).join(''),c+' sw',x,y,k,i,`width:${w}px;height:46px`);}
+const ARW='<svg width="70" height="30"><path d="M3 15H54M42 4l14 11-14 11" stroke="#5b6b7c" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ARW2='<svg width="170" height="50"><path d="M5 25H150M128 6l24 19-24 19" stroke="#1f2c3a" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const VARW='<svg width="40" height="400"><path d="M20 396V8M6 26L20 6l14 20" stroke="#1f3a6e" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const BUBD='<svg width="110" height="80" viewBox="0 0 110 80"><path d="M10 6h90a8 8 0 0 1 8 8v36a8 8 0 0 1-8 8H46L30 76V58H10a8 8 0 0 1-8-8V14a8 8 0 0 1 8-8z" fill="#fff" stroke="#5b6b7c" stroke-width="3"/><circle cx="35" cy="32" r="6" fill="#5b6b7c"/><circle cx="55" cy="32" r="6" fill="#5b6b7c"/><circle cx="75" cy="32" r="6" fill="#5b6b7c"/></svg>';
+const HAND='<svg width="64" height="64"><rect x="26" y="8" width="34" height="48" rx="12" fill="#e6b890"/><rect x="4" y="10" width="30" height="10" rx="5" fill="#e6b890"/><rect x="2" y="22" width="30" height="10" rx="5" fill="#e6b890"/><rect x="4" y="34" width="30" height="10" rx="5" fill="#e6b890"/><rect x="8" y="46" width="26" height="9" rx="4" fill="#e6b890"/></svg>';
+const CLOCK='<svg width="140" height="140"><circle cx="70" cy="70" r="64" fill="#fff" stroke="#1f2c3a" stroke-width="7"/><path d="M70 12v12M70 116v12M12 70h12M116 70h12" stroke="#1f2c3a" stroke-width="5"/></svg>';
+const HANDC='<svg width="140" height="140"><line x1="70" y1="70" x2="70" y2="24" stroke="#d83c3c" stroke-width="6" stroke-linecap="round"/><circle cx="70" cy="70" r="7" fill="#1f2c3a"/></svg>';
+const LOCK='<svg width="56" height="62" viewBox="0 0 56 62"><path d="M14 28V18a14 14 0 0 1 28 0v10" fill="none" stroke="#1f2c3a" stroke-width="7"/><rect x="5" y="26" width="46" height="34" rx="7" fill="#ffd34d" stroke="#1f2c3a" stroke-width="4"/><circle cx="28" cy="43" r="5" fill="#1f2c3a"/></svg>';
+const IC1='<svg width="60" height="60"><rect x="3" y="18" width="30" height="24" rx="4" fill="#58b4ee"/><path d="M37 30h18M47 22l8 8-8 8" stroke="#1f2c3a" stroke-width="5" fill="none" stroke-linecap="round"/></svg>';
+const IC2='<svg width="60" height="60"><rect x="10" y="8" width="40" height="48" rx="5" fill="#fff" stroke="#1f2c3a" stroke-width="4"/><path d="M18 22h24M18 32h24M18 42h14" stroke="#1f2c3a" stroke-width="4"/></svg>';
+const IC3='<svg width="60" height="60"><path d="M6 30h22M28 30l20-16M28 30l20 16" stroke="#1f2c3a" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="50" cy="13" r="6" fill="#1f2c3a"/><circle cx="50" cy="47" r="6" fill="#1f2c3a"/></svg>';
+
+/* ---------- บอร์ดงาน (ใช้ร่วมกันหลายขั้น) ---------- */
+const BX=510,BY=50,BW=900,BH=500,CX=[524,812,1136],RY=i=>BY+78+i*64,PBY=i=>150+i*60;
+const FULL='width:1920px;height:690px',BO=FULL+';transform-origin:960px 300px';
+const SPR=['ยื่นคำขอ','ดูสถานะ','รีเซ็ตรหัส','แจ้งซ่อม','ยืมอุปกรณ์'];
+const SPR4=['ยื่นคำขอ','ดูสถานะ','รีเซ็ตรหัส','ยืมอุปกรณ์'];
+const PBN=['ขอสิทธิ์','คลังคำตอบ','แจ้งเตือน'];
+function boardBase(){
+  A('','bd',BX,BY,[],V,`width:${BW}px;height:${BH}px`);
+  ['To Do','In Progress','Done'].forEach((h,j)=>A(h,'bh',CX[j],BY+14,[],V));
+  A('','vl',793,BY+70,[],V,'height:410px'); A('','vl',1097,BY+70,[],V,'height:410px');
+}
+function fence(t){
+  const b='5px dashed #7ee0ff',f='filter:drop-shadow(0 0 6px #7ee0ff);';
+  if(t==null){A('','',496,36,[],V,f+`width:928px;height:528px;border:${b};border-radius:8px`);return;}
+  A('','',496,36,[[t,1,{w:928}]],{o:1,w:0},f+`height:0;border-top:${b}`);
+  A('','',1419,36,[[t+1,.7,{h:528}]],{o:1,h:0},f+`width:0;border-left:${b}`);
+  A('','',1424,559,[[t+1.7,1,{x:496,w:928}]],{o:1,w:0},f+`height:0;border-top:${b}`);
+  A('','',496,564,[[t+2.7,.7,{y:36,h:528}]],{o:1,h:0},f+`width:0;border-left:${b}`);
+}
+const lock=()=>A(LOCK,'',1396,6,[],V);
+const SH0='0 0 14px 2px #7ee0ff',SH1='0 0 40px 12px #7ee0ff';
+const GS='width:300px;text-align:center;border-radius:10px',SHIELD='width:328px;height:60px;border:4px solid #7ee0ff;border-radius:30px';
+function goal(kb,ks){A('Sprint Goal','sg',810,2,kb||[],V,GS);A('','',796,-6,ks||[],{o:1,sh:SH0},SHIELD);}
+const CYC='<svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#1f2c3a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 60a38 38 0 0 1 66-26"/><path d="M98 60a38 38 0 0 1-66 26"/><path d="M90 12v22H68"/><path d="M30 108V86h22"/></svg>';
+const devs3=()=>[700,900,1100].forEach((x,j)=>P([GRN,YEL,RED][j],x,555,[],V));
+const GP=['ปล่อยของได้ทันกำหนด','ช่วยกันแก้บั๊กเร็ว','ใช้ของเดิมต่อยอด'];
+const DP=['ประเมินขอบเขตพลาด','สื่อสารกับผู้ขายช้า','เนื้อหากับดีไซน์ไม่ไปด้วยกัน'];
+function retro(){
+  A('','bd',460,30,[],V,'width:1000px;height:420px'); A('','vl',958,50,[],V,'height:380px;width:4px');
+  A('+','sym',680,34,[],V,'color:#1f9a55'); A('Δ','sym',1180,34,[],V,'color:#d9730d');
+}
+
+/* =====================================================================
+   20 ขั้น
+   ===================================================================== */
+const SC=[
+/* ---------- 1 ---------- */
+{n:'ตั้ง Scrum Team',who:'ทีมถูกจัดตั้งขึ้น',T:29,f(){
+  const D=7;
+  const pp=[
+    [NAVY,[-90,200],[640,470],[500,330],[470,330]],
+    [NAVY,[2000,150],[1240,200],[410,330]],
+    [NAVY,[2000,620],[930,250],[590,330]],
+    [GRN,[-90,500],[480,300],[760,330],[570,330]],
+    [YEL,[2000,480],[1100,480],[860,330],[670,330]],
+    [RED,[700,-150],[760,180],[960,330],[770,330]],
+    [GRN,[1300,-150],[1380,340],[1060,330],[1160,330]],
+    [YEL,[-90,640],[820,400],[1160,330],[1260,330]],
+    [PUR,[2000,330],[1010,150],[1330,330],[1360,330]]];
+  A('<svg width="1920" height="690"><ellipse cx="960" cy="400" rx="590" ry="228" fill="none" stroke="#bff1ff" stroke-width="16" style="filter:blur(6px)"/></svg>','',0,0,[[15,.8,{o:.85}],[18.7,.2,{o:1}],[19,.5,{o:.85}],[21.4,.8,{o:0}]]);
+  A(`<svg width="1920" height="690"><ellipse cx="960" cy="400" rx="590" ry="228" fill="none" stroke="#7ee0ff" stroke-width="7" pathLength="1" class="dr" style="animation:dr 2s ease-in-out 13s both,redb .3s ease-in-out ${18.3+D}s 4 alternate;filter:drop-shadow(0 0 8px #7ee0ff)"/></svg>`,'',0,0,[fout(19.4+D,.8)],V);
+  A(`<svg width="1920" height="690" fill="none" stroke="#7ee0ff" stroke-width="7" style="filter:drop-shadow(0 0 8px #7ee0ff)"><ellipse cx="650" cy="425" rx="270" ry="205" pathLength="1" class="dr" style="--d:${19.6+D}s;--u:1.4s"/><ellipse cx="1290" cy="425" rx="270" ry="205" pathLength="1" class="dr" style="--d:${19.8+D}s;--u:1.4s"/></svg>`,'',0,0,[],V);
+  pp.forEach((p,j)=>{
+    const k=[mv(.2+j*.12,2.2,p[2][0],p[2][1]),mv(3.4,1.8,p[3][0],p[3][1])];
+    if(j==1||j==2)k.push(fout(6.4,1.6)); else k.push(mv(19.4+D,1.5,p[4][0],p[4][1]));
+    A(psvg(p[0],j<3),'',p[1][0],p[1][1],k,V);
+  });
+  /* self-managing */
+  A(CYC,'',900,455,[fin(15.2,.6),[15.8,5.4,{r:360},'linear'],fout(21.3,.6)]);
+  P(GRY,2000,330,[mv(17,1.2,1640,330),mv(19.6,1.6,2000,330)],V);
+  A('','',1640,385,[[18.2,.05,{o:1}],[18.25,.45,{x:1556,w:90}],[19.1,.4,{x:1640,w:10}],fout(19.5,.1)],{w:10},'height:13px;border-radius:7px;background:#8a939c;border-left:16px solid #e6b890');
+  A('','',1510,352,[[18.7,.05,{o:.9}],[18.75,.9,{s:2.2,o:0}]],{s:.2},'width:80px;height:80px;border-radius:50%;border:5px solid #7ee0ff');
+  [[GRN,810,570],[RED,910,670],[YEL,1010,1210]].forEach((e,j)=>P(e[0],e[1],640,[mv(15.5+D+j*.25,1.3,e[1],445,{o:1}),mv(19.4+D,1.5,e[2],445)]));
+  P(GRN,2000,445,[mv(17.1+D,1.2,1110,445),mv(19.4+D,1.5,1310,445)],V);
+  Lb('Product Owner',415,205,[fin(5.4),fout(19+D)]);
+  Lb('Developers',895,205,[fin(5.7),fout(19+D)]);
+  Lb('Scrum Master',1252,205,[fin(6),fout(19+D)]);
+  ['BA','QA','DBA','UI','Dev'].forEach((r,j)=>Lb(r,748+j*100,272,[fin(8.6+j*.35,.5),fout(19+D)],0,'w'));
+  SW([[15+D,16.6+D,'7 คน'],[16.9+D,18.2+D,'10 คน'],[18.3+D,19.4+D,'<span style="color:#ff8a8a">11 คน</span>']],'lb',880,636,160,[fin(15+D,.4),fout(19.4+D,.5)]);
+  cap(7,'Product Owner — 1 คนเท่านั้น ไม่ใช่คณะกรรมการ');
+  cap(10.5,'Developers — ทุกคนที่ลงมือทำ ไม่ใช่แค่โปรแกรมเมอร์');
+  cap(12.4,'Scrum Master 1 คน ยืนด้านข้าง ระดับเดียวกัน');
+  cap(13.8,'cross-functional — ทำงานจบได้เองในทีม ไม่ต้องรอส่งต่อฝ่ายอื่น');
+  cap(15.6,'self-managing — ทีมตัดสินเองว่าใครทำอะไร เมื่อไหร่ อย่างไร');
+  cap(18.8,'คนนอกบอกได้ว่าอะไรสำคัญ — ไม่ได้บอกว่าใครต้องทำและทำยังไง');
+  rule(20.3+D,'ไม่ควรเกิน 10 คน — เกินแล้วแยกทีม ไม่ใช่ขยายทีม');
+}},
+/* ---------- 2 ---------- */
+{n:'ตั้ง Product Goal',who:'ใครทำ: Product Owner คุยกับ Stakeholders',T:18,f(){
+  const ar=[[620,520],[760,560],[900,500],[1040,560],[1150,470],[980,420],[1230,540],[820,450]],
+        r0=[200,75,310,140,250,20,170,280],r2=[120,300,45,230,350,160,80,265];
+  ar.forEach((p,j)=>{
+    let a=Math.atan2(240-(p[1]+15),1440-(p[0]+35))*180/Math.PI;
+    while(a-r0[j]>180)a-=360; while(a-r0[j]<-180)a+=360;
+    A(ARW,'',p[0],p[1],[[9,1.5,{r:a}],[13.6,1.6,{r:r2[j]}]],{o:1,r:r0[j]});
+  });
+  const ms=[[840,236,-18],[905,262,12],[870,285,-6],[950,240,25],[990,275,-30]];
+  ms.forEach((m,j)=>A('','cd or',720+j*100,250,[fin(8.4+j*.12,.5),[13.8,1.5,{x:m[0],y:m[1],r:m[2]}]],0,'width:90px;height:36px'));
+  PO(540,340,[],V); [680,770,860].forEach(x=>P(GRY,x,340,[],V));
+  [[560,250],[690,240],[780,255],[870,240],[640,200]].forEach((b,j)=>A(BUBD,'',b[0],b[1],[[.8+j*.5,1.2,{o:1,y:b[1]-70-(j%2)*40}],[4.6,1.6,{x:1110,y:100,s:.3,o:0}]]));
+  A('','',1436,80,[fin(5.8,.8),fout(13.4,.9)],0,'width:9px;height:330px;background:#3b4654;border-radius:4px');
+  A('ทำให้พนักงานขอใช้บริการ IT ได้เอง<br>โดยไม่ต้องโทรหาใคร','flag',886,84,[fin(5.8,1.2,{s:1}),fout(13.4,.9)],{s:.3});
+  Lb('Product Goal',1070,32,[fin(6.8),fout(13.4,.9)]);
+  cap(7,'Product Goal — ประโยคเดียวที่บอกว่าจะไปทางไหนในระยะยาว');
+  cap(10.2,'Product Goal คือข้อผูกพันของ Product Backlog');
+  rule(15.2,'ไม่มี Product Goal = Backlog กลายเป็นกองงานที่ใครขออะไรก็ใส่');
+}},
+/* ---------- 3 ---------- */
+{n:'สร้าง Product Backlog',who:'ใครทำ: Product Owner รับผิดชอบ · Developers ช่วยคิด',T:20,f(){
+  const NM=['ยื่นคำขอ','ติดตามสถานะ','รีเซ็ตรหัสผ่าน','แจ้งซ่อม','ยืมอุปกรณ์','ขอสิทธิ์ระบบ','คลังคำตอบ','แจ้งเตือน'];
+  const st=[[-300,100],[2000,60],[900,-120],[-300,500],[2000,520],[-300,300],[2000,300],[1100,-120]];
+  const pile=[[800,250,-14],[900,300,9],[840,340,-5],[930,240,16],[790,310,22],[880,270,-22],[950,330,6],[830,290,-9]];
+  PO(450,330,[mv(10.3,1.6,620,300)],V); P(GRN,1250,470,[],V); P(YEL,1340,500,[],V);
+  NM.forEach((n,j)=>C('or',n,st[j][0],st[j][1],[[.3+j*.3,1.4,{x:pile[j][0],y:pile[j][1],r:pile[j][2]}],[10.3+j*.2,1.4,{x:835,y:40+j*62,r:0}]],V));
+  Lb('ปัญหาที่พบ',560,150,[fin(2.4),fout(4.8,.5)]);
+  Lb('ความต้องการผู้ใช้',1130,170,[fin(3),fout(4.8,.5)]);
+  Lb('งานค้างเดิม',1010,440,[fin(3.6),fout(4.8,.5)]);
+  A(fi(5.8,'<span class="chip">Epic</span>พอร์ทัลบริการ IT')+fi(6.5,'<b>ชื่อ Story</b>ยื่นคำขอออนไลน์')+fi(7.2,'<b>User Story</b>ในฐานะพนักงาน ฉันอยากยื่นคำขอเองได้')+fi(7.9,'<b>Acceptance Criteria</b>กรอกฟอร์มแล้วได้เลขคำขอ'),
+    'pn',560,110,[fin(5,.9,{s:1}),fout(9.6,.7)],{s:.4},'width:800px;border:6px solid #f39a2e;background:#fff6ea');
+  Lb('▲ บนสุด = สำคัญสุด',1110,44,[fin(12.6)]);
+  [['ลิสต์ฝ่าย A',1150],['ลิสต์ฝ่าย B',1420]].forEach(([t,x],j)=>{
+    G(x,130,[fin(14+j*.3,.7),[16.4,1.3,{x:850,o:0}]],0,()=>{Lb(t,0,0,[],V);for(let q=0;q<3;q++)A('','cd or',0,60+q*54,[],V,'width:220px;height:44px');},'width:220px;height:220px');
+    XX(x+40,170,140,15.3,16.3);
+  });
+  cap(12,'รายการเดียว ลำดับเดียว');
+  cap(13.6,'PO รับผิดชอบ Backlog — มอบหมายให้คนอื่นทำแทนได้ แต่ความรับผิดชอบยังอยู่ที่ PO คนเดียว');
+  rule(17,'ห้ามมีหลายลิสต์ — Product Owner คนเดียวที่เคาะลำดับ');
+}},
+/* ---------- 4 ---------- */
+{n:'ตกลง Definition of Done',who:'ใครทำ: ทั้งทีมร่วมกัน · ยึดมาตรฐานองค์กรเป็นขั้นต่ำ',T:24,f(){
+  const D=2,it=['ผ่าน test case ครบ','รีวิวโค้ดแล้ว','ไม่มี bug ระดับ critical','มีคู่มือผู้ใช้','ขึ้น production ได้'];
+  PO(440,420,[],V);P(PUR,340,470,[],V);P(GRN,1330,430,[],V);P(YEL,1420,470,[],V);P(RED,1250,480,[],V);
+  A(it.map((s,j)=>fi(.9+j*1.1,'<span class="ck"></span>'+s)).join(''),'pn',650,50,[fin(.2,.5),[6+D,1.3,{s:.25,o:0}]],0,'width:620px;line-height:54px');
+  Lb('◀ มาตรฐานองค์กร',1290,96,[fin(1.6),fout(6+D,.5)]);
+  Lb('◀ ทีมเพิ่มเอง',1290,232,[fin(4.4),fout(6+D,.5)]);
+  A('','gate',860,150,[fin(6.6+D,1.2,{s:1}),[14.8+D,.3,{bc:'#ff3b3b',sh:RG}],[15.2+D,.25,{sh:RN}],[15.45+D,.25,{sh:RG}],[15.7+D,.25,{sh:RN}],[15.95+D,.25,{sh:RG}],[18+D,.7,{bc:'#39d98a',sh:GG}]],{s:.5,bc:'#39d98a',sh:GG});
+  Lb('Definition of Done',820,92,[fin(7.2+D)]);
+  for(let j=0;j<3;j++)C('bl','งาน '+(j+1),300,278,[fin(8.5+D+j*1.5,.4),mv(8.9+D+j*1.5,.8,885,278),mv(9.7+D+j*1.5,.9,1290,130+j*64,{bg:GN})],{bg:BL},'width:150px');
+  C('bl','เสร็จ 90%',260,278,[fin(13.3+D,.4),mv(13.7+D,1.1,656,278),mv(16.3+D,1.5,380,278)],0,'width:190px');
+  cap(1.4,'ถ้าองค์กรมีมาตรฐานอยู่แล้ว ทีมต้องทำตามนั้นเป็นอย่างน้อย');
+  cap(4.6,'ทีมเพิ่มข้อให้เข้มขึ้นได้ แต่ลดลงไม่ได้');
+  rule(16.5+D,'ขาดข้อเดียว = ยังไม่เสร็จ ไม่มีคำว่าเสร็จ 90%');
+  cap(19+D,'DoD คือข้อผูกพันของ Increment และใช้กับทุกชิ้นงาน ไม่ใช่เขียนใหม่รายชิ้น');
+}},
+/* ---------- 5 ---------- */
+{n:'กำหนดความยาว Sprint',who:'ใครทำ: ทั้งทีม',T:19,f(){
+  PO(430,480,[],V);P(GRN,800,545,[],V);P(YEL,900,555,[],V);P(RED,1000,545,[],V);P(PUR,1180,520,[],V);
+  A('','',160,220,[[.5,2,{w:1600}]],{o:1,w:0},'height:150px;background:#6f89a5;border-radius:10px');
+  for(let i=1;i<5;i++)A('','',157+i*320,-200,[mv(2.6+i*.3,.6,157+i*320,208)],V,'width:6px;height:174px;background:#1f2c3a;border-radius:3px');
+  for(let i=0;i<5;i++)Lb('2 สัปดาห์',160+i*320+79,226,[fin(4+i*.25,.5)],0,'l');
+  Lb('ไม่เกิน 1 เดือน',830,120,[fin(6)],0,'r');
+  A('6 สัปดาห์','',560,410,[fin(6.8),fout(9.4)],0,'width:800px;height:80px;background:#8fa3b8;border-radius:10px;font-size:28px;font-weight:700;color:#1f2c3a;text-align:center;line-height:80px');
+  XX(900,390,120,8,9.4);
+  Lb('Product Backlog',1500,396,[],V); C('or','',1500,450,[],V);
+  [812,968].forEach((x,j)=>C('bl','งานค้าง',x,300,[fin(10,.6),mv(14.4,1.8,1500,510+j*60,{bg:OR,w:250,h:54})],{bg:BL,w:142,h:50}));
+  A('','',800,220,[fin(11.2,.4),[11.6,1.4,{w:410}]].concat(shake(13,800,5,7,.08),[[13.6,.3,{w:320}],fout(14.1,.5)]),{w:320},
+    'height:150px;border:6px solid #ff3b3b;border-radius:10px;box-shadow:0 0 30px 6px #ff3b3b;background:rgba(255,59,59,.18)');
+  A(HAND,'',1095,262,[fin(11,.4),mv(11.6,1.4,1185,262),mv(13.6,.3,1095,262),fout(14,.4)]);
+  rule(15.5,'ห้ามยืดรอบเพราะงานไม่เสร็จ — นี่คือข้อที่ละเมิดบ่อยที่สุด');
+}},
+/* ---------- 6 ---------- */
+{n:'ขัดเกลา Backlog',who:'ใครทำ: Product Owner + Developers · ทำต่อเนื่องระหว่าง Sprint',T:22,f(){
+  const Y=i=>50+i*66,nm=['ยื่นคำขอ','ดูสถานะ','รีเซ็ตรหัส','แจ้งซ่อม',0,'ขอสิทธิ์','แจ้งเตือน'],fb=[3,5,8,13];
+  PO(600,400,[],V);P(GRN,1250,440,[],V);P(YEL,1350,480,[],V);
+  A(CLOCK,'',300,60,[],V); A(HANDC,'',300,60,[[.2,TT-.4,{r:1080},'linear']],V); Lb('ทำไปเรื่อย ๆ',288,212,[fin(.8)]);
+  nm.forEach((n,j)=>{
+    if(!n){C('ep','งานก้อนใหญ่',835,Y(4),[fin(.3+j*.12,.5),[2.6,.7,{s:1.12}],[3.4,.9,{o:0,s:.8}]]);return;}
+    const k=[fin(.3+j*.12,.5)];
+    if(j==1)k.push([6,.5,{s:1.08}],[9.4,.5,{s:1}]);
+    if(j==2)k.push([13.6,1.6,{y:Y(3)}]); if(j==3)k.push([13.6,1.6,{y:Y(2)}]);
+    if(j==0||j==1||j==3)k.push([16.6,.9,{sh:'0 0 24px 8px #39d98a'}]);
+    C('or',n+(j<4?`<span class="pt fi" style="--d:${10.2+j*.7}s">${fb[j]}</span>`:''),835,Y(j),k,{sh:'0 0 0px 0px #39d98a'});
+  });
+  for(let j=0;j<3;j++)C('or','ย่อย '+(j+1),885,Y(4),[fin(3.5,.4),mv(3.9,1.2,1110+j*165,Y(4))],0,'width:150px');
+  A('<b>ดูสถานะ</b><div style="color:#b0600a;font-weight:700">Acceptance Criteria</div>'+fi(7,'✓ เห็นสถานะล่าสุดของทุกคำขอ')+fi(7.9,'✓ แจ้งเตือนเมื่อสถานะเปลี่ยน'),
+    'pn',1110,30,[fin(6.2,.7,{s:1}),fout(9.5,.6)],{s:.6},'width:620px;line-height:48px;border:6px solid #f39a2e');
+  Lb('พร้อมหยิบไปทำได้ทันที ▶',450,100,[fin(17.2)]);
+  cap(3,'ซอยรายการใหญ่ให้เล็กลง');
+  cap(6.5,'เขียน Acceptance Criteria ให้ชัด');
+  cap(10.3,'ประเมิน Story Point');
+  cap(14,'จัดลำดับใหม่ตามสถานการณ์ที่เปลี่ยน');
+  cap(18,'เป้าหมายคือหัวแถวพร้อมเสมอ ไม่ใช่ทั้งแถวพร้อม');
+}},
+/* ---------- 7 ---------- */
+{n:'ทำไมรอบนี้มีคุณค่า',who:'ใครนำ: Product Owner เสนอ · ทั้งทีมคุยจนตกลง',T:19,f(){
+  const Z='0 0 0px 0px #ff3b3b',F='position:absolute;left:0;right:0;top:0;line-height:88px';
+  PO(500,340,[],V);P(PUR,1380,360,[],V);P(GRN,880,400,[],V);P(YEL,1000,430,[],V);P(RED,1120,400,[],V);
+  A(fio(3.2,7,'ทำงาน 8 ข้อให้เสร็จ',F)+fio(4.8,7,XS(80),'position:absolute;left:340px;top:4px')+fi(10.2,'ทำให้ผู้ใช้ยื่นคำขอและติดตามสถานะเองได้',F),
+    'sign',150,350,[[1.5,1.4,{x:580,y:190,s:1,o:1}],[4.5,.3,{bc:'#ff3b3b',sh:RG}],[7,.6,{bc:'#5b6b7c',sh:Z}],[11.5,.6,{bc:'#39d98a',sh:GG}],[12.3,1.5,{y:40}]],{s:.15,bc:'#5b6b7c',sh:Z});
+  [[890,330],[1010,360],[1130,330]].forEach((b,j)=>A(BUBD,'',b[0],b[1],[[8+j*.5,.4,{o:1}],[8.4+j*.5,1.1,{y:250,x:b[0]-40,s:.5,o:0}]],{s:.7}));
+  cap(5,'ไม่ดี — ไม่ได้บอกว่าทำไปเพื่ออะไร');
+  cap(12.8,'Sprint Goal — ประโยคเดียวที่ทำให้ Sprint เป็นงานก้อนเดียว');
+  cap(16,'Sprint Goal คือข้อผูกพันของ Sprint Backlog');
+}},
+/* ---------- 8 ---------- */
+{n:'เลือกงานลงรอบนี้',who:'ใครเลือก: Developers · โดยคุยกับ Product Owner',T:22,f(){
+  const Y=i=>70+i*60,nm=[['ยื่นคำขอ',13],['ดูสถานะ',8],['รีเซ็ตรหัส',8],['แจ้งซ่อม',8],['ยืมอุปกรณ์',8],['ขอสิทธิ์',13],['แจ้งเตือน',5]];
+  PO(330,330,[],V);P(GRN,1160,440,[],V);P(YEL,1240,480,[],V);P(RED,760,500,[],V);
+  Lb('Velocity',1420,50,[fin(.4)]);
+  A('','',1290,420,[fin(.4)],0,'width:400px;height:4px;background:#1f2c3a');
+  [52,61,58].forEach((v,j)=>{const h=v*3,x=1320+j*120;
+    A('','',x,420,[[.6+j*.6,.9,{y:420-h,h}]],{o:1,h:0},'width:90px;background:#6f89a5;border-radius:6px 6px 0 0');
+    Lb(v,x+12,420-h-52,[fin(1.4+j*.6,.4)]);});
+  A('','',1300,247,[[3,1,{w:380}]],{o:1,w:0},'height:5px;background:#d83c3c');
+  Lb('เฉลี่ย 57',1690,225,[fin(3.8)]);
+  A('กันไว้ให้งานแทรก','band',855,520,[[6.2,1,{y:436,h:84}]],{o:1,h:0});
+  A('','glass',850,-480,[mv(4.5,1.3,850,80)].concat(shake(15,850,7,8,.1)),V);
+  A('','',838,118,[fin(5.8,.5),[12.5,.5,{bg:'#2fb866'}],[15,.4,{bg:'#e02424'}],[18.5,.5,{bg:'#2fb866'}]],{bg:'#44556a'},'width:304px;height:6px;border-radius:3px');
+  SW([[5.9,7.2,'57'],[7.4,null,'ใช้ได้ 45']],'lb',1150,96,170,[fin(5.9,.4)]);
+  let top=436;
+  nm.forEach(([n,p],j)=>{
+    const k=[fin(.2+j*.1,.4)];
+    if(j<5){top-=p*7;k.push([8+j*.9,.85,{x:860,y:top+2,w:260,h:p*7-4,bg:BL}]);}
+    if(j==5)k.push([13,2,{x:860,y:28,w:260,h:87,bg:BL}],[16,2.5,{x:480,y:Y(5),w:230,h:48,bg:OR}]);
+    C('or',n+' · '+p,480,Y(j),k,{bg:OR,w:230,h:48});
+  });
+  const R='รับแล้ว ';
+  SW([[7.4,8.85,R+'0 / 45'],[8.85,9.75,R+'13 / 45'],[9.75,10.65,R+'21 / 45'],[10.65,11.55,R+'29 / 45'],[11.55,12.45,R+'37 / 45'],[12.45,15,R+'45 / 45'],
+      [15,18.4,`<span style="color:#ff8a8a">${R}58 / 45</span>`],[18.4,null,R+'45 / 45']],'lb',850,532,280,[fin(7.4,.4)],0,.3);
+  A(VARW,'',440,70,[fin(18.8,.6)]); Lb('สำคัญก่อน',250,262,[fin(19)]);
+  cap(1.5,'capacity จากค่าเฉลี่ย Velocity 3 รอบล่าสุด');
+  cap(6.6,'หักที่กันไว้ก่อน แล้วค่อยหยิบงาน');
+  cap(15.4,'เกิน capacity = วางกลับ ไม่ใช่ยัดเข้าไป');
+  rule(19.6,'Developers เลือกจำนวน โดยคุยกับ PO ไม่ใช่เลือกเงียบ ๆ ฝ่ายเดียว');
+}},
+/* ---------- 9 ---------- */
+{n:'จะทำอย่างไร',who:'ใครทำ: Developers',T:21,f(){
+  const D=1.6,M=[13+D,1.2,{x:835,y:280,o:0}];
+  PO(330,360,[mv(5.6+D,2.6,-140,360)],V);P(GRN,1300,440,[],V);P(YEL,1390,480,[],V);P(RED,1210,490,[],V);
+  ['ยื่นคำขอ','ดูสถานะ','รีเซ็ตรหัส','แจ้งซ่อม'].forEach((n,j)=>C('bl',n,500,150+j*70,(j?[]:[mv(1,1.2,885,60)]).concat([M]),V));
+  ['ออกแบบหน้าจอ','เขียน API','เขียนโค้ดหน้าบ้าน','ทดสอบ'].forEach((n,j)=>C('tk',n,875,60,[[2.4+j*.5,.7,{x:740+(j%2)*280,y:140+(j>>1)*64,o:1}],M],0,'width:270px'));
+  Lb('Task',1310,172,[fin(4.5),fout(12.8+D,.5)]);
+  Lb('◀ ซอยทีหลังได้',770,310,[fin(9.6+D),fout(12.8+D,.5)]);
+  A('<div class="sbt">Sprint Backlog</div>'+fi(15.2+D,'<i style="background:#35c46f"></i>Sprint Goal — ทำไม')+fi(15.9+D,'<i style="background:#58b4ee"></i>รายการงาน — ทำอะไร')+fi(16.6+D,'<i style="background:#aab2bb"></i>แผนการทำ — ทำอย่างไร'),
+    'pn sbp',660,110,[fin(14+D,.9,{s:1})],{s:.7},'width:600px');
+  cap(4.4,'คู่มือแนะว่า Task ควรเล็กพอให้จบใน 1 วันหรือน้อยกว่า');
+  cap(6+D,'Task เป็นของทีม — PO ไม่ต้องเห็น ไม่ต้องอนุมัติ');
+  cap(10+D,'ไม่ต้องซอยครบทุกข้อตั้งแต่วันแรก ซอยพอให้เริ่มงานได้');
+}},
+/* ---------- 10 ---------- */
+{n:'ขึ้นบอร์ด ปกป้อง Sprint Goal',who:'ใครทำ: Developers · เจรจาขอบเขตกับ Product Owner',T:24,f(){
+  PO(350,340,[[16.8,.3,{y:352}],[17.1,.3,{y:340}],[17.4,.3,{y:352}],[17.7,.3,{y:340}]],V);
+  Lb('Product Backlog',70,96,[],V);
+  PBN.forEach((n,j)=>C('or',n,70,PBY(j),[],V));
+  boardBase(); devs3();
+  A('<div class="sbt" style="font-size:30px">Sprint Backlog</div>','pn',1480,190,[fout(5.4,.8)],V,'width:310px;height:230px;border:6px solid #58b4ee;padding:14px');
+  A('Sprint Goal','sg',810,250,[[5.8,1.3,{y:2,s:1,o:1}]],{s:.5},GS);
+  A('','',796,-6,[fin(7.2,.6),[20.3,.3,{sh:SH1}],[21,.9,{sh:SH0}]],{sh:SH0},SHIELD);
+  const mk=[[mv(10,1,CX[1],RY(0))],[mv(10.6,1,CX[1],RY(1))],
+            [mv(11.6,.8,CX[0],RY(0)),[15,.8,{s:1.15}],[18,.6,{s:1.07}]],[mv(11.6,.8,CX[0],RY(1))],[mv(11.6,.8,CX[0],RY(2))]];
+  SPR.forEach((n,j)=>C('bl',n,1510,290,[fin(1+j*.7,.3),mv(1.3+j*.7,1.2,CX[0],RY(j))].concat(mk[j])));
+  C('tk','Task ใหม่',CX[1],RY(2),[fin(12,.5)]);
+  A('Task ไม่ใช้แล้ว'+fi(13.2,XS(50),'position:absolute;left:100px;top:2px'),'cd tk',CX[1],RY(3),[fin(12.4,.5),fout(13.9,.6)]);
+  A(ARW2,'',350,225,[fin(15.8,.5),fout(18.2,.5)],{r:125});
+  A('','',1084,-18,[[20.3,.05,{o:.9}],[20.35,.9,{s:2.2,o:0}]],{s:.2},'width:80px;height:80px;border-radius:50%;border:5px solid #7ee0ff');
+  C('rd','งานใหม่',1980,-4,[[19.5,.8,{x:1128},'ease-in'],[20.9,1.6,{x:1480,y:70}]],V,'width:190px');
+  cap(7.2,'สิ่งที่ล็อกคือ Sprint Goal ไม่ใช่รายการงาน');
+  cap(10.8,'Sprint Backlog ปรับได้ตลอดรอบ เมื่อทีมเรียนรู้มากขึ้น');
+  cap(15.6,'ขอบเขตเจรจาใหม่กับ PO ได้ ถ้าเรียนรู้ว่างานไม่ตรงกับที่คิด');
+  rule(21.3,'ปรับได้ แต่ห้ามปรับจนเป้าหมายของรอบนี้พัง');
+}},
+/* ---------- 11 ---------- */
+{n:'Daily Scrum',who:'เวลา 15 นาที · เป็นเหตุการณ์ของ Developers',T:38,f(){
+  boardBase();
+  goal([[14.3,.5,{s:1.15}],[16.4,.5,{s:1}]],[[14.3,.5,{sh:SH1}],[16.4,.5,{sh:SH0}]]);
+  C('gn','ยื่นคำขอ',CX[2],RY(0),[],V);
+  C('bl','ดูสถานะ',CX[1],RY(0),[mv(7.5,1,CX[2],RY(1),{bg:GN})],{o:1,bg:BL});
+  C('bl','รีเซ็ตรหัส',CX[0],RY(0),[mv(8.5,1,CX[1],RY(0))],V);
+  C('bl','แจ้งซ่อม<span class="ex fi" style="--d:17.5s">!</span>',CX[0],RY(1),[mv(9.3,1,CX[1],RY(1))],V);
+  C('bl','ยืมอุปกรณ์',CX[0],RY(2),[mv(10,.8,CX[0],RY(0))],V);
+  A('','',CX[2]-12,BY+62,[fin(2.6,.5),mv(4.2,.9,CX[1]-12,BY+62),mv(5.7,.9,CX[0]-12,BY+62),fout(7,.5)],0,
+    'width:274px;height:430px;border-radius:12px;background:rgba(255,226,90,.45);box-shadow:0 0 30px 6px rgba(255,226,90,.6)');
+  A('<svg width="160" height="160" viewBox="0 0 160 160"><circle cx="80" cy="80" r="66" fill="#fff" stroke="#c9d1d9" stroke-width="14"/><circle cx="80" cy="80" r="66" fill="none" stroke="#2fb866" stroke-width="14" pathLength="1" stroke-dasharray="1" transform="rotate(-90 80 80)" style="animation:dep 19s linear 2s both"/><text x="80" y="90" text-anchor="middle" font-size="28" font-weight="700" fill="#1f2c3a">15 นาที</text></svg>','',290,60,[fin(1.6)]);
+  Lb('ไล่ตามการ์ด จากขวาไปซ้าย<br>ไม่ใช่ไล่ตามคน',60,270,[fin(3)]);
+  A('<div style="font-weight:800;text-align:center">ตัวช่วย 3 คำถาม</div>'+fi(11.4,'• วันนี้ทำอะไร')+fi(11.8,'• ติดอะไร')+fi(12.2,'• พรุ่งนี้จะทำอะไร'),
+    'pn',1445,90,[fin(11,.6),fout(17,.6)],0,'width:440px;line-height:54px;border:5px dashed #9aa3ad');
+  A('ที่จอดรถ','park',1140,474,[fin(17.5)]);
+  P(PUR,1500,420,[mv(28.6,1.4,1395,440),mv(31,2.5,2030,440)],V);
+  A('ติดปัญหา… ต้องคุยยาว','bub',800,262,[[18.1,.5,{o:1,s:1}],[19.5,1.6,{x:1144,y:481,s:.4}],[30,.8,{x:1270,y:396}],[31,2.5,{x:1905,y:396}]],{s:.5});
+  [[GRN,560,600,780,540,740,555,-120,560],[YEL,2000,600,930,565,860,555,-120,620],[RED,1300,600,1080,540,1150,500,2000,600]].forEach(d=>
+    P(d[0],d[1],d[2],[mv(.3,1.5,d[3],d[4]),mv(22.5,1,d[5],d[6]),mv(25.3,1,d[3],d[4]),mv(27,1.6,d[7],d[8])],V));
+  A(ARW2,'',950,585,[fin(23.1,.5),fout(25.1,.4)]);
+  XX(900,490,170,24,25.1);
+  cap(4.5,'ไล่ตามคนทำให้กลายเป็นรายงานตัว ไล่ตามการ์ดทำให้เห็นงานที่ค้าง');
+  cap(11.3,'3 คำถามนี้เป็นตัวช่วยสำหรับทีมใหม่ ไม่ใช่กฎในคู่มือ');
+  cap(14.3,'สิ่งที่คู่มือบังคับคือ ต้องโฟกัสที่ความคืบหน้าสู่ Sprint Goal');
+  cap(20,'เจอปัญหา ไม่แก้ในวง — จดไว้แล้วแยกคุยหลังจบ');
+  rule(25.7,'ไม่ใช่การรายงานหัวหน้า');
+  cap(28,'Scrum Master เข้าได้ แต่ไม่ใช่เจ้าของประชุม');
+  cap(31,'ถ้าเขาทำงานใน Sprint Backlog ด้วย เขาเข้าในฐานะ Developers');
+  cap(34,'15 นาทีในวงคือการเก็บข้อมูล — งานจริงของ Scrum Master เกิดหลังจากนั้น');
+}},
+/* ---------- 12 ---------- */
+{n:'เคลียร์อุปสรรค',who:'ใครทำ: Developers ทำงาน · Scrum Master เคลียร์อุปสรรค',T:20,f(){
+  PO(300,330,[],V);
+  boardBase();goal();
+  C('gn','ยื่นคำขอ',CX[2],RY(0),[],V);C('gn','ดูสถานะ',CX[2],RY(1),[],V);
+  C('bl','รีเซ็ตรหัส',CX[1],RY(0),[[.8,.5,{y:RY(0)-6}],[1.3,.5,{y:RY(0)}]],V);
+  C('bl','แจ้งซ่อม',CX[1],RY(1),shake(3.6,CX[1],20,6,.1),V);
+  C('bl','ยืมอุปกรณ์',CX[0],RY(0),[mv(1.5,1.2,CX[1],RY(2))],V);
+  devs3();
+  C('rd','รอฝ่ายอื่นตอบ',920,158,[fin(3.6,.5),mv(6,2.2,2040,158)],0,'width:230px');
+  P(GRY,-90,548,[mv(8.6,2,470,548),mv(12,1.8,400,370)],V);
+  C('or','งานฝาก',-55,600,[mv(8.6,2,505,600),mv(12,1.8,330,420)],V,'width:140px');
+  P(PUR,1980,170,[mv(3.9,1.7,1150,170),mv(6,2.2,2270,170),[8.4,.1,{x:1960,y:548}],mv(9,2.2,630,548)],V);
+  A(ARW2,'',420,470,[fin(11.3,.5),fout(14.2,.5)],{r:215});
+  Lb('Scrum Master ไม่ทำ',1500,24,[fin(14.4)]);
+  [['แจกงาน',IC1],['ประเมินผลคน',IC2],['ตัดสินใจแทนทีม',IC3]].forEach(([t,ic],j)=>
+    A(ic+`<span>${t}</span>`+fi(15.5+j*1.2,XS(90),'position:absolute;left:300px;top:6px'),'tile',1470,90+j*150,[fin(14.9+j*1.2,.5)]));
+  cap(11.5,'กันคนนอกที่เดินมาสั่งงานทีมโดยตรง');
+}},
+/* ---------- 13 ---------- */
+{n:'ตรวจผ่าน DoD',who:'ใครทำ: Developers',T:18,f(){
+  const TK='position:absolute;left:0;right:0;top:0;line-height:26px;text-align:center;font-size:28px;font-weight:900;color:#12924a';
+  const it=['test ครบ','รีวิวโค้ดแล้ว','ไม่มี bug critical','มีคู่มือผู้ใช้'];
+  boardBase();goal();devs3();
+  C('gn','ยื่นคำขอ',CX[2],RY(0),[],V);C('gn','ดูสถานะ',CX[2],RY(1),[],V);
+  C('bl','ยืมอุปกรณ์',CX[1],RY(2),[],V);
+  A('','',1085,BY+62,[[.5,1,{h:428}],[6.6,.6,{h:0}],[8.7,.6,{h:428}],[13,.3,{bg:'#ff3b3b',sh:RG}],[13.4,.25,{sh:RN}],[13.65,.25,{sh:RG}],[13.9,.25,{sh:RN}],[14.15,.25,{sh:RG}],[16.6,.6,{bg:'#39d98a',sh:GG}]],
+    {o:1,h:0,bg:'#39d98a',sh:GG},'width:24px;border-radius:12px');
+  C('bl','รีเซ็ตรหัส',CX[1],RY(0),[[4,.8,{x:826,s:1.05}],[7.2,1.3,{x:CX[2],y:RY(2),s:1,bg:'#22d36b'}]],{o:1,bg:BL});
+  C('bl','แจ้งซ่อม',CX[1],RY(1),[[9.5,1.1,{x:826,s:1.05}],[14.4,.6,{x:770}],[15,1.2,{x:CX[1],s:1}]],V);
+  A('<div class="sbt" style="font-size:30px">Definition of Done</div>'+it.map((s,j)=>
+      fi(2+j*.4,`<span class="ck">${fio(4.8+j*.5,9,'✓',TK)}${j<3?fi(10.6+j*.7,'✓',TK):fi(12.9,'✗',TK+';color:#e02424')}</span>${s}`)).join(''),
+    'pn',1445,80,[fin(1.6)],0,'width:440px;line-height:58px;padding:16px 20px');
+  rule(15.2,'เกือบเสร็จ = ยังไม่เสร็จ');
+}},
+/* ---------- 14 ---------- */
+{n:'งานด่วนแทรก',who:'ใครตัดสิน: Product Owner · คุยกับ Developers ก่อนเสมอ',T:22,f(){
+  Lb('Product Backlog',70,96,[],V);
+  PBN.forEach((n,j)=>C('or',n,70,PBY(j),[[5.8,1.2,{y:PBY(j+1)}]],V));
+  G(0,0,[[15,1.3,{o:0}],[17,.6,{o:1}],[18.8,.7,{s:1.08}]].concat(shake(19.5,0,5,10,.08),[[20,.7,{o:0,s:1.3,r:5}]]),V,()=>{
+    boardBase();fence();
+    C('gn','ยื่นคำขอ',CX[2],RY(0),[],V);C('gn','ดูสถานะ',CX[2],RY(1),[],V);
+    C('bl','รีเซ็ตรหัส',CX[1],RY(0),[],V);C('bl','แจ้งซ่อม',CX[1],RY(1),[],V);
+  },BO);
+  PO(350,340,[],V); devs3();
+  A('','',392,322,[fin(14.6,.4),fout(16.8,.4)],0,'width:12px;height:56px;border-radius:6px;background:#1f3a6e;border-top:14px solid #e6b890');
+  const bk=[[13.2,.25,{o:.3}],[13.45,.25,{o:1}],[13.7,.25,{o:.3}],[13.95,.25,{o:1}]];
+  A('Sprint','sg',760,2,bk.concat([[14.2,.9,{x:690,y:50,r:-24,o:0}]]),V,'border-radius:10px 0 0 10px;text-align:right;padding-right:8px');
+  A('Goal','sg',960,2,bk.concat([[14.2,.9,{x:1030,y:50,r:24,o:0}]]),V,'border-radius:0 10px 10px 0;text-align:left;padding-left:8px');
+  A('','',CX[0]-4,RY(0)-4,[fin(10.1,.3),fout(12.3,.3)],0,'width:258px;height:62px;border:4px dashed #1f2c3a;border-radius:10px');
+  C('bl','ยืมอุปกรณ์',CX[0],RY(0),[[8.6,1.5,{x:70,y:PBY(4),bg:OR}]],{o:1,bg:BL});
+  [0,.25].forEach(d=>A('','',1384,237,[[1.3+d,.05,{o:.9}],[1.35+d,1,{s:2.4,o:0}]],{s:.2},'width:80px;height:80px;border-radius:50%;border:5px solid #7ee0ff'));
+  SW([[3.8,7.8,'ทางเลือกที่ 1'],[8,12.8,'ทางเลือกที่ 2'],[13,16.8,'ทางเลือกที่ 3'],[17.2,null,'ทางที่ 4 ?']],'lb',1470,90,230,[fin(3.8,.4)]);
+  const W='width:190px';
+  C('rd','ด่วนมาก',1960,250,[[.5,.8,{x:1436},'ease-in'],[1.8,1.6,{x:1580}],[4,1.5,{x:420,y:290}],[5.8,1.2,{x:70,y:PBY(0),w:250}],[8,.6,{o:.4}]],{o:1,w:190});
+  C('rd','ด่วนมาก',1580,250,[fin(8,.5),[11.2,1.4,{x:CX[0],y:RY(0),w:250}],[15,1.3,{o:0}],[17,.6,{o:1}],[20,.6,{o:0}]],{w:190});
+  C('rd','ด่วนมาก',1580,250,[fin(17.3,.4),[17.8,.9,{x:CX[1],y:RY(2),w:250}],[20,.6,{o:0}]],{w:190});
+  A(XS(600),'',660,45,[[20.1,.5,{o:1,s:1}]],{s:.5});
+  cap(5,'รอรอบหน้าได้ → ใส่บนสุดของ Product Backlog จบ');
+  cap(10.2,'รอไม่ได้จริง → เอาออกก่อน แล้วค่อยใส่เข้า คุยกับ PO ก่อนเสมอ');
+  cap(14.8,'Sprint Goal ใช้ไม่ได้แล้ว → PO เท่านั้นที่ยกเลิก Sprint ได้');
+  cap(17.6,'ทางที่สี่ — ใส่เข้าบอร์ดโดยไม่มีอะไรออก ?');
+  rule(20.4,'ไม่มีทางที่สี่ — ยัดเพิ่มโดยไม่เอาอะไรออก ไม่ใช่ตัวเลือก');
+}},
+/* ---------- 15 ---------- */
+{n:'ติดตาม Burndown',who:'ใครดู: Developers ดูเอง',T:22,f(){
+  const cx=d=>600+(d-1)*56,cy=p=>540-p*7.5;
+  G(0,0,[fout(10.4,.8)],V,()=>{
+    A('','pn',470,6,[],V,'width:1030px;height:660px');
+    P(GRN,330,420,[],V);P(YEL,400,460,[],V);
+    let s='<svg width="1920" height="690" font-size="28" font-weight="700" fill="#1f2c3a"><path d="M600 70V540H1420" fill="none" stroke="#1f2c3a" stroke-width="5" pathLength="1" class="dr" style="--d:.3s;--u:1.6s"/>';
+    [60,30,0].forEach(p=>s+=`<text class="fi" style="--d:1.6s" x="582" y="${cy(p)+10}" text-anchor="end">${p}</text>`);
+    [1,5,10,15].forEach(d=>s+=`<text class="fi" style="--d:1.8s" x="${cx(d)}" y="580" text-anchor="middle">${d}</text>`);
+    s+='<text class="fi" style="--d:1.9s" x="600" y="50" text-anchor="middle">คะแนนที่เหลือ</text><text class="fi" style="--d:2s" x="1420" y="628" text-anchor="end">วันใน Sprint</text>';
+    let d=`M${cx(1)} ${cy(60)}`;[[3,52],[5,39],[8,31],[9,18],[12,8],[14,0]].forEach(([a,b])=>d+=`H${cx(a)}V${cy(b)}`);d+=`H${cx(15)}`;
+    s+=`<path d="${d}" fill="none" stroke="#1e88e5" stroke-width="7" stroke-linejoin="round" pathLength="1" class="dr" style="--d:6s;--u:3.6s"/></svg>`;
+    A(s,'',0,0,[],V);
+    A('<svg width="790" height="456"><line x1="0" y1="3" x2="784" y2="453" stroke="#7d8791" stroke-width="5" stroke-dasharray="16 12"/></svg>','',600,87,[[2.4,1.6,{w:790}]],{o:1,w:0},'height:456px;overflow:hidden');
+  },FULL);
+  const mini=(x,t,l,txt,pd)=>G(x,36,[fin(t,.7)],0,()=>{
+    A(`<svg width="540" height="290"><path d="M50 20V260H520" fill="none" stroke="#1f2c3a" stroke-width="4"/><line x1="50" y1="30" x2="510" y2="260" stroke="#7d8791" stroke-width="4" stroke-dasharray="12 10"/><path d="${pd}" fill="none" stroke="#1e88e5" stroke-width="6" stroke-linejoin="round" pathLength="1" class="dr" style="--d:${t+.5}s;--u:1.3s"/></svg>`,'pn',0,0,[],V,'width:540px;height:290px;padding:0');
+    Lb(l,440,14,[],V); A(txt,'lb',0,302,[],V,'width:540px');
+  },'width:540px;height:400px');
+  mini(90,11.3,'A','ช้ากว่าแผน — คุยกลางรอบ<br>ไม่ใช่รอวันสุดท้าย','M50 30H150V70H260V120H380V170H510');
+  mini(690,13,'B','เส้นแบนราบ 4 วัน — มีอะไรติดอยู่<br>ไม่ใช่ทีมขี้เกียจ','M50 30H110V90H170V130H410V200H510');
+  mini(1290,14.7,'C','เกือบไม่ลง แล้วดิ่งวันสุดท้าย<br>อันตรายสุด งานไปกองท้าย','M50 30H200V45H380V60H470V250H510');
+  P(GRY,820,480,[fin(17.5,.6)]); Lb('วัดผลรายคน',900,520,[fin(17.5,.6)],0,'w');
+  XX(790,475,140,18.6);
+  cap(3.6,'เส้นประ = ถ้าทุกอย่างเป็นไปตามแผนพอดี');
+  cap(7.2,'ลดเมื่องานเสร็จ ไม่ใช่ลดทุกวัน — งานที่ทำครึ่งหนึ่งยังไม่นับ');
+  cap(11.3,'รูปแบบที่ต้องอ่านออก');
+  rule(19.5,'เป็นเครื่องมือของทีม ไม่ใช่เครื่องมือวัดคน');
+}},
+/* ---------- 16 ---------- */
+{n:'แสดง Increment',who:'ใครเข้า: ทั้งทีม + Stakeholders',T:20,f(){
+  const S={x:CX[1]-330,y:RY(0)};
+  PO(100,390,[],V);P(PUR,20,450,[],V);
+  G(0,0,[[3,1.4,{x:-330}]],V,boardBase,FULL);
+  SPR4.forEach((n,j)=>C('gn',n,CX[2],RY(j),[[.6+j*.3,1.3,{x:1120,y:300}],[2.6,.6,{o:0,s:.5}]],V));
+  A('','',1095,40,[[7.4,1.2,{o:1}]],0,'width:300px;height:230px;background:radial-gradient(ellipse at 50% 100%,rgba(255,250,200,.95),rgba(255,250,200,0) 70%)');
+  A('Increment','inc',1130,250,[[2.6,.9,{o:1,s:1}]],{s:.5});
+  A('','',1120,232,[[2.6,.9,{o:1}],[7,1,{x:1085,y:190,r:-28}]],0,'width:250px;height:36px;background:#1f9a55;border-radius:10px');
+  [[1500,330],[1590,390],[1680,330]].forEach((p,j)=>P(GRY,2000,p[1],[mv(4.5+j*.3,1.8,p[0],p[1])],V));
+  [[GRN,700,1050,470],[YEL,900,1390,450],[RED,1100,1250,500]].forEach(d=>P(d[0],d[1],555,[mv(3.2,1.6,d[2],d[3])],V));
+  A('รายงานความคืบหน้า<br><b style="font-size:54px">85%</b>','',1085,300,[[9.6,.8,{o:1,y:222}],fout(12.4,.6)],0,
+    'width:320px;height:220px;background:#fff;border:3px solid #9aa3ad;border-radius:6px;color:#1f2c3a;font-size:28px;font-weight:700;text-align:center;padding-top:36px;line-height:64px;box-shadow:0 8px 20px rgba(0,0,0,.25);white-space:nowrap');
+  XX(1160,245,170,11.2,12.4);
+  C('bl','แจ้งซ่อม',CX[1],RY(0),[[3,1.4,S],[14,1.6,{x:826,y:300}],[16.4,1.6,S]],V);
+  A('','',1094,210,[[15.1,.5,{o:1,h:230}],[15.7,.25,{sh:RN}],[15.95,.25,{sh:RG}],[16.2,.25,{sh:RN}],[16.45,.25,{sh:RG}],fout(18.2,.6)],{h:0,bg:'#ff3b3b',sh:RG},'width:22px;border-radius:11px');
+  Lb('DoD',1064,158,[fin(15.2,.4),fout(18.2,.6)],0,'r');
+  cap(7.6,'1 Sprint อาจมีหลาย Increment และส่งมอบก่อนจบรอบได้ ไม่ต้องรอ Review');
+  rule(12,'แสดงของที่ใช้งานได้ ไม่ใช่สไลด์รายงาน');
+  cap(16.2,'แสดงเฉพาะของที่ผ่าน DoD');
+}},
+/* ---------- 17 ---------- */
+{n:'รับ Feedback',who:'ใครทำ: Stakeholders ให้ความเห็น · Product Owner จัดลำดับ',T:21,f(){
+  PO(350,340,[],V);P(PUR,430,470,[],V);
+  [[1500,330],[1590,390],[1680,330]].forEach(p=>P(GRY,p[0],p[1],[],V));
+  G(0,0,[],V,()=>{boardBase();SPR4.forEach((n,j)=>C('gn',n,CX[2],RY(j),[],V));},FULL);
+  P(GRN,620,555,[],V);P(YEL,1230,555,[],V);
+  Lb('Product Backlog',70,96,[],V);
+  PBN.forEach((n,j)=>C('or',n,70,PBY(j),[[10,1.2,{y:PBY(j+1)}],[13.8,1.3,{y:PBY(j+2)}]],V));
+  [['ตรงนี้ขอเพิ่ม',1440,110],['อันนี้ใช้ยาก',1620,180],['อยากได้แบบนี้อีก',1450,250]].forEach(([t,x,y],j)=>{
+    const s=5.5+j*1.1,my=30+j*8;
+    A(t,'bub',x,y,[[.6+j*1.3,.5,{o:1,s:1}],[s,1.1,{x:760,y:my,o:0}]],{s:.5});
+    const k=[[s,1.1,{x:760,y:my,o:1}],[s+1.1,1.1,{x:70,y:PBY(3+j)}]];
+    k.push(j?[13.8,1.3,{y:PBY(4+j)}]:[10,1.2,{y:PBY(0)}]);
+    C('or',t,x,y,k);
+  });
+  C('bl','แจ้งซ่อม',CX[1],RY(0),[[11.5,2,{x:70,y:PBY(6)}],[13.8,1.3,{y:PBY(1),bg:OR}]],{o:1,bg:BL});
+  A('','gate',850,500,[fin(16.2,.6,{s:1}),fout(18.8,.6)],{s:.6,bc:'#5b6b7c',sh:'0 0 0px 0px #000'},'width:220px;height:170px;background:rgba(0,0,0,.08)');
+  Lb('อนุมัติปล่อยของ',842,448,[fin(16.4),fout(18.8,.6)]);
+  XX(880,500,160,17.7,18.8);
+  cap(8.5,'เสียงจากผู้ใช้กลายเป็นงานรอบหน้า และลำดับอาจเปลี่ยน');
+  cap(13,'งานที่ไม่เสร็จ กลับไปให้ PO จัดลำดับใหม่ ไม่ใช่ลากต่อเงียบ ๆ');
+  rule(18.4,'Sprint Review ไม่ใช่ประตูอนุมัติ');
+}},
+/* ---------- 18 ---------- */
+{n:'Retrospective',who:'ใครเข้า: ทั้งทีมเท่านั้น ไม่มีคนนอก',T:22,f(){
+  G(0,0,[[4,1.5,{x:-1600}]],V,()=>{boardBase();SPR4.forEach((n,j)=>C('gn',n,CX[2],RY(j),[],V));},FULL);
+  G(1600,0,[[4.6,1.5,{x:0}]],V,retro,FULL);
+  [[1500,330],[1590,390],[1680,330]].forEach((p,j)=>P(GRY,p[0],p[1],[mv(.5+j*.2,2,2050,p[1])],V));
+  A('','',1960,170,[mv(2.6,.8,1856,170)],V,'width:56px;height:340px;background:#6b4a2e;border-radius:6px;border:4px solid #4a321d');
+  GP.forEach((n,j)=>A(n,'nt g',500,130+j*84,[[8.2+j*.8,.5,{o:1,s:1}]],{s:.6}));
+  DP.forEach((n,j)=>A(n,'nt o',985,130+j*84,[[12.2+j*.8,.5,{o:1,s:1}]],{s:.6}));
+  PO(520,500,[],V);P(GRN,760,510,[],V);P(YEL,900,510,[[16.6,.5,{r:8}],[19.2,.5,{r:0}]],V);P(RED,1040,510,[],V);P(PUR,1280,500,[],V);
+  A('','',948,558,[fin(16.8,.4),fout(19,.4)],0,'width:84px;height:13px;border-radius:7px;background:#e3b21c;border-right:16px solid #e6b890');
+  XX(890,480,190,17.8,19);
+  cap(1.5,'ทั้งทีมเท่านั้น ไม่มีคนนอก');
+  cap(6,'ไม่ใช่เราทำอะไรเสร็จบ้าง — แต่คือเราทำงานกันอย่างไร');
+  cap(9.2,'เรื่องที่ดีขึ้นก่อน');
+  cap(13.2,'แล้วค่อยเรื่องที่ต้องปรับ');
+  cap(17.6,'ตรวจวิธีทำงาน ไม่ใช่หาคนผิด');
+}},
+/* ---------- 19 ---------- */
+{n:'เลือก 1-2 เรื่องมาทำ',who:'ใครทำ: ทั้งทีม',T:22,f(){
+  const NY=j=>130+j*84,Z='0 0 0px 0px #ffc533',dim=[[16,.5,{o:.2}],[19.3,.6,{o:1}]];
+  G(0,0,[fout(5.6,.8)],V,()=>{retro();GP.forEach((n,j)=>A(n,'nt g',500,NY(j),[],V));A(DP[2],'nt o',985,NY(2),[],V);},FULL);
+  const px=[520,760,900,1040,1280];
+  PO(px[0],540,[],V);P(GRN,px[1],540,[],V);P(YEL,px[2],540,[],V);P(RED,px[3],540,[],V);P(PUR,px[4],540,[],V);
+  const rows=[['ทำอะไร','ซอยงานใหญ่ก่อนประเมิน','นัดผู้ขายคุยทุกสัปดาห์'],['ใครเริ่ม','ทีม Developers','Scrum Master'],
+              ['เสร็จเมื่อไหร่','ภายใน Sprint หน้า','สัปดาห์แรกของ Sprint'],['รู้ได้ยังไงว่าสำเร็จ','ประเมินคลาดไม่เกิน 10%','ได้คำตอบภายใน 2 วัน']];
+  [0,1].forEach(c=>A(rows.map((r,q)=>`<div class="rw"><b class="fi" style="--d:${7.4+q*.7+c*.3}s">${r[0]}</b>${fis(7.7+q*.7+c*.3,r[1+c])}</div>`).join(''),
+    'pn',70+c*910,170,[fin(6.4,.8)].concat(dim),0,'width:870px;height:330px;padding:92px 24px 0'));
+  [0,1].forEach(j=>A(DP[j],'nt o',985,NY(j),[[4.4,.6,{sh:'0 0 26px 8px #ffc533'}],[5.8,1.2,{x:90+j*910,y:184,sh:Z}]].concat(dim),{o:1,sh:Z}));
+  const vt=[0,1,0,1,0,0,1,1,0,2],cn=[0,0,0];
+  vt.forEach((v,d)=>{const p=d>>1,k=cn[v]++;
+    A('','',px[p]+6+(d&1)*26,505,[fin(.5+p*.15,.4),mv(1.6+d*.22,1,985+450-36-k*28,NY(v)-12),fout(5.6,.5)],0,'width:22px;height:22px;border-radius:50%;background:#1e5bd8;border:2px solid #fff');});
+  A('<div style="font-weight:800;text-align:center">Sprint Backlog รอบหน้า</div>','pn',1380,4,[fin(11.6,.6)],0,'width:490px;height:136px;border:6px solid #58b4ee;padding:4px;line-height:56px');
+  C('bl','ซอยงานใหญ่ก่อนประเมิน<span class="pt fi" style="--d:14.4s">3</span>',285,300,[fin(12,.5),mv(12.6,1.7,1392,70)],0,'width:440px');
+  for(let i=0;i<8;i++)A('','nt o',190+i*195,240,[fin(16.4+i*.06,.4),[17.6+i*.12,1.5,{y:860,r:i%2?25:-20,o:0},'ease-in']],0,'width:170px;height:60px');
+  cap(13,'อย่างน้อย 1 ข้อต้องเข้า Sprint Backlog รอบหน้าเป็นงานจริง');
+  rule(18.4,'เลือก 8 เรื่อง แปลว่าจะไม่ได้ทำสักเรื่อง');
+  cap(20,'Retrospective เป็นเหตุการณ์สุดท้ายของ Sprint');
+}},
+/* ---------- 20 ---------- */
+{n:'วนรอบใหม่ + สรุป',who:'ใครทำ: ทั้งทีม · วนต่อทุก Sprint',T:22,f(){
+  G(0,0,[fout(3.8,.5)],V,()=>{
+    A('Sprint ที่เพิ่งจบ','spr',260,250,[[.3,.9,{w:640,o:1}]],{w:0});
+    A('Sprint ถัดไป','spr',900,250,[[1.2,.8,{w:640,o:1}]],{w:0},'background:#3f78b5');
+    P(GRY,1000,105,[fin(1.7,.4),fout(3.3,.4)]);
+    A('ช่องว่าง','gap',825,120,[fin(1.7,.4),mv(2.2,.5,825,250),[2.8,.7,{w:0,x:900,o:0}]],{w:150});
+  },FULL);
+  G(0,0,[fin(4.3,.5),fout(8,.5)],0,()=>{
+    A('<svg width="1920" height="690"><circle cx="1100" cy="330" r="240" fill="none" stroke="#8fa3b8" stroke-width="5"/></svg>','',0,0,[],V);
+    for(let i=0;i<14;i++){const a=(-90+i*360/14)*Math.PI/180;
+      A(7+i,'nd',1100+240*Math.cos(a)-32,330+240*Math.sin(a)-32,[[4.4+i*.08,.3,{o:1}]].concat(i?[]:[[7.6,.3,{s:1.3,bg:'#2fb866'}]]),{bg:'#1f2c3a'});}
+    G(1100,330,[[5.4,2.2,{r:360},'linear']],V,()=>A('','',-13,-303,[],V,'width:26px;height:26px;border-radius:50%;background:#ffd34d;box-shadow:0 0 16px 4px #ffd34d'),'width:0;height:0');
+    Lb('6 · Refinement<br>ทำต่อเนื่อง',985,288,[],V);
+    for(let i=0;i<5;i++)A(i+1,'nd',220+i*76,290,[],{o:.45});
+    Lb('ทำครั้งเดียว ไม่ต้องทำซ้ำ',215,372,[],{o:.75});
+  },FULL);
+  G(0,0,[fin(8.5,.5),fout(12,.5)],0,()=>{
+    for(let i=0;i<3;i++){
+      A('Sprint '+(i+1),'spr',362+i*400,470,[],V,'width:396px;height:80px;line-height:74px');
+      for(let j=0;j<=i;j++)A('','',500+i*400,400-j*68,[fin(9+i*.6+j*.25,.4)],0,'width:120px;height:60px;border-radius:10px;background:#2fb866;border:3px solid #1f7f47;box-shadow:0 0 14px 2px rgba(57,217,138,.7)');
+    }
+  },FULL);
+  const tb=(rows,t,dt,x,ws)=>A('<table class="tb">'+rows.map((r,q)=>`<tr class="fi" style="--d:${t+q*dt}s">`+r.map((c,z)=>`<t${q?'d':'h'} style="width:${ws[z]}px">${c}</t${q?'d':'h'}>`).join('')+'</tr>').join('')+'</table>','',x,40,[],V);
+  tb([['Artifact','ข้อผูกพัน','เจ้าของ'],['Product Backlog','Product Goal','Product Owner'],['Sprint Backlog','Sprint Goal','Developers'],['Increment','Definition of Done','Developers']],12.7,.5,60,[300,330,300]);
+  tb([['เหตุการณ์','เวลาสูงสุด'],['Sprint','1 เดือน'],['Sprint Planning','8 ชั่วโมง'],['Daily Scrum','15 นาที'],['Sprint Review','4 ชั่วโมง'],['Sprint Retrospective','3 ชั่วโมง']],16.6,.45,1080,[440,300]);
+  A('นี่คือกระบวนการทั้งหมด 20 ขั้น<br>ไม่มีอะไรมากกว่านี้','',360,455,[[20.2,.9,{o:1,s:1}]],{s:.9},
+    'width:1200px;background:#1f2c3a;color:#fff;font-size:46px;font-weight:800;line-height:74px;text-align:center;padding:22px 0;border-radius:18px;border-bottom:8px solid #2fb866');
+  cap(1.5,'ไม่มีช่องว่างระหว่าง Sprint — จบ Retro วันนี้ เริ่มใหม่วันทำการถัดไป');
+  cap(9.3,'ความยาวรอบไม่เปลี่ยน — สิ่งที่เปลี่ยนคือสิ่งที่ใส่เข้าไป');
+  cap(14.2,'ทุก Artifact มีของคู่กัน 1 อย่างเสมอ — ขาดแล้วไร้ทิศทางทันที');
+  cap(17.8,'สำหรับ Sprint 1 เดือน — สั้นลงตามสัดส่วนถ้า Sprint สั้นกว่า');
+}}
+];
+
+/* =====================================================================
+   ประกอบฉาก + ปุ่มควบคุม
+   ===================================================================== */
+function build(i){
+  const s=SC[i]; L=[];CSS=[];uid=0;caps=[];rl=null;TT=s.T; s.f();
+  caps.sort((a,b)=>a[0]-b[0]).forEach((c,j)=>{
+    const k=[[c[0],.7,{o:1,y:738}]];
+    if(caps[j+1])k.push([caps[j+1][0],.7,{y:694,o:.5}]);
+    if(caps[j+2])k.push([caps[j+2][0],.3,{o:0}]);
+    A(c[1],'cap',0,752,k);
+  });
+  if(rl)A(`<span>${rl[1]}</span>`,'rule',0,790,[[rl[0],.8,{o:1,s:1}]],{s:.92});
+  return '<style>'+CSS.join('')+'</style>'+L.join('');
+}
+const PH=['ก่อน Sprint แรก','Refinement','Sprint Planning','ระหว่าง Sprint','Sprint Review','Retrospective','วนรอบใหม่'];
+const phOf=i=>i<5?0:i<6?1:i<9?2:i<15?3:i<17?4:i<19?5:6;
+
+if(typeof document!=='undefined'){
+  const $=id=>document.getElementById(id), seen=new Set(); let cur=0;
+  $('phase').innerHTML=PH.map(p=>`<div>${p}</div>`).join('');
+  $('nav').innerHTML=SC.map((s,i)=>`<button class="s" data-i="${i}" title="${s.n}">${i+1}</button>`).join('')+
+    '<button class="c" data-a="r">↺ เล่นซ้ำ</button><button class="c" data-a="p">◀ ย้อนกลับ</button><button class="c" data-a="n">ถัดไป ▶</button>';
+  function show(i){
+    cur=Math.max(0,Math.min(SC.length-1,i)); seen.add(cur);
+    $('sc').innerHTML=build(cur);
+    $('who').textContent=SC[cur].who;
+    $('ttl').textContent=`ขั้น ${cur+1} / ${SC.length} · ${SC[cur].n}`;
+    document.querySelectorAll('#nav .s').forEach((b,j)=>{b.className='s'+(j==cur?' cur':seen.has(j)?' seen':'');});
+    document.querySelectorAll('#phase div').forEach((d,j)=>d.classList.toggle('on',j==phOf(cur)));
+  }
+  $('nav').addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b)return; b.blur();
+    if(b.dataset.i!=null)show(+b.dataset.i);
+    else if(b.dataset.a=='r')show(cur); else if(b.dataset.a=='p')show(cur-1); else show(cur+1);
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.code=='Space'){e.preventDefault();show(cur);}
+    else if(e.key=='ArrowRight'){e.preventDefault();show(cur+1);}
+    else if(e.key=='ArrowLeft'){e.preventDefault();show(cur-1);}
+  });
+  function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('app').style.transform=`translate(-50%,-50%) scale(${s})`;}
+  addEventListener('resize',fit); fit(); show(0);
+}
+</script>
+</body>
+</html>

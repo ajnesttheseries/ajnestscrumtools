@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ตรวจและปรับ — DoD · Sprint Review · Burndown · Retrospective</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#44586e;overflow:hidden;
+  font-family:"Sarabun","Leelawadee UI","Noto Sans Thai","Thonburi",Tahoma,sans-serif}
+#app{position:absolute;left:50%;top:50%;width:1920px;height:1080px;background:#44586e;color:#fff;overflow:hidden}
+#scene{position:absolute;left:0;top:0;width:1920px;height:990px;overflow:hidden}
+#scene svg{position:absolute;left:0;top:0;width:1920px;height:990px}
+#scene svg text{font-family:inherit}
+#ttl{position:absolute;left:36px;top:16px;font-size:34px;font-weight:700;z-index:5}
+#part{position:absolute;right:36px;top:18px;font-size:30px;font-weight:600;color:#dbe4ee;z-index:5}
+.cap{position:absolute;left:90px;right:90px;top:84px;text-align:center;font-size:38px;font-weight:600;line-height:1.3;opacity:0}
+.cap span{display:inline-block;background:rgba(18,28,40,.66);padding:8px 30px;border-radius:14px}
+.rule{position:absolute;left:0;right:0;top:882px;height:108px;background:#8f1620;border-top:5px solid #c9343f;color:#fff;
+  font-size:38px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center;
+  transform:translateY(120px);opacity:0}
+.mid{position:absolute;left:230px;right:230px;top:330px;text-align:center;font-weight:700;opacity:0}
+.mid span{display:inline-block;background:rgba(18,28,40,.82);padding:22px 44px;border-radius:20px;line-height:1.4}
+.pt{position:absolute;top:482px;width:352px;font-size:28px;line-height:1.38;opacity:0}
+.pt b{display:block;font-size:32px;color:#ffd84a;margin-bottom:4px}
+.pt.dng b{color:#ff8a8a}
+.big{position:absolute;top:205px;width:640px;background:#fdf3e3;color:#1d2733;border-left:14px solid #f59a2e;
+  border-radius:14px;padding:14px 26px;opacity:0;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.big .row{height:86px;border-bottom:2px solid #ead9bd}
+.big .row:last-child{border-bottom:0}
+.big .lb{font-size:28px;color:#66727f;line-height:38px}
+.big .vl{font-size:30px;font-weight:700;line-height:42px;opacity:0;white-space:nowrap}
+.old{position:absolute;left:40px;top:640px;width:520px;height:210px;background:#f4f6f8;color:#1d2733;border-radius:14px;
+  border-left:14px solid #8b939c;padding:18px 24px;opacity:0;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.old .lb{font-size:28px;color:#66727f}
+.old .vl{font-size:32px;font-weight:700;margin-top:8px;width:340px;line-height:1.3}
+.old .ok{position:absolute;right:26px;top:60px;width:92px;height:92px;border-radius:50%;background:#27c35f;color:#fff;
+  font-size:64px;line-height:92px;text-align:center;font-weight:700;opacity:0}
+#bar{position:absolute;left:0;top:990px;width:1920px;height:90px;background:#2c3a4a;display:flex;gap:10px;padding:12px 16px}
+#bar button{font:inherit;font-size:28px;font-weight:600;color:#fff;border:0;border-radius:10px;background:#6b7f95;
+  cursor:pointer;white-space:nowrap;padding:0 14px;transition:background .35s}
+#bar .sb{flex:1 1 auto}
+#bar .sb.seen{background:#30353c}
+#bar .sb.cur{background:#27a552}
+#bar .ctl{background:#1c2633;border:2px solid #56687c}
+#bar .gap{flex:0 0 12px}
+@keyframes fi{to{opacity:1}}
+@keyframes fo{to{opacity:0}}
+@keyframes pop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.25);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+@keyframes wig{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
+@keyframes wr{from{clip-path:inset(-40% 100% -40% -2%);opacity:1}to{clip-path:inset(-40% -3% -40% -2%);opacity:1}}
+</style>
+<style id="dyn"></style>
+</head>
+<body>
+<div id="app">
+  <div id="ttl"></div>
+  <div id="part"></div>
+  <div id="scene"></div>
+  <div style="position:absolute;right:20px;top:954px;font-size:22px;font-weight:400;color:#e6ecf2;z-index:6">Aj. NesT the Series</div>
+  <div id="bar"></div>
+</div>
+<script>
+/* ---------- ตัวช่วยสร้าง CSS animation (การเคลื่อนไหวทั้งหมดเป็น CSS) ---------- */
+const EASE='cubic-bezier(.45,.05,.25,1)', HEAVY='cubic-bezier(.3,0,.15,1)';
+const kf={};let kn=0,dynCss='';
+function KR(body){if(!kf[body]){kf[body]='k'+(kn++);dynCss+=`@keyframes ${kf[body]}{${body}}`;}return kf[body];}
+function K(to,from){return KR((from?`from{${from}}`:'')+`to{${to}}`);}
+const an=l=>'animation:'+l.map(a=>`${a[0]} ${a[1]}s ${a[3]||EASE} ${a[2]}s ${a[4]||1} forwards`).join(',');
+const fi=(d,t=.8)=>['fi',t,d], fo=(d,t=.7)=>['fo',t,d];
+const to=(css,d,t=1.4,e)=>[K(css),t,d,e];
+const mv=(x,y,d,t=1.4,e)=>[K(`transform:translate(${x}px,${y}px)`),t,d,e];
+const from=(css,d,t=1)=>[K('transform:none;opacity:1',css+';opacity:0'),t,d];
+const H=(...l)=>`style="opacity:0;${an(l)}"`;
+const S=(...l)=>`style="${an(l)}"`;
+
+/* ---------- ชิ้นส่วนภาพ ---------- */
+const C={g:'#2fae5a',y:'#f2c230',r:'#e2504a',po:'#1f3a7a',sm:'#8a4fc7',st:'#8b939c',
+  blue:'#4aa3e6',done:'#27d267',pb:'#f59a2e',ink:'#1d2733'};
+const G=(x,y,st,inner)=>`<g transform="translate(${x},${y})"><g ${st||''}>${inner}</g></g>`;
+const T=(x,y,t,s=28,f=C.ink,a='start',w=600,ex='')=>
+  `<text x="${x}" y="${y}" font-size="${s}" fill="${f}" text-anchor="${a}" font-weight="${w}" ${ex}>${t}</text>`;
+const STAGE=`<polygon points="-80,548 960,878 960,902 -80,572" fill="#a9b2bc"/>
+<polygon points="2000,548 960,878 960,902 2000,572" fill="#97a1ac"/>
+<polygon points="960,218 2000,548 960,878 -80,548" fill="#d9dee4"/>`;
+function person(c,o={}){
+  const sk='#f2caa6',hair='#3b2f2a';
+  let s=`<ellipse cx="0" cy="2" rx="38" ry="10" fill="rgba(0,0,0,.18)"/>
+<rect x="-20" y="-52" width="16" height="52" rx="6" fill="#2a3340"/><rect x="4" y="-52" width="16" height="52" rx="6" fill="#2a3340"/>
+<rect x="-43" y="-122" width="15" height="62" rx="7.5" fill="${c}"/>`;
+  s+=o.point?`<g transform="rotate(-10 26 -112)"><rect x="22" y="-120" width="76" height="15" rx="7.5" fill="${c}"/><circle cx="103" cy="-112.5" r="9" fill="${sk}"/></g>`
+    :`<rect x="28" y="-122" width="15" height="62" rx="7.5" fill="${c}"/>`;
+  s+=`<rect x="-30" y="-128" width="60" height="86" rx="22" fill="${c}" stroke="rgba(0,0,0,.15)" stroke-width="2"/><circle cx="0" cy="-152" r="26" fill="${sk}"/>`;
+  s+=o.back?`<circle cx="0" cy="-155" r="26" fill="${hair}"/>`
+    :`<path d="M-26,-154 a26,26 0 0 1 52,0 q-26,-16 -52,0z" fill="${hair}"/><circle cx="-9" cy="-148" r="3.2" fill="#2a3340"/><circle cx="9" cy="-148" r="3.2" fill="#2a3340"/>`;
+  if(o.label)s+=T(0,38,o.label,28,C.ink,'middle',700);
+  return s;
+}
+function card(col,o={}){
+  const w=o.w||130,h=o.h||84;
+  return `<rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" rx="10" fill="${col}" stroke="rgba(0,0,0,.2)" stroke-width="2"/>`+
+    (o.t?T(0,11,o.t,32,'#fff','middle',700)
+      :`<rect x="${-w/2+14}" y="${-h/2+16}" width="${w-28}" height="8" rx="4" fill="rgba(255,255,255,.8)"/><rect x="${-w/2+14}" y="${-h/2+34}" width="${w-58}" height="8" rx="4" fill="rgba(255,255,255,.55)"/>`);
+}
+const tick=()=>`<path d="M-11,1 l8,9 l15,-19" fill="none" stroke="#12964a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+const bigX=(s,w=16)=>`<path d="M${-s},${-s} L${s},${s} M${s},${-s} L${-s},${s}" stroke="#e02b3a" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+const cap=(t,d,o)=>`<div class="cap" style="${an(o?[fi(d),fo(o)]:[fi(d)])}"><span>${t}</span></div>`;
+const rule=(t,d)=>`<div class="rule" style="${an([[K('transform:none;opacity:1'),1,d]])}">${t}</div>`;
+const svg=v=>`<svg viewBox="0 0 1920 990">${v}</svg>`;
+
+/* ================= ฉาก 1 · Definition of Done ================= */
+function s1(){
+  const L=['ผ่าน code review จากคนอื่นอย่างน้อย 1 คน','ผ่าน test case ของ Story นี้ครบทุกข้อ',
+    'ไม่มี bug ระดับ critical หรือ high ค้างอยู่','มีเอกสารหรือคู่มือสำหรับผู้ใช้','ขึ้นระบบจริงได้โดยไม่ต้องแก้อะไรเพิ่ม'];
+  const ly=i=>312+i*46;
+  const zone=(x,t)=>`<rect x="${x}" y="635" width="390" height="140" rx="16" fill="rgba(255,255,255,.5)" stroke="#8d99a6" stroke-width="3" stroke-dasharray="10 8"/>`+T(x+8,620,t,30,'#33414f',"start",700);
+  let v=STAGE;
+  v+=`<g ${H(fi(11.4))}>${zone(410,'In Progress')}${zone(1120,'Done')}</g>`;
+  // การ์ด 5 ใบที่เด้งกลับ
+  for(let i=0;i<5;i++)v+=G(-100,765,S([KR('0%{transform:translate(0,0)}45%{transform:translate(610px,0)}52%{transform:translate(580px,0) rotate(-7deg)}58%{transform:translate(604px,0)}100%{transform:translate(0,0) rotate(-22deg)}'),1.6,7.1+.3*i,'ease-in-out']),card(C.blue));
+  // ขากระดาน + กระดาน
+  v+=`<g ${S(fo(6,.5))}><rect x="650" y="535" width="14" height="72" fill="#7c8794"/><rect x="1256" y="535" width="14" height="72" fill="#7c8794"/></g>`;
+  let ex='';
+  for(let k=0;k<10;k++){const cx=k<5?40:420,cy=42+(k%5)*48;
+    ex+=`<rect x="${cx}" y="${cy-20}" width="24" height="24" rx="4" fill="none" stroke="#7c8794" stroke-width="3"/>`+T(cx+40,cy+4,(k+6)+'.',28,'#5b6672')+
+      `<rect x="${cx+95}" y="${cy-13}" width="${150+(k*37)%90}" height="12" rx="6" fill="#c3cad2"/>`;}
+  v+=G(580,535,H(fi(6.2,.7),to('transform:scaleY(0);opacity:0',10.4,.9)),`<rect width="760" height="265" fill="#f4f6f8" stroke="#c9343f" stroke-width="4"/>`+ex);
+  v+=`<rect x="580" y="215" width="760" height="320" rx="14" fill="#f4f6f8" stroke="#7c8794" stroke-width="4"/>`+T(960,264,'Definition of Done',32,C.ink,'middle',700);
+  L.forEach((t,i)=>{
+    v+=`<rect x="618" y="${ly(i)-23}" width="26" height="26" rx="4" fill="#fff" stroke="#7c8794" stroke-width="3" ${H(fi(.5+.9*i,.3))}/>`;
+    v+=T(662,ly(i),t,28,C.ink,'start',600,H(['wr',.85,.5+.9*i,'linear']));
+  });
+  v+=G(1340,215,H(['pop',.5,6.6],fo(10.6)),`<rect x="-72" y="-28" width="144" height="56" rx="28" fill="#c9343f"/>`+T(0,10,'15 ข้อ',30,'#fff','middle',700));
+  v+=G(1340,215,H(['pop',.5,11.1]),`<rect x="-66" y="-28" width="132" height="56" rx="28" fill="#1d8f47"/>`+T(0,10,'5 ข้อ',30,'#fff','middle',700));
+  // ประตู
+  const fr=col=>`<g style="filter:drop-shadow(0 0 14px ${col})"><rect x="580" y="215" width="760" height="320" rx="14" fill="none" stroke="${col}" stroke-width="7"/><rect x="826" y="535" width="22" height="265" fill="${col}"/><rect x="1072" y="535" width="22" height="265" fill="${col}"/></g>`;
+  v+=`<g ${H(fi(11.2,1))}>${fr('#5fd7ff')}</g><g ${H(fi(15.5,.5),fo(17.5,.6))}>${fr('#2fe070')}</g><g ${H(fi(22.2,.7))}>${fr('#ff3b47')}</g>`;
+  let bars='';for(let b=0;b<5;b++)bars+=`<rect x="0" y="${30+b*50}" width="224" height="8" fill="rgba(255,255,255,.55)"/>`;
+  v+=G(848,535,H(fi(11.6,.8),to('transform:scaleY(0)',15.6,.7),to('transform:scaleY(1)',17.6,.6)),`<rect width="224" height="265" fill="rgba(95,215,255,.32)"/>`+bars);
+  v+=G(848,535,H(fi(22.2,.7)),`<rect width="224" height="265" fill="rgba(255,59,71,.5)"/>`);
+  v+=`<rect x="596" y="${ly(4)-34}" width="728" height="46" rx="6" fill="rgba(224,43,58,.2)" ${H(fi(21.6,.8))}/>`;
+  // ติ๊ก
+  for(let i=0;i<5;i++)v+=G(631,ly(i)-10,H(['pop',.45,13.9+.28*i],fo(17.4,.4)),tick());
+  for(let i=0;i<4;i++)v+=G(631,ly(i)-10,H(['pop',.45,19.6+.4*i]),tick());
+  v+=G(631,ly(4)-10,H(['pop',1,21.6]),bigX(11,6));
+  // การ์ดใบที่ 1 และ 2
+  v+=G(490,705,H(fi(12.2,.6),mv(240,0,12.5,1.3),mv(930,0,16,1.5)),card(C.blue)+`<g ${H(fi(16.7,.6))}>${card(C.done)}</g>`);
+  v+=G(490,705,H(fi(17.5,.6),mv(240,0,17.8,1.7),mv(10,0,22.7,1.5,HEAVY)),card(C.blue)+
+    `<rect x="-88" y="50" width="176" height="46" rx="8" fill="#ffd84a" stroke="rgba(0,0,0,.2)" stroke-width="2"/>`+T(0,83,'เสร็จ 90%',28,C.ink,'middle',700));
+  // ทีม
+  [[290,600,C.g,'Dev',-950],[410,650,C.y,'Dev',-950],[520,700,C.r,'Dev',-950],[1410,690,C.po,'PO',750],[1530,630,C.sm,'SM',750]]
+    .forEach((p,i)=>v+=G(p[0],p[1],S(mv(p[4],0,8.6,1.7)),`<g ${S(['bob',.6,.5+.9*i])}>${person(p[2],{label:p[3]})}</g>`));
+  return svg(v)+
+    cap('เริ่มจากสิ่งที่ทีมทำอยู่แล้วจริง ๆ ไม่ใช่ตำราในอุดมคติ',4.6,7.2)+
+    cap('DoD 15 ข้อตั้งแต่วันแรก = ไม่มีงานไหนผ่าน แล้วทุกคนเลิกใช้',8.2,11.4)+
+    cap('DoD คือข้อผูกพันของ Increment และใช้กับทุกชิ้นงาน ไม่ใช่เขียนใหม่รายชิ้น',24.8)+
+    rule('ขาดข้อเดียว = ยังไม่เสร็จ &nbsp;ไม่มีคำว่าเสร็จ 90%',23.8);
+}
+
+/* ================= ฉาก 2 · Sprint Review ================= */
+function s2(){
+  const sx=i=>100+112*i, sm={w:104,h:68};
+  let v=`<defs><linearGradient id="bm" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fffbd0" stop-opacity=".9"/><stop offset="1" stop-color="#fffbd0" stop-opacity="0"/></linearGradient></defs>`+STAGE;
+  // กระดาน
+  v+=`<rect x="150" y="225" width="490" height="290" rx="14" fill="#f4f6f8" stroke="#7c8794" stroke-width="4"/><line x1="395" y1="240" x2="395" y2="500" stroke="#b5bec8" stroke-width="3"/>`+
+    T(272,270,'In Progress',28,C.ink,'middle',700)+T(518,270,'Done',28,C.ink,'middle',700);
+  // Product Backlog
+  v+=`<rect x="36" y="700" width="700" height="152" rx="14" fill="rgba(18,28,40,.72)"/>`+T(56,744,'Product Backlog',30,'#fff','start',700);
+  v+=G(sx(0),800,S(mv(112,0,16.2,1)),card(C.pb,sm));
+  v+=G(sx(1),800,S(mv(224,0,16.2,1),mv(336,0,18.8,.8)),card(C.pb,sm));
+  // ประตู DoD
+  v+=G(700,585,H(from('transform:translateY(60px) scaleY(.2)',9.6,.6),fo(12.3)),
+    `<g style="filter:drop-shadow(0 0 12px #5fd7ff)"><rect x="-70" y="-200" width="16" height="200" fill="#5fd7ff"/><rect x="54" y="-200" width="16" height="200" fill="#5fd7ff"/></g>
+     <g ${H(fi(10.3,.4))} ><g style="filter:drop-shadow(0 0 12px #ff3b47)"><rect x="-70" y="-200" width="16" height="200" fill="#ff3b47"/><rect x="54" y="-200" width="16" height="200" fill="#ff3b47"/></g><rect x="-54" y="-200" width="108" height="200" fill="rgba(255,59,71,.45)"/></g>
+     <rect x="-86" y="-246" width="172" height="48" rx="8" fill="#1d2733"/>`+T(0,-212,'DoD',28,'#fff','middle',700));
+  // Developers (หลังกล่อง)
+  v+=G(830,600,S(['bob',.7,4.2]),person(C.g))+G(1100,575,S(['bob',.7,4.3]),person(C.y));
+  // การ์ดเขียวรวมเป็น Increment
+  [318,392,466].forEach((y,i)=>v+=G(518,y,S(to(`transform:translate(442px,${610-y}px) scale(.4);opacity:0`,.5+.25*i,1.5)),card(C.done,sm)));
+  v+=G(960,640,H(['pop',.9,1.8]),
+    `<g style="filter:drop-shadow(0 0 20px #4dff8e)"><polygon points="-100,-50 0,0 0,110 -100,60" fill="#2ecc5f"/><polygon points="0,0 100,-50 100,60 0,110" fill="#21a44a"/></g>
+     <polygon points="0,-100 100,-50 0,0 -100,-50" fill="#14592b"/>
+     <polygon points="-80,-50 80,-50 170,-330 -170,-330" fill="url(#bm)" ${H(fi(4.8,1.2))}/>
+     <g ${S(to('transform:translate(-78px,-70px) rotate(-20deg)',4.4,1.2))}><polygon points="0,-100 100,-50 0,0 -100,-50" fill="#74ea9e" stroke="#1d8f47" stroke-width="3"/></g>`);
+  v+=G(960,792,H(fi(2.4)),`<rect x="-98" y="-28" width="196" height="54" rx="27" fill="#1d7a3c"/>`+T(0,9,'Increment',30,'#fff','middle',700));
+  v+=G(1200,625,S(['bob',.7,4.4]),person(C.r))+T(1160,668,'Developers',28,C.ink,'middle',700);
+  // Stakeholders
+  [[1420,700,''],[1540,650,'Stakeholders'],[1660,610,'']].forEach((p,i)=>v+=G(p[0]+700,p[1],S(mv(-700,0,2.6+.2*i,1.8)),person(C.st,{label:p[2]})));
+  // PO
+  v+=G(800,800,S(['bob',.7,19.4]),person(C.po,{label:'PO'}));
+  // สไลด์รายงาน (ห้าม)
+  v+=G(960,420,H(from('transform:translateY(150px) scale(.5)',5.3,.9),fo(7.8)),
+    `<rect x="-200" y="-110" width="400" height="220" rx="8" fill="#fff" stroke="#b5bec8" stroke-width="3"/>`+T(0,-40,'รายงานความคืบหน้า 85%',30,C.ink,'middle',700)+
+    `<rect x="-150" y="0" width="300" height="26" rx="13" fill="#dfe4ea"/><rect x="-150" y="0" width="255" height="26" rx="13" fill="#4aa3e6"/><rect x="-150" y="52" width="210" height="10" rx="5" fill="#c3cad2"/><rect x="-150" y="74" width="150" height="10" rx="5" fill="#c3cad2"/>`);
+  v+=G(960,420,H(['pop',.6,6.6],fo(7.8)),bigX(100,20));
+  // การ์ดฟ้าที่ยังไม่ผ่าน DoD
+  v+=G(272,340,S(mv(288,130,8.8,1.4),mv(0,0,10.9,1.3,HEAVY),mv(sx(2)-272,460,17.8,1.9)),card(C.blue,sm)+`<g ${H(fi(19.6,.6))}>${card(C.pb,sm)}</g>`+
+    `<g ${H(fi(8.8,.5),fo(12.3,.5))}><rect x="-82" y="-84" width="164" height="44" rx="8" fill="#ffd84a"/>`+T(0,-52,'เกือบเสร็จ',28,C.ink,'middle',700)+`</g>`);
+  // ฟองคำพูด -> การ์ดส้ม
+  const B=[[1400,455,'ตรงนี้ขอเพิ่ม',2,[[sx(3),18.8,.8]]],[1560,385,'อันนี้ใช้ยาก',3,[[sx(0),16.2,1.1]]],[1700,315,'อยากได้แบบนี้อีก',4,[[sx(5),18.8,.8]]]];
+  [0,2,1].forEach(i=>{const b=B[i],t=14.3+.3*i;
+    v+=G(b[0],b[1],H(from('transform:translateY(50px) scale(.5)',12.6+.35*i,.7),mv(sx(b[3])-b[0],800-b[1],t,1.5),...b[4].map(m=>mv(m[0]-b[0],800-b[1],m[1],m[2]))),
+      `<g ${S(fo(t+.5,.6))}><rect x="-130" y="-32" width="260" height="64" rx="32" fill="#fff" stroke="#8b939c" stroke-width="3"/><polygon points="-20,30 6,30 -24,54" fill="#fff" stroke="#8b939c" stroke-width="3"/><rect x="-22" y="24" width="30" height="7" fill="#fff"/>`+T(0,10,b[2],28,C.ink,'middle',600)+`</g><g ${H(fi(t+.5,.6))}>${card(C.pb,sm)}</g>`);});
+  // ประตูอนุมัติ (ห้าม)
+  v+=G(1270,790,H(from('transform:translateY(60px) scaleY(.2)',20.9,.7),fo(23.2)),
+    `<rect x="-120" y="-220" width="20" height="220" fill="#6b7f95"/><rect x="100" y="-220" width="20" height="220" fill="#6b7f95"/><rect x="-100" y="-220" width="200" height="220" fill="rgba(107,127,149,.4)"/>
+     <rect x="-140" y="-276" width="280" height="58" rx="8" fill="#1d2733"/>`+T(0,-236,'อนุมัติปล่อยของ',28,'#fff','middle',700)+
+    `<g transform="translate(0,-130)"><g ${H(['pop',.6,22.2])}>${bigX(95,20)}</g></g>`);
+  return svg(v)+
+    cap('แสดงของที่ใช้งานได้ ไม่ใช่สไลด์รายงาน',6,8.8)+
+    cap('แสดงเฉพาะของที่ผ่าน DoD — ห้ามเอามาแสดงแล้วบอกว่าเกือบเสร็จ',9.4,12.4)+
+    cap('เสียงจากผู้ใช้กลายเป็นงานรอบหน้า และลำดับอาจเปลี่ยน',14.4,17.5)+
+    cap('งานที่ไม่เสร็จ กลับไปให้ PO จัดลำดับใหม่ ไม่ใช่ลากต่อเงียบ ๆ',17.9)+
+    rule('Sprint Review ไม่ใช่ประตูอนุมัติ',23.6);
+}
+
+/* ================= ฉาก 3 · อ่าน Burndown ================= */
+function s3(){
+  const X=d=>300+(d-1)*84.2857, Y=p=>760-p*8.8333;
+  let m=`<path d="M300,212 V760 H1510" fill="none" stroke="#fff" stroke-width="5" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" ${S(to('stroke-dashoffset:0',.3,1.4))}/>`;
+  let lab='';
+  [0,20,40,60].forEach(p=>lab+=`<line x1="300" y1="${Y(p)}" x2="1500" y2="${Y(p)}" stroke="rgba(255,255,255,.14)" stroke-width="2"/>`+T(278,Y(p)+10,p,28,'#fff','end'));
+  for(let d=1;d<=15;d++)lab+=T(X(d),802,d,28,'#fff','middle');
+  lab+=T(900,856,'วันใน Sprint',30,'#dbe4ee','middle',700)+`<text transform="translate(196,486) rotate(-90)" font-size="30" fill="#dbe4ee" text-anchor="middle" font-weight="700">คะแนนที่เหลือ</text>`;
+  m+=`<g ${H(fi(1.2,.8))}>${lab}</g>`;
+  for(let i=0;i<24;i++){const a=i/24,b=(i+.55)/24,x=t=>X(1)+t*(X(15)-X(1)),y=t=>Y(60)+t*(Y(0)-Y(60));
+    m+=`<line x1="${x(a)}" y1="${y(a)}" x2="${x(b)}" y2="${y(b)}" stroke="#b9c3cd" stroke-width="5" stroke-linecap="round" ${H(fi(1.9+i*.06,.2))}/>`;}
+  const st=[[3,52],[5,44],[6,39],[9,26],[11,18],[13,8],[15,0]];
+  m+=`<path d="M${X(1)},${Y(60)} ${st.map(s=>`H${X(s[0])} V${Y(s[1])}`).join(' ')}" fill="none" stroke="#4db4ff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" ${S(to('stroke-dashoffset:0',4.4,2.8,'linear'),fo(22.8,1.1))}/>`;
+  m+=`<g ${H(fi(22.8,1.2))}><line x1="${X(1)}" y1="${Y(60)}" x2="${X(15)}" y2="${Y(0)}" stroke="#4db4ff" stroke-width="9" stroke-linecap="round" style="filter:drop-shadow(0 0 10px #9fd8ff)"/>`+T(X(9)+40,Y(30)-50,'✦ สวยเกินจริง',30,'#ffd84a','start',700)+`</g>`;
+  m+=G(1690,640,H(fi(21.4,.7)),`<g transform="scale(1.4)">${person(C.g)}</g>`+T(0,58,'ใช้วัดผลงานคน',28,'#fff','middle',700));
+  m+=G(1690,500,H(['pop',.6,22.2]),bigX(110,22));
+  let v=`<g ${S(fo(10,.6),fi(20.9,.8))}>${m}</g>`;
+  // 5 รูปแบบ
+  const P=[
+    ['ช้ากว่าแผน','คุยกับ PO กลางรอบว่าจะตัดอะไร ไม่ใช่รอวันสุดท้าย','เส้นจริงเหนือเส้นประตลอด',[[.2,.93],[.4,.82],[.6,.68],[.8,.55],[1,.42]]],
+    ['เร็วกว่าแผน','ดึงงานเพิ่มได้ ถ้าตรงกับ Sprint Goal','เส้นจริงใต้เส้นประ',[[.1,.8],[.25,.62],[.4,.45],[.55,.3],[.7,.15],[.85,.03],[1,.03]]],
+    ['มีอะไรติดอยู่','หาว่าติดอะไร ไม่ใช่เร่งคน','เส้นแบนราบ 3 วันขึ้นไป',[[.12,.86],[.25,.74],[.7,.5],[.85,.28],[1,.1]]],
+    ['Story ใหญ่เกิน','รอบหน้าซอยให้เล็กลง','ขั้นบันไดใหญ่ ๆ ห่างกัน',[[.34,.62],[.68,.26],[1,0]]],
+    ['อันตรายที่สุด','งานไปกองท้าย ถ้าพังไม่มีเวลาแก้','เกือบไม่ลง แล้วดิ่งวันสุดท้าย',[[.3,.96],[.6,.92],[.93,.04],[1,.04]]]];
+  const px=f=>32+f*290, py=r=>222-r*192;
+  let pan='',html='';
+  P.forEach((p,i)=>{const t=11+1.9*i, col=i==4?'#ff6b6b':'#4db4ff';
+    pan+=`<g transform="translate(${40+372*i},215)"><g style="opacity:.28;${an([to('opacity:1',t,.5)])}">
+      <rect width="352" height="250" rx="12" fill="rgba(18,28,40,.55)"/>
+      ${i==2?`<rect x="${px(.25)}" y="${py(.74)-16}" width="${px(.7)-px(.25)}" height="32" rx="6" fill="rgba(255,216,74,.3)"/>`:''}
+      <path d="M${px(0)},22 V${py(0)} H${px(1)+8}" fill="none" stroke="#fff" stroke-width="3"/>
+      <line x1="${px(0)}" y1="${py(1)}" x2="${px(1)}" y2="${py(0)}" stroke="#b9c3cd" stroke-width="4" stroke-dasharray="9 8"/>
+      <path d="M${px(0)},${py(1)} ${p[3].map(s=>`H${px(s[0])} V${py(s[1])}`).join(' ')}" fill="none" stroke="${col}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/></g>
+      <rect width="352" height="250" rx="12" fill="none" stroke="#ffd84a" stroke-width="6" ${H(fi(t,.4),fo(t+1.8,.4))}/></g>`;
+    html+=`<div class="pt${i==4?' dng':''}" style="left:${40+372*i}px;${an([fi(t,.5),fo(20.3,.5)])}"><b>${p[0]}</b>${p[1]}</div>`+cap(p[2],t,t+1.65);
+  });
+  v+=`<g ${H(fi(10.5,.5),fo(20.3,.5))}>${pan}</g>`;
+  return svg(v)+
+    cap('เส้นประ = ถ้าทุกอย่างเป็นไปตามแผนพอดี',2,4.4)+
+    cap('เส้นจริงเป็นขั้นบันได — ลดเมื่องานเสร็จ ไม่ใช่ลดทุกวัน',4.8,7.6)+
+    cap('งานที่ทำไปครึ่งหนึ่ง ยังไม่นับว่าเสร็จ',7.8,10)+html+
+    cap('แล้วคุณจะเสียเครื่องมือนี้ไปถาวร',24.8)+
+    rule('ถ้าเอาไปวัดคน ทีมจะรายงานให้กราฟสวย แทนที่จะบอกความจริง',23.6);
+}
+
+/* ---------- ของที่ใช้ร่วมกันในฉาก 4 และ 5 ---------- */
+const PX=[620,790,960,1130,1300], PC=[C.g,C.y,C.r,C.po,C.sm], PL=['Dev','Dev','Dev','PO','SM'], PY=760;
+const GN=[[600,318,['ปล่อยของได้ทันกำหนด']],[600,412,['ช่วยกันแก้บั๊กเร็ว']],[600,506,['ใช้ของเดิมต่อยอด']]];
+const ON=[[1140,318,['ประเมินขอบเขตพลาด']],[1140,412,['สื่อสารกับผู้ขายช้า']],[1140,506,['เนื้อหากับดีไซน์','ไม่ไปด้วยกัน']]];
+const GB=[[830,330,795,412],[870,495,870,495]];
+const OB=[[1390,300,1335,318],[1420,425,1335,412],[1385,545,1420,412]];
+const NG='#bff0c8', NO='#ffd9a8';
+const note=(col,l)=>`<rect x="-145" y="-42" width="290" height="84" rx="6" fill="${col}" stroke="rgba(0,0,0,.18)" stroke-width="2"/>`+
+  (l.length==1?T(0,10,l[0],28,C.ink,'middle'):T(0,-5,l[0],28,C.ink,'middle')+T(0,28,l[1],28,C.ink,'middle'));
+const blank=col=>`<rect x="-38" y="-32" width="76" height="64" rx="5" fill="${col}" stroke="rgba(0,0,0,.18)" stroke-width="2"/><rect x="-26" y="-16" width="52" height="6" rx="3" fill="rgba(0,0,0,.3)"/><rect x="-26" y="-2" width="40" height="6" rx="3" fill="rgba(0,0,0,.3)"/><rect x="-26" y="12" width="46" height="6" rx="3" fill="rgba(0,0,0,.3)"/>`;
+const BOARD=`<rect x="520" y="600" width="14" height="44" fill="#7c8794"/><rect x="1386" y="600" width="14" height="44" fill="#7c8794"/>
+<rect x="420" y="200" width="1080" height="400" rx="14" fill="#f4f6f8" stroke="#7c8794" stroke-width="4"/><line x1="960" y1="214" x2="960" y2="586" stroke="#7c8794" stroke-width="4"/>`+
+  T(905,258,'+',60,'#1f9d4a','middle',700)+T(1445,256,'Δ',50,'#e07a10','middle',700);
+
+/* ================= ฉาก 4 · Retrospective ================= */
+function s4(){
+  let v=STAGE;
+  // ประตู + Stakeholders เดินออก
+  v+=`<rect x="1752" y="322" width="126" height="258" rx="6" fill="#2a3340"/>`;
+  [[1480,620],[1580,590],[1680,620]].forEach((p,i)=>v+=G(p[0],p[1],S(mv(620,0,.5+.2*i,1.8,'ease-in')),person(C.st)));
+  v+=`<g transform="translate(1760,330)"><g style="transform:scaleX(.08);${an([to('transform:scaleX(1)',2.4,.7)])}"><rect width="110" height="250" fill="#8a6644" stroke="#5e442c" stroke-width="4"/><circle cx="92" cy="130" r="8" fill="#f2c230"/></g></g>`;
+  // บอร์ด
+  v+=`<g ${H(from('transform:translateY(-470px)',8.2,1.3))}>${BOARD}</g>`;
+  GN.forEach((n,i)=>v+=G(n[0],n[1],H(from(`transform:translate(${PX[i]-n[0]}px,${548-n[1]}px) scale(.2)`,13.6+.35*i,1.1)),note(NG,n[2])));
+  GB.forEach((n,i)=>v+=G(n[0],n[1],H(from(`transform:translate(${PX[3+i]-n[0]}px,${548-n[1]}px) scale(.3)`,14.4+.2*i,1.1),mv(n[2]-n[0],n[3]-n[1],18+.15*i,1.2)),blank(NG)));
+  ON.forEach((n,i)=>v+=G(n[0],n[1],H(from(`transform:translate(${PX[2+i]-n[0]}px,${548-n[1]}px) scale(.2)`,15.4+.35*i,1.1)),note(NO,n[2])));
+  OB.forEach((n,i)=>v+=G(n[0],n[1],H(from(`transform:translate(${PX[i]-n[0]}px,${548-n[1]}px) scale(.3)`,16.2+.2*i,1.1),mv(n[2]-n[0],n[3]-n[1],18.1+.15*i,1.2)),blank(NO)));
+  v+=`<rect x="985" y="364" width="483" height="96" rx="12" fill="rgba(255,207,51,.16)" stroke="#ffb400" stroke-width="6" style="filter:drop-shadow(0 0 12px #ffcf33);opacity:0;${an([fi(19.6,.9)])}"/>`;
+  // ทีม (หันหน้าเข้าหาบอร์ด)
+  PX.forEach((x,i)=>{
+    if(i==1){
+      v+=G(x,PY,S(fo(21.6,.4),fi(23.6,.5)),person(PC[i],{back:1,label:PL[i]}));
+      v+=G(x,PY,H(fi(21.6,.4),fo(23.6,.5)),person(PC[i],{point:1,label:PL[i]}));
+    }else v+=G(x,PY,'',person(PC[i],{back:1,label:PL[i]}));
+    v+=G(x,548,H(fi(10.6,.5),['wig',.5,11,'ease-in-out',5],fo(13.5,.5)),`<rect x="-24" y="-22" width="48" height="44" rx="4" fill="#fff8c9" stroke="rgba(0,0,0,.25)" stroke-width="2"/><rect x="-14" y="-8" width="28" height="5" rx="2.5" fill="rgba(0,0,0,.35)"/><rect x="-14" y="4" width="20" height="5" rx="2.5" fill="rgba(0,0,0,.35)"/>`);
+  });
+  v+=G(880,640,H(['pop',.6,22.5],fo(23.8)),bigX(80,20));
+  return svg(v)+
+    cap('ทั้งทีมเท่านั้น ไม่มีคนนอก',.8,3)+
+    `<div class="mid" style="font-size:46px;${an([fi(3.2),fo(5.6)])}"><span>เราเชื่อว่าทุกคนทำดีที่สุดแล้ว<br>ด้วยข้อมูลและเครื่องมือที่มีตอนนั้น</span></div>`+
+    `<div class="mid" style="font-size:68px;color:#ff9c9c;${an([fi(5.9,.5),to('opacity:0;transform:scale(1.35);filter:blur(10px)',6.8,.7)])}"><span>“ใครผิด?”</span></div>`+
+    `<div class="mid" style="font-size:60px;color:#9dffc0;${an([from('transform:scale(.7);filter:blur(10px)',7,.8),fo(8.4)])}"><span>“อะไรที่ทำให้เป็นแบบนั้น?”</span></div>`+
+    cap('ไม่ใช่เราทำอะไรเสร็จบ้าง — แต่คือเราทำงานกันอย่างไร',8.8,11)+
+    cap('เขียนก่อนพูดเสมอ — ถ้าเปิดให้พูดเลย คนที่พูดเก่งจะกำหนดทิศทางทั้งวง',11.2,14.5)+
+    cap('เรื่องที่ดีขึ้นก่อน แล้วค่อยเรื่องที่ต้องปรับ',14.9,17.7)+
+    cap('มองหาเรื่องที่โผล่ซ้ำหลายใบ — นั่นคือปัญหาเชิงระบบ ไม่ใช่เหตุบังเอิญ',18.1,21.3)+
+    rule('Retrospective ไม่มีการโทษใคร — ถ้ามี ครั้งหน้าจะไม่มีใครพูดความจริง',24);
+}
+
+/* ================= ฉาก 5 · แปลงเป็นการกระทำ ================= */
+function s5(){
+  let v=STAGE, b=BOARD;
+  GN.forEach(n=>b+=G(n[0],n[1],'',note(NG,n[2])));
+  GB.forEach(n=>b+=G(n[2],n[3],'',blank(NG)));
+  ON.forEach(n=>b+=G(n[0],n[1],'',note(NO,n[2])));
+  OB.forEach(n=>b+=G(n[2],n[3],'',blank(NO)));
+  const gl=(y,w)=>`<rect x="985" y="${y}" width="${w}" height="92" rx="12" fill="rgba(255,207,51,.16)" stroke="#ffb400" stroke-width="6" style="filter:drop-shadow(0 0 12px #ffcf33);opacity:0;${an([fi(3.7,.9)])}"/>`;
+  b+=gl(272,398)+gl(366,483);
+  // จุดคะแนน
+  const tgt={A:[276,0],B:[370,0],C:[464,0]}, pick=[['B','A'],['B','C'],['B','A'],['B','C'],['B','A']];
+  PX.forEach((x,i)=>pick[i].forEach((k,j)=>{const sx=x-16+32*j, tx=1012+30*tgt[k][1]++, ty=tgt[k][0];
+    b+=G(sx,556,H(['pop',.45,.5+.08*i],mv(tx-sx,ty-556,1.8+.14*i+.5*j,1.3)),`<circle r="12" fill="#d81b60" stroke="#fff" stroke-width="3"/>`);}));
+  v+=`<g ${S(to('opacity:.3',4.8,.8),fo(9.4,.8))}>${b}</g>`;
+  PX.forEach((x,i)=>v+=G(x,PY,'',person(PC[i],{back:1,label:PL[i]})));
+  // กล่อง Sprint Backlog รอบหน้า
+  v+=`<g ${H(fi(15,.8))}><rect x="1440" y="640" width="440" height="215" rx="14" fill="rgba(18,28,40,.78)" stroke="#4aa3e6" stroke-width="4"/>`+T(1660,688,'Sprint Backlog รอบหน้า',30,'#fff','middle',700)+
+    G(1520,775,'',card(C.blue,{w:104,h:68,t:'5'}))+G(1640,775,'',card(C.blue,{w:104,h:68,t:'3'}))+`</g>`;
+  v+=G(1760,775,H(['pop',.7,17.5]),`<rect x="-60" y="-42" width="120" height="84" rx="14" fill="none" stroke="#ffd84a" stroke-width="5"/>`+card(C.blue,{w:104,h:68,t:'2'}));
+  // โน้ต 8 ใบร่วง + 2 ใบลงมั่นคง
+  const n8=`<rect x="-75" y="-50" width="150" height="100" rx="6" fill="${NO}" stroke="rgba(0,0,0,.18)" stroke-width="2"/><rect x="-55" y="-26" width="110" height="8" rx="4" fill="rgba(0,0,0,.3)"/><rect x="-55" y="-6" width="80" height="8" rx="4" fill="rgba(0,0,0,.3)"/><rect x="-55" y="14" width="95" height="8" rx="4" fill="rgba(0,0,0,.3)"/>`;
+  for(let j=0;j<8;j++)v+=G(600+240*(j%4),j<4?325:465,H(from('transform:translateY(-330px)',5,1.3),
+    [K(`transform:translateY(720px) rotate(${[-28,18,-12,30,22,-20,14,-26][j]}deg);opacity:0`),1.15,7+.05*j,'cubic-bezier(.55,0,.9,.4)']),n8);
+  [570,1350].forEach(x=>v+=G(x,388,H(from('transform:translateY(-330px)',8.3,1.6),to('transform:scale(2.6);opacity:0',10,.9)),n8));
+  const bigc=(left,rows,extra)=>`<div class="big" style="left:${left}px;${an([from('transform:scale(.3)',10.1,.9)].concat(extra||[]))}">`+
+    rows.map((r,i)=>`<div class="row"><div class="lb">${r[0]}</div><div class="vl" style="${an([fi(11.2+i+(left>500?.3:0),.6)])}">${r[1]}</div></div>`).join('')+`</div>`;
+  return svg(v)+
+    bigc(250,[['ทำอะไร','วางแผนการสื่อสารกับผู้ขาย'],['ใครเริ่ม','คุณฝน'],['เสร็จเมื่อไหร่','ภายในวันที่ 23 ต.ค.'],['รู้ได้ยังไงว่าสำเร็จ','ผู้ขายตอบกลับภายใน 2 วันทำการ']],
+      [[K('transform:translate(1190px,385px) scale(.12);opacity:0'),1.5,16.1]])+
+    bigc(1030,[['ทำอะไร','ซอย Story ให้เล็กก่อนประเมิน'],['ใครเริ่ม','คุณต้น'],['เสร็จเมื่อไหร่','ก่อน Sprint Planning รอบหน้า'],['รู้ได้ยังไงว่าสำเร็จ','ไม่มี Story เกิน 5 คะแนน']])+
+    `<div class="old" style="${an([from('transform:translateY(320px)',21,1.4)])}"><div class="lb">Action ของรอบที่แล้ว</div><div class="vl">ตั้ง DoD 5 ข้อแรกของทีม</div><div class="ok" style="${an([['pop',.7,22.6]])}">✓</div></div>`+
+    cap('ให้ทุกคนมีคนละ 2 คะแนน ไปติดในกลุ่มที่อยากแก้ที่สุด',.6,4.6)+
+    cap('เลือก 8 เรื่อง แปลว่าจะไม่ได้ทำสักเรื่อง',5.6,8.8)+
+    cap('อย่างน้อย 1 ข้อต้องเข้า Sprint Backlog รอบหน้าเป็นงานจริง',15.4,18.4)+
+    cap('ไม่ใช่อยู่ในบันทึกการประชุม',18.6,20.8)+
+    cap('ปิดท้ายด้วยการเปิด action ของรอบที่แล้วขึ้นมาดู',21.2)+
+    rule('ถ้าไม่เคยย้อนดู Retrospective จะกลายเป็นพิธีกรรมภายใน 3 รอบ',23.8);
+}
+
+/* ---------- ตัวควบคุม ---------- */
+const PART='ตรวจและปรับ';
+const SC=[['Definition of Done',s1],['Sprint Review',s2],['อ่าน Burndown',s3],['Retrospective',s4],['แปลงเป็นการกระทำ',s5]];
+let cur=0;const seen=new Set();
+const $=id=>document.getElementById(id);
+function go(i){
+  cur=Math.max(0,Math.min(SC.length-1,i));seen.add(cur);
+  const html=SC[cur][1]();
+  $('dyn').textContent=dynCss;
+  $('scene').innerHTML='';void $('scene').offsetWidth;$('scene').innerHTML=html;
+  $('ttl').textContent=`ฉาก ${cur+1} · ${SC[cur][0]}`;
+  $('part').textContent=`${PART} · ฉาก ${cur+1} / ${SC.length}`;
+  document.querySelectorAll('#bar .sb').forEach((b,k)=>{b.classList.toggle('cur',k==cur);b.classList.toggle('seen',k!=cur&&seen.has(k));});
+}
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('app').style.transform=`translate(-50%,-50%) scale(${s})`;}
+function init(){
+  $('bar').innerHTML=SC.map((s,i)=>`<button class="sb" data-i="${i}">${i+1} · ${s[0]}</button>`).join('')+
+    `<span class="gap"></span><button class="ctl" data-a="r">↻ เล่นซ้ำ</button><button class="ctl" data-a="p">◀ ย้อนกลับ</button><button class="ctl" data-a="n">ถัดไป ▶</button>`;
+  $('bar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;b.blur();
+    if(b.dataset.i!==undefined)go(+b.dataset.i);else go(cur+({r:0,p:-1,n:1})[b.dataset.a]);});
+  addEventListener('keydown',e=>{
+    if(e.code=='Space'){e.preventDefault();go(cur);}
+    else if(e.key=='ArrowRight'){e.preventDefault();go(cur+1);}
+    else if(e.key=='ArrowLeft'){e.preventDefault();go(cur-1);}
+    else if(e.key=='f'||e.key=='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+  });
+  addEventListener('resize',fit);fit();go(0);
+}
+if(typeof document!=='undefined')init();
+</script>
+</body>
+</html>
