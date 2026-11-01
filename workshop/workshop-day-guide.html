@@ -1,0 +1,524 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>เส้นทางวันทดลองทำ Scrum</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+
+<style>
+/* แผงควบคุมแบบหน้าปัดเครื่องมือ  รางเวลาด้านซ้าย  การ์ดรอบปัจจุบันด้านขวา */
+:root{
+  --paper:#EDF1F6; --card:#FFFFFF; --ink:#0F1E2B; --muted:#5B6B7C;
+  --line:#D2DAE4; --line-soft:#E4EAF1;
+  --amber:#B85F0E; --amber-soft:#FBEDDC; --amber-line:#E8B277;
+  --sage:#35694D; --sage-soft:#E2EFE8; --sage-line:#A6CBB6;
+  --alert:#A72E22; --alert-soft:#FBE5E2;
+  --navy:#17344C; --term:#6B5494; --term-soft:#F1ECFA; --term-line:#C7B8E4;
+  --f-display:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;
+  --f-body:"Sarabun","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,monospace;
+  --r:12px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--card);color:var(--ink);font-family:var(--f-body);
+  font-size:18px;line-height:1.6;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);
+  z-index:30;background:var(--card)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+/* ---------- แถบบน ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);
+  border-bottom:1px solid var(--line)}
+.bar-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1440px;margin:0 auto}
+.brand{display:flex;flex-direction:column;gap:1px;margin-right:auto;min-width:0}
+.brand b{font-family:var(--f-display);font-size:20px;font-weight:700;letter-spacing:.01em}
+.brand span{font-size:13.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--paper)}
+.seg button{font:inherit;font-size:15.5px;font-family:var(--f-display);font-weight:600;
+  border:0;background:transparent;color:var(--muted);padding:8px 18px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--navy);color:var(--card)}
+.seg button:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
+
+/* ---------- นาฬิกาจับเวลา ---------- */
+.timer{display:flex;align-items:center;gap:8px}
+.tdisp{font-family:var(--f-num);font-size:28px;font-weight:600;letter-spacing:.02em;
+  min-width:96px;text-align:center;padding:2px 8px;border-radius:8px;
+  border:1px solid var(--line);background:var(--paper)}
+.tdisp.warn{color:var(--amber);border-color:var(--amber-line);background:var(--amber-soft)}
+.tdisp.over{color:var(--alert);border-color:var(--alert);background:var(--alert-soft)}
+.ico{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);
+  color:var(--ink);width:42px;height:42px;border-radius:10px;display:grid;place-items:center;
+  font-size:16px;font-family:var(--f-display);font-weight:600}
+.ico:hover{border-color:var(--amber);color:var(--amber)}
+.ico:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+/* ---------- โครงหลัก ---------- */
+.wrap{display:grid;grid-template-columns:300px minmax(0,1fr);gap:30px;
+  max-width:1440px;margin:0 auto;padding-block:22px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (max-width:860px){.wrap{grid-template-columns:1fr;gap:18px}}
+
+/* ---------- รางเวลา ---------- */
+.rail{align-self:start;position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);
+  max-height:calc(100vh - 100px);overflow:auto;padding-bottom:56px}
+@media (max-width:860px){.rail{position:static;max-height:none;padding-bottom:0}}
+.rail h2{font-size:13.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:8px;font-weight:600}
+.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+@media (max-width:860px){.rail ol{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:6px}}
+.rl{width:100%;text-align:left;font:inherit;cursor:pointer;background:transparent;
+  border:0;border-left:3px solid var(--line-soft);padding:7px 10px;border-radius:0 8px 8px 0;
+  display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline;color:var(--muted)}
+@media (max-width:860px){.rl{width:auto;white-space:nowrap;border-left:0;border-bottom:3px solid var(--line-soft);
+  border-radius:8px 8px 0 0;grid-template-columns:auto auto}}
+.rl time{font-family:var(--f-num);font-size:14px;letter-spacing:-.02em}
+.rl span{font-family:var(--f-display);font-size:16.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.rl:hover{background:var(--line-soft);color:var(--ink)}
+.rl[aria-current="true"]{border-color:var(--amber);background:var(--amber-soft);color:var(--ink)}
+.rl[aria-current="true"] span{font-weight:700}
+.rl.done{border-color:var(--sage-line)}
+.rl.done time::after{content:" ✓";color:var(--sage)}
+.rl.rest{opacity:.65;font-style:italic}
+.rl:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
+
+/* ---------- การ์ดรอบ ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.chead{padding:22px 26px 20px;border-bottom:1px solid var(--line-soft);
+  display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.chead .t{min-width:0;flex:1 1 260px}
+.chead time{font-family:var(--f-num);font-size:16.5px;color:var(--amber);font-weight:600;
+  letter-spacing:.02em;display:block;margin-bottom:3px}
+.chead h1{font-size:31px;font-weight:700;line-height:1.3}
+.chead p{margin:8px 0 0;color:var(--muted);font-size:18px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-family:var(--f-display);font-size:14.5px;font-weight:600;padding:5px 12px;border-radius:999px;
+  border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.sheet{border-color:var(--amber-line);color:var(--amber);background:var(--amber-soft)}
+.tag.term{border-color:var(--term-line);color:var(--term);background:var(--term-soft);
+  font-family:var(--f-display);letter-spacing:.01em}
+.cbody{padding:22px 26px 26px;display:flex;flex-direction:column;gap:24px}
+
+.sec>h3{font-family:var(--f-display);font-size:14px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-bottom:9px}
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:s;display:flex;flex-direction:column;gap:1px}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr) auto;
+  gap:14px;align-items:baseline;padding:12px 14px;border-radius:8px;background:var(--paper)}
+ol.steps li::before{content:counter(s);font-family:var(--f-num);font-size:16px;font-weight:600;
+  color:var(--card);background:var(--navy);width:28px;height:28px;border-radius:50%;
+  display:grid;place-items:center;align-self:start;margin-top:1px}
+ol.steps .who{display:block;font-size:15px;color:var(--muted);margin-top:2px}
+ol.steps .mins{font-family:var(--f-num);font-size:15px;color:var(--muted);white-space:nowrap}
+@media (max-width:520px){ol.steps li{grid-template-columns:24px minmax(0,1fr)}
+  ol.steps .mins{grid-column:2;margin-top:-4px}}
+
+blockquote.say{margin:0;padding:14px 16px;border-left:3px solid var(--amber);
+  background:var(--amber-soft);border-radius:0 10px 10px 0;font-size:19px;line-height:1.65}
+blockquote.say::before{content:"บทพูด";display:block;font-family:var(--f-display);font-size:13.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:6px}
+ul.watch{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+ul.watch li{padding-left:22px;position:relative;font-size:17.5px}
+ul.watch li::before{content:"";position:absolute;left:3px;top:12px;width:8px;height:8px;
+  border-radius:50%;background:var(--alert)}
+dl.help{margin:0;display:flex;flex-direction:column;gap:10px}
+dl.help div{background:var(--sage-soft);border:1px solid var(--sage-line);border-radius:8px;padding:11px 13px}
+dl.help dt{font-family:var(--f-display);font-weight:600;font-size:17px;margin-bottom:3px}
+dl.help dd{margin:0;font-size:17px;color:var(--ink);opacity:.92}
+.stop{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:8px;
+  background:var(--alert-soft);border:1px solid var(--alert);font-size:17.5px}
+.stop b{font-family:var(--f-display);color:var(--alert);white-space:nowrap}
+.restcard{padding:30px 20px;text-align:center}
+.restcard h1{font-size:30px}
+.restcard p{color:var(--muted);margin:8px 0 0}
+
+/* ---------- ปุ่มเดินหน้าถอยหลัง ---------- */
+.nav{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.nav button{font:inherit;font-family:var(--f-display);font-weight:600;font-size:17px;cursor:pointer;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);
+  padding:11px 20px;border-radius:10px}
+.nav button.go{background:var(--navy);color:var(--card);border-color:var(--navy)}
+.nav button:disabled{opacity:.4;cursor:default}
+.nav button:not(:disabled):hover{border-color:var(--amber)}
+.nav button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.nav .hint{font-size:14.5px;color:var(--muted);margin-left:auto}
+.prog{height:5px;background:var(--line-soft);border-radius:2px;overflow:hidden;margin-top:14px}
+.prog i{display:block;height:100%;background:var(--amber);transition:width .4s ease}
+.credit{position:fixed;z-index:25;left:max(14px,env(safe-area-inset-left,0px));
+  bottom:max(12px,env(safe-area-inset-bottom,0px));font-family:var(--f-display);
+  font-size:14px;font-weight:600;letter-spacing:.01em;color:var(--muted);
+  background:color-mix(in srgb,var(--card) 88%,transparent);border:1px solid var(--line);
+  border-radius:999px;padding:5px 13px;backdrop-filter:blur(6px);pointer-events:none}
+.credit b{color:var(--navy);font-weight:700}
+@media (max-width:520px){.credit{font-size:10.5px;padding:4px 10px}}
+
+.fade{animation:fade .34s ease both}
+ol.steps li{animation:rise .3s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fade,ol.steps li{animation:none}.prog i{transition:none}}
+</style>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <b>เส้นทางวันทดลองทำ Scrum</b>
+      <span>ฝ่ายพัฒนาระบบ · 5 ทีม · เรียงตาม 20 ขั้น · 09.00–16.00</span>
+    </div>
+    <div class="seg" role="group" aria-label="เลือกมุมมอง">
+      <button id="mStu" aria-pressed="true">ผู้เข้าอบรม</button>
+      <button id="mTra" aria-pressed="false">วิทยากร</button>
+    </div>
+    <div class="timer">
+      <span id="tdisp" class="tdisp num" aria-live="off">--:--</span>
+      <button class="ico" id="tgo" title="เริ่มหรือหยุดชั่วคราว">▶</button>
+      <button class="ico" id="trst" title="ตั้งเวลาใหม่">↺</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="rail" aria-label="ลำดับรอบ">
+    <h2>ลำดับของวัน</h2>
+    <ol id="rail"></ol>
+  </nav>
+  <main>
+    <article id="card" class="card"></article>
+    <div class="nav">
+      <button id="prev">← รอบก่อนหน้า</button>
+      <button id="next" class="go">รอบถัดไป →</button>
+      <span class="hint">ใช้ปุ่มลูกศรซ้ายขวาเลื่อนได้ · เว้นวรรคเริ่มจับเวลา</span>
+    </div>
+    <div class="prog"><i id="prog"></i></div>
+  </main>
+</div>
+
+<div class="credit">วิทยากรโดย <b>Aj. NesT the Series</b></div>
+
+<script>
+const S = [
+{t:"09.00 – 09.20", n:"เปิดวัน", term:"ภาพรวม Scrum Framework", dur:20, sheet:"ก",
+ lead:"ปูกรอบว่าวันนี้ต่างจากภาคทฤษฎีอย่างไร และตรวจว่าทุกคนเปิดไฟล์ได้",
+ steps:[
+  ["ถามว่าใครเตรียมงานจริงของตัวเองมาบ้าง ให้ยกมือ","วิทยากร","2 นาที"],
+  ["เปิดไฟล์ขึ้นจอที่ชีต ก  ชี้ให้ดูว่าช่องพื้นฟ้าตัวหนังสือน้ำเงินคือช่องที่กรอกเอง","วิทยากร","8 นาที"],
+  ["ทุกคนเปิดไฟล์ของทีมตัวเองจากเครื่องของตัวเอง แล้วดูแท็บล่างจอให้ครบ","ทุกคน","8 นาที"],
+  ["เปิดตารางสารบัญ 20 ขั้นในชีต ก ให้ดู  บอกว่าทุกขั้นที่เห็นในหน้าเว็บเมื่อกี้ อยู่ในไฟล์ตามเลขเดียวกัน","วิทยากร","2 นาที"]],
+ say:"ไฟล์เรียงตาม 20 ขั้นที่เพิ่งดูไปเมื่อกี้ ชีต ก คือขั้นที่ 1 2 4 5 ซึ่งทำครั้งเดียว ชีต ข คือขั้นที่ 3 กับ 6 คือคลังงาน ส่วนชีตที่ชื่อว่า รอบที่ 1 คือขั้นที่ 7 ถึง 19 ซึ่งเป็นหนึ่ง Sprint เต็มทั้งรอบอยู่ในชีตเดียว พอจบแล้วรอบถัดไปคือชีตถัดไป นี่คือเหตุผลที่เรียกว่าวนรอบ",
+ watch:["ทีมไหนเปิดไฟล์ไม่ได้ ต้องแก้ให้เสร็จในช่วงนี้ อย่าปล่อยข้ามไป",
+        "ย้ำว่าต้องเปิดคนละเครื่อง ไม่ใช่ทีมละเครื่อง เพราะมี 2 จังหวะที่ทุกคนต้องพิมพ์พร้อมกัน คือรอบที่ 8 และรอบที่ 10"],
+ help:[["สีในไฟล์แปลว่าอะไร","พื้นฟ้าตัวหนังสือน้ำเงินคือกรอกเอง  ตัวหนังสือดำและเขียวเป็นสูตร ถูกล็อกไว้แล้ว กดแล้วพิมพ์ไม่ได้ ไม่ต้องกลัวทำพัง"],
+       ["ทำไมแต่ละชีตยาว","เพราะยุบมาจากหลายชีตแล้ว  แต่ละชีตมีตารางไม่เกิน 5 ตาราง และมีหัวข้อบอกว่าตารางที่เท่าไร ให้ไล่จากบนลงล่าง"],
+       ["คำศัพท์ Scrum คำนี้แปลว่าอะไร  หรือช่องนี้คำนวณมาจากไหน","เปิดชีต ง ค้างไว้อีกหน้าต่างหนึ่ง  ตารางที่ 1 คือโครง Scrum ครบชุด พร้อมบอกว่าแต่ละอย่างอยู่ตรงไหนในไฟล์  ตารางที่ 2 คือคำที่คนใช้กันบ่อยแต่ไม่ได้อยู่ใน Scrum Guide 2020  ตารางที่ 3 คือวิธีคำนวณทุกช่อง"]],
+ stop:"ทุกคนเปิดไฟล์ได้แล้วจึงไปต่อ"},
+
+{t:"09.20 – 09.35", n:"รอบ 0 · เตรียมทีม", term:"Accountabilities", dur:15, sheet:"ก",
+ lead:"แบ่งบทบาทในตารางที่ 1 และอ่านข้อห้ามของตัวเองออกเสียง",
+ steps:[
+  ["พิมพ์ชื่อทีมในช่องใต้แถบขั้นตอน แล้วบันทึกไฟล์เป็นชื่อทีมตัวเอง","คนคุมแป้นพิมพ์","2 นาที"],
+  ["ตารางที่ 1  พิมพ์ชื่อตัวเองในแถวของตัวเอง แล้วเลือกบทบาทจากลูกศรลง","ทุกคน","4 นาที"],
+  ["ช่องหน้าที่ ข้อห้าม และประโยคประจำตัว จะขึ้นเองเมื่อเลือกบทบาท  อ่านช่องข้อห้ามของตัวเองออกเสียงให้ทีมฟัง","ทุกคน","5 นาที"],
+  ["ตารางที่ 2  ดูว่าผ่านครบทั้ง 4 ข้อหรือยัง  ไฟล์นับให้เอง  ต้องมี Product Owner 1 คน Scrum Master 1 คน และ Developer อย่างน้อย 3 คน  ข้อไหนขึ้นแดงให้กลับไปแก้บทบาทในตารางที่ 1","Scrum Master","2 นาที"],
+  ["ตารางที่ 6  ตกลงข้อตกลงของทีม 3 ข้อแรก  ข้อที่ 4 กำหนดมาแล้ว ห้ามแก้","ทั้งทีม","2 นาที"],
+  ["ตารางที่ 3  เขียน Product Goal 1 ประโยค  เป็นเป้าระยะยาวหลายรอบ คนละอันกับ Sprint Goal","ทุกคน","ตลอดวัน"]],
+ say:"ส่วนที่สำคัญกว่าหน้าที่คือข้อห้าม เพราะหน้าที่ทุกคนเดาได้เอง แต่ข้อห้ามคือสิ่งที่เราเผลอทำกันทุกวัน และขอหนึ่งเรื่อง อย่าให้คนที่เป็นหัวหน้าจริงเป็น Product Owner ในเกมนี้",
+ watch:["ทีมที่เลือกบทบาทตามตำแหน่งจริงทั้งหมด ให้ลองสลับ",
+        "ตรวจว่าแถบท้ายชีตขึ้นเขียวครบทุกทีมก่อนปล่อยไปต่อ"],
+ help:[["ตารางที่ 2 ขึ้นแดง","อ่านช่องกติกาในแถวนั้น  Product Owner ต้องมี 1 คนเท่านั้น Scrum Master 1 คนเท่านั้น และ Developer อย่างน้อย 3 คน  แก้ที่ช่องบทบาทในตารางที่ 1 แล้วตัวเลขจะเปลี่ยนเอง"],["ทีมเรามีไม่ถึง 7 คน","เว้นแถวที่เกินไว้ว่าง ขอเพียงผ่านครบ 5 ข้อในตารางที่ 2"],
+       ["เลือกบทบาทแล้วช่องหน้าที่ยังว่าง","แปลว่าพิมพ์เองแทนที่จะเลือกจากลูกศรลง ให้ลบแล้วเลือกใหม่"]],
+ stop:"ตารางที่ 2 ต้องผ่านครบ 4 ข้อก่อน แล้วทำตารางที่ 3 ถึง 6 ให้จบ"},
+
+{t:"09.35 – 10.00", n:"รอบ 1 · คลังงาน", term:"Product Backlog", dur:25, sheet:"ข",
+ lead:"อ่านโจทย์ 12 เรื่อง แล้วให้คะแนนและดูอันดับ",
+ steps:[
+  ["ชีต ข ตารางที่ 1  อ่านโจทย์ทั้ง 12 เรื่องให้จบ เงียบ ๆ คนเดียว  สังเกตคอลัมน์ User Story ว่าเขียนด้วยโครง ในฐานะใคร ฉันต้องการอะไร เพื่ออะไร","ทุกคน","5 นาที"],
+  ["เลื่อนลงไปตารางที่ 2 ในชีตเดียวกัน  ทั้ง 12 เรื่องดึงมาให้แล้ว ไม่ต้องพิมพ์ใหม่  ดูคอลัมน์ประเภทงานว่ามีทั้ง User Story  Bug  Epic และ Support Ticket  คลังงานจริงมีครบทุกแบบเสมอ","ทุกคน","2 นาที"],
+  ["ให้คะแนน 3 ช่อง คือคุณค่าต่อธุรกิจ ความเร่งด่วน และความเสี่ยงถ้าไม่ทำ  ให้ 1 ถึง 10","ทั้งทีม","12 นาที"],
+  ["เลือกขนาดงานคร่าว ๆ ก่อน  รอบหน้าจะประมาณใหม่ให้ละเอียด","Developer","3 นาที"],
+  ["อ่านแถบตรวจใต้ตาราง ที่บอกว่าอันดับ 1 คือเรื่องอะไร ออกเสียงให้ทีมฟัง","Product Owner","2 นาที"],
+  ["ตอบในทีมว่า เห็นด้วยกับอันดับที่เครื่องคำนวณหรือไม่ เพราะอะไร","ทั้งทีม","1 นาที"]],
+ say:"สูตรไม่รู้บริบททางธุรกิจ มันรู้แค่ตัวเลขที่เราใส่ อันดับที่ได้เป็นข้อมูลประกอบ ไม่ใช่คำสั่ง คนตัดสินใจยังเป็น Product Owner คนเดียว แต่ตอนนี้ต้องอธิบายได้ว่าทำไมถึงตัดสินใจต่างจากตัวเลข",
+ watch:["ทุกทีมจะให้คะแนนความเร่งด่วนสูงหมด ถ้าไม่เตือน",
+        "ต้องมีอย่างน้อย 1 ทีมที่ไม่เห็นด้วยกับอันดับ ถ้าไม่มีให้กระตุ้น"],
+ help:[["ให้คะแนนความเร่งด่วนเท่าไรดี","ความเร่งด่วนคือความเสียหายที่เพิ่มขึ้นถ้าช้าไปอีก 1 เดือน ไม่ใช่ความรู้สึกของคนที่มาขอ"],
+       ["ทีมเถียงกันนานเกิน 2 นาทีต่อใบ","ใช้ค่าที่สูงกว่าแล้วเดินต่อ Product Owner ยังปรับลำดับเองได้ทีหลัง"],
+       ["ช่องแต้มว่างเปล่า","แปลว่าช่องขนาดยังไม่ได้เลือก ให้คลิกแล้วเลือกจากลูกศรลง"]],
+ stop:"รอวิทยากรเรียกก่อนไปรอบที่ 2"},
+
+{t:"10.00 – 10.30", n:"รอบ 2 · ประมาณขนาด", term:"Story Points", dur:30, sheet:"ข",
+ lead:"ตกลงงานอ้างอิง แล้วประมาณขนาดแบบพูดพร้อมกัน ไม่ตามกัน",
+ steps:[
+  ["เลื่อนไปตารางอ้างอิง ก ในชีต ข  ดูตารางขนาดงาน  ตกลงกันว่าใบ NYT-001 คือขนาด M เท่ากับ 3 แต้ม","ทั้งทีม","3 นาที"],
+  ["หยิบใบถัดไป  ทุกคนคิดขนาดในใจ ห้ามพูด ห้ามทำหน้า","ทุกคน","1 นาทีต่อใบ"],
+  ["Scrum Master นับ หนึ่ง สอง สาม แล้วทุกคนพูดขนาดของตัวเองพร้อมกัน","ทั้งทีม","ทันที"],
+  ["ถ้าค่าต่างกันเกิน 2 ขั้น ให้คนที่สูงสุดกับต่ำสุดอธิบาย แล้วนับใหม่","ทั้งทีม","2 นาทีต่อใบ"],
+  ["เลือกขนาดที่ตกลงได้ลงช่องขนาดในตารางที่ 1  ช่องแต้มจะขึ้นเอง","คนคุมแป้นพิมพ์","ทันที"]],
+ say:"ตรงนี้เราไม่ได้ประมาณเวลา เราประมาณขนาด คำถามคือใบนี้ใหญ่กว่าหรือเล็กกว่างานอ้างอิงกี่เท่า เพราะคนในทีมทำงานเร็วไม่เท่ากัน ถ้าถามเป็นวันเราจะไม่มีวันตรงกัน แต่ทุกคนเห็นงานอ้างอิงใบเดียวกัน",
+ watch:["Product Owner ห้ามออกเสียง ถ้าออกเสียงทุกคนจะตามค่าของเขา",
+        "เหตุผลที่ต้องนับสามแล้วพูดพร้อมกัน คือกันไม่ให้คนที่พูดก่อนกำหนดค่าให้คนที่เหลือ",
+        "ทีมที่ค่าตรงกันหมดทุกใบ ให้ถามคนที่เงียบที่สุดว่าให้ค่าเท่าไร",
+        "อย่าปล่อยให้ใบเดียวกินเวลาเกิน 5 นาที"],
+ help:[["ค่าต่างกันมาก ควรหาค่าเฉลี่ยไหม","ห้ามหาค่าเฉลี่ย เพราะความเห็นที่ต่างกันจะหายไปโดยไม่มีใครได้ฟัง ให้คุยแล้วนับใหม่"],
+       ["เถียงกันไม่จบ","ใช้ค่าสูงสุดแล้วเดินต่อ ความแม่นมาจากการทำซ้ำหลายรอบ ไม่ได้มาจากการเถียงให้นานขึ้น"]],
+ stop:"รอวิทยากรเรียกก่อนพัก"},
+
+{rest:true, t:"10.30 – 10.45", n:"พัก 15 นาที",
+ lead:"วิทยากรเดินดูว่าทีมไหนยังตามไม่ทัน และดูว่าแถบตรวจของชีต ข ขึ้นเขียวกี่ทีม"},
+
+{t:"10.45 – 11.05", n:"รอบ 3 · พร้อมเข้ารอบ", term:"Definition of Ready", dur:20, sheet:"ข",
+ lead:"ตัดสินว่าใบไหนพร้อมเข้ารอบ ด้วยคำถาม 3 ข้อ",
+ steps:[
+  ["ดูคอลัมน์ พร้อมเข้ารอบ ที่อยู่ท้ายตารางที่ 2 ของชีต ข","ทุกคน","1 นาที"],
+  ["อ่านคำถาม 3 ข้อของ Definition of Ready ที่เขียนไว้ใต้ตารางที่ 1  หนึ่ง รู้ไหมว่าใครได้ประโยชน์  สอง รู้ไหมว่าเสร็จแล้วหน้าตาเป็นยังไง  สาม ทีมทำเองได้โดยไม่ต้องรอใครไหม","ทั้งทีม","10 นาที"],
+  ["เลือก พร้อม หรือ ยังไม่พร้อม ตามความจริง  ตอบไม่ได้ข้อใดข้อหนึ่ง ถือว่ายังไม่พร้อม","ทั้งทีม","5 นาที"],
+  ["ใบที่ยังไม่พร้อม พิมพ์ในช่องสุดท้ายว่ายังขาดอะไร และใครรับไปเติม ภายในเมื่อไร","Product Owner","4 นาที"]],
+ say:"เกณฑ์พร้อมเข้ารอบไม่ได้อยู่ใน Scrum Guide เป็นแนวปฏิบัติเสริมที่ทีมปรับเองได้ และถ้าตั้งเข้มเกินไปมันจะกลายเป็นข้ออ้างไม่รับงาน ซึ่งแย่กว่าไม่มีเลย",
+ watch:["ทีมที่เลือกว่าพร้อมหมดทุกใบ มักแปลว่ายังไม่ได้คิดจริง ให้สุ่มถามข้อที่ 2",
+        "ต้องบอกข้อยกเว้นว่างานที่ต้องตอบในวันเดียว ไม่ต้องผ่านครบ 3 ข้อ"],
+ help:[["ไม่แน่ใจว่าตอบข้อ 2 ได้หรือไม่","ถ้าอธิบายให้คนนอกทีมฟังได้ใน 1 ประโยคว่าเสร็จแล้วเขาจะเห็นอะไรเปลี่ยนไป ถือว่าตอบได้"],
+       ["ใบที่ยังไม่พร้อมต้องเอาออกเลยไหม","ไม่จำเป็น ถ้าเติมครบได้ภายในวันนี้ก็รับเข้ารอบได้ แต่ต้องมีชื่อคนและเวลาที่ชัดเจน"]],
+ stop:"รอวิทยากรเรียกก่อนไปรอบที่ 4"},
+
+{t:"11.05 – 11.35", n:"รอบ 4 · วางแผนรอบ", term:"Sprint Planning · Sprint Goal", dur:30, sheet:"รอบที่ 1",
+ lead:"ช่วงที่ยากที่สุดของวัน คือการเขียนเป้าหมายรอบ",
+ steps:[
+  ["ตารางที่ 2  กรอกจำนวนสมาชิก วันลา และสัดส่วนงานประจำตามความจริง","Scrum Master","8 นาที"],
+  ["ดูบรรทัดสุดท้ายของตารางที่ 2 คือแต้มที่รับได้ในรอบนี้  จำตัวเลขไว้ อย่าเพิ่งเลือกงาน","ทั้งทีม","1 นาที"],
+  ["ตารางที่ 1 ของชีต รอบที่ 1  เขียน Sprint Goal 1 ประโยค  แล้วดู 3 แถวตรวจประโยคใต้ช่องนั้น ต้องขึ้นผ่านครบทั้ง 3 ข้อ","ทั้งทีม","10 นาที"],
+  ["ใส่รหัสงานทีละใบ  ชื่อเรื่องกับแต้มจะขึ้นเอง  ใส่จนแถบตรวจใต้ตารางขึ้นเขียว","Product Owner เสนอ  Developer ตัดสิน","7 นาที"],
+  ["ใส่ชื่อเจ้าภาพของแต่ละใบ และลำดับที่จะทำก่อนหลัง","Developer","2 นาที"],
+  ["ตารางที่ 5  เขียนความเสี่ยงที่มองเห็นอย่างน้อย 2 ข้อ พร้อมแผนรองรับและชื่อคนเฝ้าดู","ทั้งทีม","2 นาที"]],
+ say:"เป้าหมายรอบต้องบอกว่า ใครทำอะไรได้ต่างจากเดิม ไม่ใช่รายการงานที่จะทำ และตัวเลขแต้มรวมคือคำมั่นที่ทีมให้ไว้เอง ไม่ใช่เป้าที่หัวหน้ากำหนด คำมั่นที่ตัวเองให้ไว้ คนจะรักษา ส่วนเป้าที่คนอื่นกำหนด คนจะหาเหตุผลอธิบาย",
+ watch:["ต้องเดินอ่านเป้าหมายรอบของทุกทีมด้วยตาตัวเอง",
+        "เกณฑ์ตีกลับ มีคำว่า ทำให้เสร็จ หรือมีคำว่า และ เกิน 2 ครั้ง",
+        "ทีมที่แถบขึ้นแดงว่าเกินกำลัง ห้ามแก้ด้วยการทำล่วงเวลา ให้ตัดใบท้ายลำดับออก",
+        "จังหวะขึ้นจอที่ 1 สลับให้เห็นเป้าหมายรอบของทั้ง 5 ทีมเรียงกัน"],
+ help:[["เขียนเป้าหมายรอบไม่ออก","เติมประโยคนี้ให้จบ  เมื่อจบรอบนี้ คุณ ... จะสามารถ ... ได้ โดยไม่ต้อง ..."],["แถวตรวจประโยคขึ้นแดง","ไฟล์ตรวจ 3 อย่าง  ความยาวเกิน 160 ตัวอักษร  มีคำว่า และ เกิน 2 ครั้ง  และมีคำว่า ทำให้เสร็จ  ทั้งสามอย่างแปลว่ายังเป็นรายการงาน ไม่ใช่เป้าหมาย"],
+       ["แถบขึ้นแดงว่าเกินกำลัง","เอาใบท้ายลำดับออก 1 ใบแล้วดูใหม่ ห้ามเพิ่มชั่วโมงล่วงเวลา เพราะเป็นการยืมเวลาจากรอบหน้า"]],
+ stop:"รอวิทยากรมาอ่านเป้าหมายรอบของทีมก่อน จึงไปต่อ"},
+
+{t:"11.35 – 12.00", n:"รอบ 5 · แตกงานย่อย", term:"Sprint Backlog · Definition of Done", dur:25, sheet:"รอบที่ 1",
+ lead:"แตกใบงานให้จบใน 1 วัน และเพิ่มเกณฑ์เสร็จสมบูรณ์ของทีม",
+ steps:[
+  ["ไปชีต รอบที่ 1 ตารางที่ 4  จับคู่กัน คู่ละ 1 ใบงาน เลือกใบที่แต้มเยอะที่สุดก่อน","Developer","2 นาที"],
+  ["แตกใบงานเป็นงานย่อยที่ทำเสร็จได้ภายใน 1 วัน  ใส่รหัสใบงาน ชั่วโมง ชื่องานย่อย และคนทำ","แต่ละคู่","10 นาที"],
+  ["ตรวจว่ามีงานย่อยที่เป็นการทดสอบ และงานย่อยที่ให้ผู้ขอทดลองใช้ด้วยหรือยัง","แต่ละคู่","3 นาที"],
+  ["เกณฑ์ Definition of Done ตั้งไว้แล้วในชีต ก ตารางที่ 4  ไม่ต้องตั้งใหม่ทุกรอบ","ทั้งทีม","8 นาที"],
+  ["ดูช่องรวมชั่วโมงท้ายตารางที่ 4  แล้วตั้งเพดาน WIP ในตารางที่ 6 ของชีตเดียวกันให้เป็นของทีมเอง","Scrum Master","2 นาที"]],
+ say:"ต้องมีงานย่อยที่เป็นการทดสอบ และงานย่อยที่ให้ผู้ขอทดลองใช้ด้วย ถ้ามีแต่งานเขียนโปรแกรม พอถึงบ่ายคุณจะติดที่เกณฑ์เสร็จสมบูรณ์ทุกใบ",
+ watch:["ทีมส่วนใหญ่จะแตกออกมาแต่งานเขียนโปรแกรม ไม่มีงานทดสอบและคู่มือ",
+        "ขอเกณฑ์ของทีมที่มาจากความเจ็บปวดจริง ไม่ใช่ข้อที่ฟังดูดี"],
+ help:[["งานย่อยควรละเอียดแค่ไหน","ถ้าพรุ่งนี้เช้าหยิบขึ้นมาทำแล้วเย็นปิดได้ ถือว่าพอดี ถ้าตอบว่าน่าจะ 2 ถึง 3 วัน ให้แตกต่อ"],
+       ["เกณฑ์ของทีมควรเขียนยังไง","เขียนเป็นสิ่งที่ตรวจได้ด้วยตา เช่น ต้องเทียบตัวเลขย้อนหลัง 7 วันก่อนขึ้นระบบ ไม่ใช่ ต้องมีคุณภาพดี"]],
+ stop:"รอวิทยากรเรียกก่อนพักกลางวัน"},
+
+{rest:true, t:"12.00 – 13.00", n:"พักกลางวัน",
+ lead:"ตรวจว่าทุกทีมมีเป้าหมายรอบและงานย่อยครบ ทีมไหนยังไม่ครบให้ช่วยหลังพัก"},
+
+{t:"13.00 – 13.35", n:"รอบ 6 · เดิน 10 วัน", term:"Daily Scrum · Scrum Board · Burndown", dur:35, sheet:"รอบที่ 1",
+ lead:"จำลองทั้งรอบวันละ 3 นาที พร้อมเหตุแทรก 3 ครั้ง",
+ steps:[
+  ["ไปตารางที่ 7 ในชีต รอบที่ 1  แถวแรกคือเริ่มรอบ มีแต้มคงเหลือรวมใส่ไว้ให้แล้ว  ส่วนตารางที่ 6 คือ Scrum Board ที่นับจำนวนใบให้เอง","ทุกคน","2 นาที"],
+  ["รอวิทยากรประกาศแต่ละวัน แล้วคุยกัน 3 นาทีว่าวันนั้นปิดใบไหนได้","ทั้งทีม","วันละ 3 นาที"],
+  ["กรอกช่องแต้มคงเหลือรวมของวันนั้น  ใบที่ยังไม่ผ่านเกณฑ์เสร็จสมบูรณ์ให้นับเต็ม ห้ามลงครึ่งแต้ม","คนคุมแป้นพิมพ์","วันละ 1 นาที"],
+  ["พิมพ์ความคืบหน้า อุปสรรค และการปรับแผนของวันนั้นในแถวเดียวกัน","Scrum Master","วันละ 1 นาที"],
+  ["เปลี่ยนสถานะของงานย่อยในตารางที่ 4 ทุกครั้งที่งานขยับ  กระดานในตารางที่ 6 จะนับให้เอง  และบันทึกเหตุแทรกลงตารางที่ 10 ทันที","Scrum Master","ทันทีที่เกิด"],
+  ["เมื่อครบวันที่ 10 ดู Burndown Chart ใต้ตาราง แล้วอ่านว่าเป็นแบบไหนใน 3 แบบ","ทั้งทีม","2 นาที"]],
+ say:"ใบที่ยังไม่ผ่านเกณฑ์เสร็จสมบูรณ์ ลงแต้มเต็ม ใบที่ผ่านแล้วลง 0 ห้ามลงครึ่งแต้ม ห้ามลงตามเปอร์เซ็นต์ เพราะงานที่ทำไป 80 เปอร์เซ็นต์ ยังไม่มีคุณค่าต่อผู้ใช้เลย กราฟจึงต้องลงเป็นขั้นบันไดตามความจริง",
+ watch:["วันที่ 2 เล่นบทผู้จัดการโรงงาน ขอเพิ่มรายงานอีกหนึ่งใบ ใช้เวลาแป๊บเดียว ให้ 2 นาที",
+        "วันที่ 4 ประกาศว่าคนที่ถือใบงานใหญ่ที่สุดลาป่วย 3 วัน ให้ 2 นาที",
+        "วันที่ 7 ประกาศว่าผู้ขอบอกว่าไม่ตรงกับที่ต้องการ ให้ 2 นาที",
+        "จังหวะขึ้นจอที่ 2 สลับให้เห็นกราฟของทั้ง 5 ทีม ย้ำว่าไม่ใช่การแข่งขัน"],
+ help:[["ใบงานทำไปครึ่งทาง ลงแต้มเท่าไร","ลงแต้มเต็มเหมือนเดิม ลดแต้มได้เมื่อใบนั้นผ่านเกณฑ์เสร็จสมบูรณ์เท่านั้น"],
+       ["กราฟไม่ขยับ","กราฟอ่านจากช่องแต้มคงเหลือรวมเท่านั้น ถ้ายังไม่กรอกวันนั้น เส้นจะยังไม่ลากไปถึง"],
+       ["มีงานด่วนแทรกเข้ามา","เปิดตารางที่ 11 ช่องทางงานด่วน 3 ระดับ แล้วชี้ว่าเรื่องนี้อยู่ระดับไหน  ระดับ 2 ต้องสลับงานแต้มเท่ากันออก 1 ใบ  ระดับ 3 ไม่แทรก ให้ใส่คลังงานในชีต ข  แล้วบันทึกลงตารางที่ 10"]],
+ stop:"รอวิทยากรเรียกก่อนไปรอบที่ 7"},
+
+{t:"13.35 – 14.00", n:"รอบ 7 · ทบทวนผลงาน", term:"Sprint Review · Increment", dur:25, sheet:"รอบที่ 1",
+ lead:"ตรวจเกณฑ์เสร็จสมบูรณ์ก่อน แล้วให้ทีมคู่มาเป็นผู้ขอ",
+ steps:[
+  ["เปิดชีต ก ตารางที่ 4  อ่านเกณฑ์ 8 ข้อขั้นต่ำ คนละ 1 ข้อ วนกันไป","ทุกคน","3 นาที"],
+  ["ตารางที่ 9  ตรวจทุกใบตามเกณฑ์ตามความจริง  เลือก ผ่านครบ หรือ ยังไม่ผ่าน","ทั้งทีม","7 นาที"],
+  ["ใบที่ยังไม่ผ่าน พิมพ์ว่าขาดข้อไหน และจะทำอย่างไรต่อ","เจ้าภาพใบงาน","2 นาที"],
+  ["รอวิทยากรประกาศสลับทีม แล้วเดินไปเป็นผู้ขอให้ทีมคู่","ตามที่กำหนด","1 นาที"],
+  ["ตารางที่ 12 บอกว่าใบไหนแสดงได้  แล้วตารางที่ 13 ผู้ขอจากทีมอื่นกดใช้เอง เจ้าของทีมห้ามกดแทน","ผู้ขอจากทีมคู่","8 นาที"],
+  ["พิมพ์คำพูดของผู้ขอตามที่เขาพูดจริง ไม่ต้องเรียบเรียง และบันทึกคำขอใหม่ที่เกิดขึ้น","Scrum Master","4 นาที"]],
+ say:"คนตัดสินว่าเสร็จคือเกณฑ์ที่เราตกลงกันไว้ล่วงหน้า ไม่ใช่อารมณ์ของใครในวันนี้ งานที่ไม่ผ่านจะไม่ถูกนำเสนอเลย ต้องกลับเข้าคลังงาน",
+ watch:["ทีมพัฒนาที่กดสาธิตแทนผู้ขอ ต้องห้ามทันที",
+        "สุ่มถามทีมที่เลือกผ่านครบว่า คู่มือของใบนี้อยู่ที่ไหน ใครทบทวนโค้ด",
+        "จังหวะขึ้นจอที่ 3 ให้เห็นช่องแต้มที่ผ่านเกณฑ์ของทุกทีม แล้วถามว่าข้อไหนที่ทั้งห้องตกตรงกัน"],
+ help:[["ผ่าน 7 ข้อจาก 8 นับว่าเสร็จได้ไหม","ไม่ได้ ไม่มีการให้คะแนนบางส่วน ผ่านครบทุกข้อเท่านั้น"],
+       ["ผู้ขอจากทีมอื่นใช้ไม่เป็น","นั่นคือข้อมูลที่มีค่าที่สุดของรอบนี้ อย่าเข้าไปช่วยกด ให้จดว่าเขาติดตรงขั้นไหน"]],
+ stop:"รอวิทยากรเรียกก่อนไปรอบที่ 8"},
+
+{t:"14.00 – 14.20", n:"รอบ 8 · พัฒนาทีม", term:"Sprint Retrospective", dur:20, sheet:"รอบที่ 1",
+ lead:"เขียนเงียบก่อนพูด แล้วเลือกข้อปรับปรุงไม่เกิน 2 ข้อ",
+ steps:[
+  ["อ่านกฎออกเสียง  เราพูดถึงวิธีทำงาน ไม่พูดถึงตัวบุคคล และในวงนี้ไม่มีหัวหน้า","Scrum Master","2 นาที"],
+  ["ตารางที่ 14  แต่ละคนพิมพ์เฉพาะแถวที่เป็นเลขของตัวเอง ห้ามคุยกัน ห้ามเลื่อนไปดูแถวคนอื่น","ทุกคน แยกเครื่อง","5 นาที"],
+  ["อ่านของตัวเองให้ทีมฟังทีละคน จนครบทุกคน","ทีละคนวนไป","7 นาที"],
+  ["ตารางที่ 15  เลือกไม่เกิน 2 ข้อ พร้อมชื่อคน วันเสร็จ และวิธีวัดผล","ทั้งทีม","6 นาที"]],
+ say:"ในวงนี้ไม่มีหัวหน้า และเราพูดถึงวิธีทำงาน ไม่พูดถึงตัวบุคคล แทนที่จะพูดว่าคนนั้นทำช้า ให้พูดว่างานใบนี้มีคนเดียวที่ทำได้ จึงหยุดเมื่อเขาไม่อยู่ อย่างแรกแก้ไม่ได้ อย่างหลังแก้ได้",
+ watch:["ความเห็นที่พาดพิงตัวบุคคล ให้ช่วยแปลงเป็นเรื่องเชิงระบบทันที",
+        "ข้อที่เขียนว่าจะพยายามสื่อสารกันมากขึ้น ให้ตีกลับ เพราะวัดไม่ได้",
+        "เดินดูว่ามีคนแอบเลื่อนไปดูแถวของคนอื่นก่อนหมดเวลาหรือไม่"],
+ help:[["อยากเลือกมากกว่า 2 ข้อ","เลือกได้ไม่เกิน 2 เลือก 5 ข้อเท่ากับไม่ได้ทำเลยสักข้อ ข้อที่เหลือยกไปรอบหน้าได้"],
+       ["คิดวิธีวัดผลไม่ออก","ถามว่าอีกสองสัปดาห์จะรู้ได้ยังไงว่าทำสำเร็จ ถ้าตอบไม่ได้ แปลว่าข้อนั้นยังกว้างเกินไป"]],
+ stop:"รอวิทยากรเรียกก่อนไปรอบที่ 9"},
+
+{t:"14.20 – 14.30", n:"รอบ 9ก · ตัวชี้วัด", term:"Velocity", dur:10, sheet:"ค",
+ lead:"อ่านอย่างเดียว ไม่ต้องกรอก ไฟล์คำนวณให้หมดแล้ว",
+ steps:[
+  ["ไปชีต ค ตารางที่ 1  อ่านตัวชี้วัดทั้ง 6 บรรทัด","ทั้งทีม","2 นาที"],
+  ["เทียบบรรทัดที่ 1 กับบรรทัดที่ 2 แล้วตอบในทีมว่าเห็นอะไร","ทั้งทีม","2 นาที"],
+  ["ตารางที่ 2 คือ Velocity รายรอบ  Sprint 1 กับ 2 ดึงมาจากชีตรอบให้เอง  รอบถัดไปกรอกเอง","Scrum Master","2 นาที"],
+  ["ตารางที่ 3 คือ Cycle Time  ดูแถวส่วนต่าง แล้วตอบว่าคอลัมน์ไหนเปลี่ยน คอลัมน์ไหนไม่เปลี่ยน","ทั้งทีม","3 นาที"],
+  ["อ่านข้อห้ามที่มุมขวาของหัวตารางที่ 1 ออกเสียง","Scrum Master","1 นาที"]],
+ say:"ดูตารางที่ 3 ครับ คอลัมน์วันที่ลงมือทำจริงไม่เปลี่ยนเลย ยังเป็น 4 วันเท่าเดิม ที่ลดลงคือคอลัมน์วันที่รอคิว จาก 21 วันเหลือ 6 วัน แปลว่าตลอดหลายปีที่ผ่านมา การเร่งให้ทีมเขียนโปรแกรมเร็วขึ้นแก้ปัญหานี้ไม่ได้เลย เพราะปัญหาไม่เคยอยู่ตรงนั้น",
+ watch:["ต้องบอกตามจริงว่าตัวอย่างในไฟล์เป็นภาพกลางรอบ ตัวเลขจึงยังต่ำโดยเจตนา  และตัวเลขช่วงก่อนใช้ Scrum ในตารางที่ 3 เป็นตัวอย่างสำหรับการอบรม ไม่ใช่ตัวเลขจริงของฝ่าย",
+        "ย้ำข้อห้าม ห้ามเทียบระหว่างทีม และห้ามใช้ประเมินผลงานรายบุคคล"],
+ help:[["ร้อยละของคำมั่นที่ทำได้ต่ำมาก","ปกติในรอบแรก และตัวอย่างในไฟล์เป็นภาพกลางรอบ ตัวเลขนี้มีไว้คาดการณ์รอบถัดไป ไม่ได้มีไว้ตัดสินว่าทีมดีหรือไม่ดี"]],
+ stop:"รอวิทยากรเรียกก่อนพัก"},
+
+{rest:true, t:"14.30 – 14.45", n:"พัก 15 นาที",
+ lead:"ตอบคำถามที่ค้างให้ครบก่อนช่วงสุดท้าย และเตือนทุกคนให้นึกงานจริงของตัวเองไว้ 2 เรื่อง"},
+
+{t:"14.45 – 15.05", n:"รอบ 9ข · สรุปผู้บริหาร", term:"Stakeholder", dur:20, sheet:"ค",
+ lead:"เขียน 5 ประโยค แล้วส่งตัวแทนขึ้นพูด",
+ steps:[
+  ["ตารางที่ 1 ถึง 3  ดูตัวเลขอีกครั้ง คราวนี้ดูเพื่อหยิบไปใช้ในประโยค  ตัวเลขที่ใช้ได้ผลที่สุดคือส่วนต่างของ Cycle Time ในตารางที่ 3","ทั้งทีม","3 นาที"],
+  ["ตารางที่ 4  อ่านหัวข้อของแต่ละประโยคในคอลัมน์ซ้าย","Product Owner","2 นาที"],
+  ["เขียน 5 ประโยคด้วยตัวเลขของทีมเอง ประโยคละ 1 บรรทัด","Product Owner กับ Scrum Master","10 นาที"],
+  ["เลือกตัวแทน 1 คน ซ้อมพูด 2 นาที แล้วรอเรียกขึ้นนำเสนอ","ทั้งทีม","5 นาที"]],
+ say:"ประโยคที่ควรขึ้นก่อนเสมอคือ เวลาที่ผู้ใช้ต้องรอ ลดลงจากเท่าไรเป็นเท่าไร เพราะเป็นเรื่องที่ผู้บริหารเคยถูกร้องเรียนมาเอง จึงจำได้ทันที",
+ watch:["ถามคำถามเดียวกันกับทุกทีมหลังจบ ถ้าผู้บริหารถามกลับว่าอยากให้ช่วยอะไร จะตอบว่าอะไร"],
+ help:[["ไม่รู้จะเริ่มประโยคแรกยังไง","เริ่มด้วยเรื่องของคน ไม่ใช่เรื่องของระบบ เช่น หัวหน้ากะกลับมาพิมพ์ฉลากได้ภายในวันเดียวที่แจ้ง"],
+       ["ตัวเลขบางช่องว่าง","แปลว่าชีตก่อนหน้ายังกรอกไม่ครบ ให้กลับไปดูแถบตรวจท้ายชีตนั้น"]],
+ stop:"รอวิทยากรเรียกขึ้นนำเสนอ ทีมละ 2 นาที"},
+
+{t:"15.05 – 15.35", n:"รอบ 10 · งานจริงของทีม", term:"Product Backlog ของทีมเอง", dur:30, sheet:"ข",
+ lead:"จุดที่เปลี่ยนจากการซ้อมเป็นของจริง",
+ steps:[
+  ["ไปชีต ข  เลื่อนลงไปท้ายตารางที่ 1 จะมีแถวว่างให้เติมงานจริงของทีม  โจทย์กลาง 12 เรื่องอยู่แถวบน ไม่ต้องลบ","ทุกคน","1 นาที"],
+  ["ทุกคนพิมพ์งานจริงของตัวเองคนละ 2 ใบ ลงแถวว่างท้ายตารางที่ 1 ของชีต ข แยกเครื่อง","ทุกคน","6 นาที"],
+  ["Product Owner คัดด้วย 3 คำถามที่เขียนไว้ใต้ตาราง  ใบที่ตอบไม่ได้ให้ตีกลับไปถามผู้ขอก่อน","Product Owner","8 นาที"],
+  ["ให้คะแนนและเลือกขนาดของใบที่ผ่าน ใช้วิธีเดียวกับตอนเช้า","ทั้งทีม","8 นาที"],
+  ["ไปชีต ค ตารางที่ 6  ตกลงก้าวแรก ใครดูแลไฟล์ ไฟล์เก็บที่ไหน รอบถัดไปใช้ชีตไหน และนัดติดตามวันไหน","ทั้งทีม","7 นาที"]],
+ say:"ตอนนี้ทุกคนผ่านการฝึกมาครบแล้ว รู้วิธีเขียนใบงาน รู้วิธีให้คะแนน รู้วิธีประมาณขนาด ครึ่งชั่วโมงนี้คุณจะได้คลังงานจริงของทีมที่พร้อมใช้เช้าวันจันทร์",
+ watch:["ถ้าไม่มีชื่อคนรับผิดชอบดูแลไฟล์ ไฟล์นี้จะไม่ถูกเปิดอีกเลยหลังวันนี้",
+        "ทีมที่ยังนึกงานจริงไม่ออก ให้เปิดแชตและอีเมลของสัปดาห์ที่แล้วดู"],
+ help:[["กลัวทำโจทย์กลางหาย","ไม่ต้องลบอะไรเลย  โจทย์กลาง 12 เรื่องกับงานจริงของทีมอยู่ในตารางเดียวกันในชีต ข คนละแถวกัน  คลังงานจริงก็เป็นแบบนี้ คือมีทั้งของเก่าและของใหม่ปนกัน"],["จะเอาไฟล์นี้ไปใช้จริงวันจันทร์ต้องทำอะไรบ้าง","เปิดชีต ง ตารางที่ 6  มี 7 ขั้นที่ทำครั้งเดียว รวมไม่เกิน 1 ชั่วโมง  และตารางที่ 4 คือปฏิทินของ 1 รอบจริงว่าใช้ชีตไหนวันไหน"],
+       ["งานจริงของเราเยอะเกิน 12 ใบ","ใส่เฉพาะที่เข้ามาในเดือนที่ผ่านมาก่อน ที่เหลือค่อยเติมวันจันทร์"]],
+ stop:"เหลือเวลาอีก 25 นาทีสำหรับช่วงปิด"},
+
+{t:"15.35 – 16.00", n:"ปิดหลักสูตร", term:"Sprint ถัดไป", dur:25, sheet:"ค",
+ lead:"ก้าวแรกเช้าวันจันทร์ 1 ข้อต่อทีม",
+ steps:[
+  ["ทวนกฎจริง 4 ข้อ ให้ห้องพูดตามได้","วิทยากร","5 นาที"],
+  ["บอกเงื่อนไข 2 ข้อของก้าวแรก  ต้องเสร็จได้ในวันจันทร์ และไม่ต้องขออนุมัติใคร","วิทยากร","3 นาที"],
+  ["ตารางที่ 6 ของชีต ค  แต่ละทีมเขียนก้าวแรก 1 ข้อ","ทั้งทีม","10 นาที"],
+  ["ตัวแทนทีมละ 1 คนอ่านก้าวแรกของทีมออกเสียง","ตัวแทนทีม","5 นาที"],
+  ["นัดติดตาม 1 ครั้ง ห่างจากวันนี้ 2 สัปดาห์ ความยาว 1 ชั่วโมง  บันทึกลงบรรทัดสุดท้าย","วิทยากร","2 นาที"]],
+ say:"กฎจริงมี 4 ข้อ คือไม่ทำให้เป้าหมายรอบเสี่ยง คุณภาพห้ามลด ปรับแต่งคลังงานได้ และต่อรองขอบเขตกับ Product Owner ได้ ส่วนสลับออกไม่ใช่เพิ่มเข้า เป็นแค่สูตรจำง่ายที่มาจาก 4 ข้อนี้",
+ watch:["ก้าวแรกต้องทำเสร็จได้ในวันจันทร์ และไม่ต้องขออนุมัติใคร",
+        "ถ้าไม่นัดวันติดตามตรงนี้ จะไม่มีการติดตามเกิดขึ้นเลย"],
+ help:[["ทีมคิดก้าวแรกไม่ออก","ย้ายคำขอที่ค้างในแชตและอีเมลของสัปดาห์ที่แล้วทั้งหมด ลงตารางที่ 3 ให้ครบ ใช้เวลาไม่เกิน 1 ชั่วโมง และไม่ต้องขอใคร"]],
+ stop:"จบวัน ขอบคุณครับ"}
+];
+
+const $ = s => document.querySelector(s);
+let cur = 0, trainer = false;
+let tLeft = 0, tOn = false, tTick = null;
+
+try{
+  const a = localStorage.getItem('nyt-step'); if(a!==null) cur = Math.min(S.length-1, Math.max(0, +a||0));
+  trainer = localStorage.getItem('nyt-mode') === 't';
+}catch(e){}
+
+function save(){ try{ localStorage.setItem('nyt-step', cur); localStorage.setItem('nyt-mode', trainer?'t':'s'); }catch(e){} }
+const esc = t => String(t).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+function rail(){
+  $('#rail').innerHTML = S.map((s,i) =>
+    `<li><button class="rl${s.rest?' rest':''}${i<cur?' done':''}" data-i="${i}"
+      ${i===cur?'aria-current="true"':''}><time>${esc(s.t.split(' – ')[0])}</time><span>${esc(s.n)}</span></button></li>`
+  ).join('');
+}
+
+function render(){
+  const s = S[cur];
+  let h;
+  if(s.rest){
+    h = `<div class="restcard fade"><time class="num" style="color:var(--amber);font-weight:600">${esc(s.t)}</time>
+      <h1 style="margin-top:6px">${esc(s.n)}</h1><p>${esc(s.lead)}</p></div>`;
+  }else{
+    h = `<div class="chead fade"><div class="t"><time>${esc(s.t)}</time><h1>${esc(s.n)}</h1>
+      <p>${esc(s.lead)}</p></div><div class="tags">
+      <span class="tag sheet">ชีต ${esc(s.sheet)}</span><span class="tag">${s.dur} นาที</span>
+      ${s.term ? `<span class="tag term">${esc(s.term)}</span>` : ''}</div></div>
+      <div class="cbody">
+      <section class="sec"><h3>ลำดับการทำ</h3><ol class="steps">${
+        s.steps.map((x,i)=>`<li style="animation-delay:${i*45}ms"><div><b>${esc(x[0])}</b>
+          <span class="who">${esc(x[1])}</span></div><span class="mins">${esc(x[2])}</span></li>`).join('')
+      }</ol></section>`;
+    if(trainer && s.say) h += `<section class="sec"><blockquote class="say">${esc(s.say)}</blockquote></section>`;
+    if(trainer && s.watch) h += `<section class="sec"><h3>วิทยากรต้องเดินดู</h3><ul class="watch">${
+      s.watch.map(w=>`<li>${esc(w)}</li>`).join('')}</ul></section>`;
+    if(s.help) h += `<section class="sec"><h3>ถ้าติด ให้ทำแบบนี้ก่อนถามวิทยากร</h3><dl class="help">${
+      s.help.map(p=>`<div><dt>${esc(p[0])}</dt><dd>${esc(p[1])}</dd></div>`).join('')}</dl></section>`;
+    h += `<div class="stop"><b>หยุดตรงนี้</b><span>${esc(s.stop)}</span></div></div>`;
+  }
+  $('#card').innerHTML = h;
+  $('#prev').disabled = cur === 0;
+  $('#next').disabled = cur === S.length - 1;
+  $('#prog').style.width = ((cur+1)/S.length*100).toFixed(1) + '%';
+  rail();
+  resetTimer();
+  save();
+}
+
+function fmt(x){ const m = Math.floor(Math.abs(x)/60), s = Math.abs(x)%60;
+  return (x<0?'-':'') + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
+function paint(){
+  const d = $('#tdisp');
+  d.textContent = S[cur].dur ? fmt(tLeft) : '--:--';
+  d.className = 'tdisp num' + (tLeft<0 ? ' over' : (tLeft<=120 ? ' warn' : ''));
+}
+function resetTimer(){ stopTimer(); tLeft = (S[cur].dur||0)*60; paint(); }
+function stopTimer(){ tOn = false; clearInterval(tTick); tTick = null; $('#tgo').textContent = '▶'; }
+function toggleTimer(){
+  if(!S[cur].dur) return;
+  if(tOn){ stopTimer(); return; }
+  tOn = true; $('#tgo').textContent = '❚❚';
+  tTick = setInterval(()=>{ tLeft--; paint(); }, 1000);
+}
+
+function setMode(t){
+  trainer = t;
+  $('#mTra').setAttribute('aria-pressed', t ? 'true' : 'false');
+  $('#mStu').setAttribute('aria-pressed', t ? 'false' : 'true');
+  render();
+}
+function go(i){ cur = Math.min(S.length-1, Math.max(0, i)); render(); window.scrollTo({top:0, behavior:'smooth'}); }
+
+$('#prev').onclick = () => go(cur-1);
+$('#next').onclick = () => go(cur+1);
+$('#mTra').onclick = () => setMode(true);
+$('#mStu').onclick = () => setMode(false);
+$('#tgo').onclick = toggleTimer;
+$('#trst').onclick = resetTimer;
+$('#rail').onclick = e => { const b = e.target.closest('.rl'); if(b) go(+b.dataset.i); };
+addEventListener('keydown', e => {
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if(e.key === 'ArrowRight'){ e.preventDefault(); go(cur+1); }
+  if(e.key === 'ArrowLeft'){ e.preventDefault(); go(cur-1); }
+  if(e.key === ' '){ e.preventDefault(); toggleTimer(); }
+});
+
+setMode(trainer);
+</script>
+
+</body></html>
