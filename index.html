@@ -336,7 +336,11 @@ function open(m,s){
   pPrev.disabled=n===1;pNext.disabled=n===ORDER.length;
   hint.innerHTML=mod.hint||HINT;
   document.title=mod.t+' · Agile & Scrum Transformation';
-  if(curM!==m){curM=m;frame.src=(mod.dir||'animations')+'/'+mod.f+'.html';}
+  if(curM!==m){
+    curM=m;
+    // GitHub Pages ให้เบราว์เซอร์จำไฟล์ไว้ราว 10 นาที ต่อท้ายเวลาไว้ เพื่อให้เปิดได้ไฟล์ล่าสุดทุกครั้ง
+    frame.src=(mod.dir||'animations')+'/'+mod.f+'.html'+(/github\.io$/.test(location.hostname)?'?v='+Date.now():'');
+  }
   else jump();
   player.hidden=false;document.body.classList.add('lock');
   hint.style.animation='none';void hint.offsetWidth;hint.style.animation='';
