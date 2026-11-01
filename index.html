@@ -164,8 +164,8 @@ footer b{color:var(--fg);font-family:var(--display)}
       <h1>Agile <span class="amp">&amp;</span> Scrum Transformation</h1>
       <p class="lead">เลือกชุดที่ต้องการแล้วกดเปิดดู แต่ละชุดเล่นทีละฉาก กดเล่นซ้ำหรือข้ามฉากได้ตลอด เหมาะสำหรับเปิดประกอบการบรรยายหรือทบทวนเองหลังจบคลาส</p>
       <ul class="facts">
-        <li><b>7</b> ชุดแอนิเมชัน</li>
-        <li><b>54</b> ฉาก</li>
+        <li><b>8</b> ชุดแอนิเมชัน · <b>72</b> ฉาก</li>
+        <li>Workshop กรอกไฟล์ <b>20</b> ขั้น</li>
         <li>3 บทบาท · 5 เหตุการณ์ · 3 Artifacts</li>
       </ul>
       <div class="cta">
@@ -256,13 +256,26 @@ var MODS=[
   s:['Definition of Done','Sprint Review','อ่าน Burndown','Retrospective','แปลงเป็นการกระทำ']},
  {f:'07-tools-compare',t:'เครื่องมือเทียบ',sel:'#nav button:not(.ctl)',
   d:'Scrum Board กับ Kanban Board ต่างกันตรงไหน WIP Limit และ Velocity ใช้อย่างไร และ Waterfall กับ Agile ต่างกันที่ความถี่ ไม่ใช่จำนวนขั้น',
-  s:['Scrum Board vs Kanban Board','WIP Limit','Velocity','Waterfall vs Agile']}
+  s:['Scrum Board vs Kanban Board','WIP Limit','Velocity','Waterfall vs Agile']},
+ {f:'08-sdlc-vs-aidlc',t:'SDLC vs AIDLC',sel:'#nav .num',
+  d:'วงจรพัฒนาซอฟต์แวร์กับวงจรพัฒนาระบบ AI ต่างกันอย่างไร ตอบ 7 คำถามหลัก แล้วดูตัวอย่างจริงทีละขั้นผ่านแอปร้านกาแฟ จนถึงการเฝ้าระวังโมเดลและธรรมาภิบาล',
+  ph:[[0,'แนวคิด'],[8,'ตัวอย่างจริง · แอปร้านกาแฟ']],
+  s:['ภาพรวม SDLC vs AIDLC','คืออะไร','เกิดมาจากอะไร','ทำไมต้องใช้','ไม่ใช้ได้ไหม','ใครต้องใช้','ประโยชน์คืออะไร','ต่างกันยังไง','ตัวอย่าง: แอปร้านกาแฟ','ขั้น 1 · ความต้องการ vs ตั้งโจทย์','ขั้น 2 · ออกแบบ vs เตรียมข้อมูล','ขั้น 3 · เขียนโค้ด vs สร้างโมเดล','ขั้น 4 · ทดสอบ vs ประเมินผล','ขั้น 5 · ปล่อยใช้งาน','ขั้น 6 · ดูแล vs เฝ้าระวัง','วงจรวนซ้ำ + ธรรมาภิบาล','ยุค GenAI','สรุปเทียบข้างกัน']},
+ {f:'scrum-workbook-walkthrough',dir:'workshop',t:'กรอกไฟล์ Scrum ทีละช่อง',sel:'#rail .rl',
+  unit:'ขั้น',cnt:20,meta:'ขั้น · ต่อด้วยเริ่ม Sprint 2 · ไฟล์ Excel 6 ชีต',
+  hint:'<kbd>←</kbd> <kbd>→</kbd> เปลี่ยนขั้น · <kbd>Space</kbd> เล่นอัตโนมัติ · <kbd>Esc</kbd> กลับหน้ารวม',
+  d:'ตัวอย่างจริงของไฟล์ Workshop ตั้งแต่ตั้งทีมจนจบ Sprint 1 และขึ้น Sprint 2 แต่ละขั้นบอกว่ากรอกช่องไหน ช่องไหนไฟล์คำนวณให้ ใครทำ ใช้เวลากี่นาที และคำถามที่ผู้เข้าอบรมมักถาม',
+  ph:[[0,'ก่อน Sprint แรก'],[5,'Refinement'],[6,'Sprint Planning'],[9,'ระหว่าง Sprint'],[15,'Sprint Review'],[17,'Retrospective'],[19,'วนรอบใหม่']],
+  s:['ตั้ง Scrum Team','ตั้ง Product Goal','สร้าง Product Backlog','ตกลง Definition of Done','กำหนดความยาว Sprint','ขัดเกลา Backlog','ทำไมรอบนี้มีคุณค่า','เลือกงานลงรอบนี้','จะทำอย่างไร','ขึ้นบอร์ด ปกป้อง Sprint Goal','Daily Scrum','เคลียร์อุปสรรค','ตรวจผ่าน DoD','งานด่วนแทรก','ติดตาม Burndown','แสดง Increment','รับ Feedback','Retrospective','เลือก 1-2 เรื่องมาทำ','วนรอบใหม่ + สรุป','เริ่ม Sprint 2']}
 ];
+// m = ตำแหน่งใน MODS (ลิงก์ #m1… อ้างตำแหน่งนี้ จึงไม่เปลี่ยนเมื่อสลับลำดับบนหน้า)
 var LANES=[
  {tag:'ช่วงที่ 1',h:'ภาพรวม',p:'เข้าใจว่า Scrum หนึ่งรอบมีอะไรบ้าง ก่อนลงรายละเอียด',m:[0,1]},
  {tag:'ช่วงที่ 2',h:'ลงมือทำ',p:'เขียนงาน ประเมิน วางแผน แล้วตรวจและปรับ ตามลำดับที่เกิดขึ้นจริงใน Sprint',m:[2,3,4,5]},
- {tag:'ช่วงที่ 3',h:'มุมมองเปรียบเทียบ',p:'เทียบ Scrum กับวิธีทำงานแบบอื่น ใช้ปิดท้าย หรือเปิดประเด็นตอนต้นคลาสก็ได้',m:[6],wide:1}
+ {tag:'Workshop',h:'ลงมือกรอกไฟล์จริง',p:'ใช้ระหว่างทำ Workshop ลำดับขั้นตรงกับชุด Scrum 20 ขั้น ดูแอนิเมชันก่อน แล้วเปิดชุดนี้คู่กับไฟล์ Excel ของทีม',m:[8],wide:1},
+ {tag:'ช่วงที่ 3',h:'มุมมองเปรียบเทียบ',p:'เทียบ Scrum กับวิธีทำงานแบบอื่น และเทียบวงจรพัฒนาซอฟต์แวร์กับระบบ AI ใช้ปิดท้าย หรือเปิดประเด็นตอนต้นคลาสก็ได้',m:[6,7]}
 ];
+var ORDER=[].concat.apply([],LANES.map(function(L){return L.m;}));
 
 /* ---------- ฉากบนเวทีหน้าแรก ---------- */
 (function(){
@@ -283,20 +296,20 @@ var LANES=[
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 var PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>';
 function card(i,wide){
-  var m=MODS[i],n=i+1,list='',unit=m.ph?'ขั้น':'ฉาก';
+  var m=MODS[i],id=i+1,n=ORDER.indexOf(i)+1,list='',unit=m.unit||'ฉาก';
   m.s.forEach(function(s,k){
     if(m.ph)m.ph.forEach(function(p){if(p[0]===k)list+='<li class="phase">'+esc(p[1])+'</li>';});
-    list+='<li><button type="button" data-m="'+n+'" data-s="'+(k+1)+'"><b>'+(k+1)+'</b>'+esc(s)+'</button></li>';
+    list+='<li><button type="button" data-m="'+id+'" data-s="'+(k+1)+'"><b>'+(k+1)+'</b>'+esc(s)+'</button></li>';
   });
   return '<article class="mod'+(wide?' wide':'')+'">'+
-    '<button class="thumb" type="button" data-m="'+n+'" aria-label="เปิดชุด '+n+' '+esc(m.t)+'">'+
+    '<button class="thumb" type="button" data-m="'+id+'" aria-label="เปิดชุด '+n+' '+esc(m.t)+'">'+
       '<img src="assets/'+m.f+'.jpg" alt="" loading="lazy" width="1280" height="720">'+
       '<span class="no">'+n+'</span><span class="play">'+PLAY+'</span></button>'+
     '<div class="body">'+
-      '<div class="meta"><span class="pts">'+m.s.length+'</span>'+unit+(m.ph?' · '+m.ph.length+' ช่วง':'')+'</div>'+
+      '<div class="meta"><span class="pts">'+(m.cnt||m.s.length)+'</span>'+(m.meta||unit+(m.ph?' · '+m.ph.length+' ช่วง':''))+'</div>'+
       '<h3>'+esc(m.t)+'</h3><p>'+esc(m.d)+'</p>'+
-      '<div class="actions"><button class="open" type="button" data-m="'+n+'">เปิดดู</button>'+
-      '<details'+(wide?' open':'')+'><summary>เลือก'+unit+'</summary><ul class="scenes">'+list+'</ul></details></div>'+
+      '<div class="actions"><button class="open" type="button" data-m="'+id+'">เปิดดู</button>'+
+      '<details'+(wide&&m.s.length<=6?' open':'')+'><summary>เลือก'+unit+'</summary><ul class="scenes">'+list+'</ul></details></div>'+
     '</div></article>';
 }
 document.getElementById('lanes').innerHTML=LANES.map(function(L){
@@ -307,7 +320,7 @@ document.getElementById('lanes').innerHTML=LANES.map(function(L){
 /* ---------- ตัวเล่น ---------- */
 var player=document.getElementById('player'),frame=document.getElementById('frame'),ptitle=document.getElementById('ptitle'),
     pPrev=document.getElementById('pPrev'),pNext=document.getElementById('pNext'),hint=document.getElementById('hint'),
-    curM=0,want=0,lastFocus=null;
+    HINT=hint.innerHTML,curM=0,want=0,lastFocus=null;
 
 function parse(h){var r=/^#m(\d+)(?:-s(\d+))?$/.exec(h||'');if(!r)return null;var m=+r[1];if(m<1||m>MODS.length)return null;return{m:m,s:r[2]?+r[2]:0};}
 function route(){
@@ -316,13 +329,14 @@ function route(){
   open(r.m,r.s);
 }
 function open(m,s){
-  var mod=MODS[m-1];
+  var mod=MODS[m-1],n=ORDER.indexOf(m-1)+1;
   if(player.hidden)lastFocus=document.activeElement;
   want=s;
-  ptitle.innerHTML='<small>ชุด '+m+' / '+MODS.length+'</small>'+esc(mod.t);
-  pPrev.disabled=m===1;pNext.disabled=m===MODS.length;
+  ptitle.innerHTML='<small>ชุด '+n+' / '+ORDER.length+'</small>'+esc(mod.t);
+  pPrev.disabled=n===1;pNext.disabled=n===ORDER.length;
+  hint.innerHTML=mod.hint||HINT;
   document.title=mod.t+' · Agile & Scrum Transformation';
-  if(curM!==m){curM=m;frame.src='animations/'+mod.f+'.html';}
+  if(curM!==m){curM=m;frame.src=(mod.dir||'animations')+'/'+mod.f+'.html';}
   else jump();
   player.hidden=false;document.body.classList.add('lock');
   hint.style.animation='none';void hint.offsetWidth;hint.style.animation='';
@@ -363,8 +377,9 @@ function onKey(e){
 }
 document.addEventListener('keydown',onKey);
 document.getElementById('pHome').onclick=home;
-pPrev.onclick=function(){go('#m'+(curM-1));};
-pNext.onclick=function(){go('#m'+(curM+1));};
+function step(d){var n=ORDER.indexOf(curM-1)+d;if(n>=0&&n<ORDER.length)go('#m'+(ORDER[n]+1));}
+pPrev.onclick=function(){step(-1);};
+pNext.onclick=function(){step(1);};
 document.getElementById('pFull').onclick=function(){
   var el=player;
   if(document.fullscreenElement){document.exitFullscreen().catch(function(){});}

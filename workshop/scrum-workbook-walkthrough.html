@@ -1,0 +1,875 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>กรอกไฟล์ Scrum ทีละช่อง</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+
+<style>
+:root{
+  --paper:#EDF1F6; --card:#FFFFFF; --ink:#0F1E2B; --muted:#5B6B7C;
+  --line:#D2DAE4; --line-soft:#E4EAF1; --grid:#C8D3DF;
+  --amber:#B85F0E; --amber-soft:#FBEDDC; --amber-line:#E8B277;
+  --sage:#35694D; --sage-soft:#E2EFE8; --sage-line:#A6CBB6;
+  --alert:#A72E22; --alert-soft:#FBE5E2;
+  --navy:#17344C; --blue:#1F4FD8; --blue-soft:#EEF3FF;
+  --term:#6B5494; --term-soft:#F1ECFA; --term-line:#C7B8E4;
+  --skin:#E8C9A8; --shirt:#2E6DA4;
+  --calc-bg:#FFF9E8; --calc-line:#E0C97A; --calc-ink:#6E5512;
+  --f-display:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;
+  --f-body:"Sarabun","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0C141C; --card:#13222F; --ink:#E7EEF5; --muted:#92A6BA;
+  --line:#243747; --line-soft:#1B2B3A; --grid:#2C4155;
+  --amber:#E9A355; --amber-soft:#2C1E11; --amber-line:#6B4620;
+  --sage:#7BBE9A; --sage-soft:#14271D; --sage-line:#2E5540;
+  --alert:#E98578; --alert-soft:#2C1613;
+  --navy:#9FC4E0; --blue:#86AEFF; --blue-soft:#15223B;
+  --term:#C3ACE8; --term-soft:#241C33; --term-line:#4A3A6B;
+  --skin:#C9A782; --shirt:#3E7FB8;
+  --calc-bg:#2A2314; --calc-line:#6B5A26; --calc-ink:#E8D49A;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0C141C; --card:#13222F; --ink:#E7EEF5; --muted:#92A6BA;
+  --line:#243747; --line-soft:#1B2B3A; --grid:#2C4155;
+  --amber:#E9A355; --amber-soft:#2C1E11; --amber-line:#6B4620;
+  --sage:#7BBE9A; --sage-soft:#14271D; --sage-line:#2E5540;
+  --alert:#E98578; --alert-soft:#2C1613;
+  --navy:#9FC4E0; --blue:#86AEFF; --blue-soft:#15223B;
+  --term:#C3ACE8; --term-soft:#241C33; --term-line:#4A3A6B;
+  --skin:#C9A782; --shirt:#3E7FB8;
+  --calc-bg:#2A2314; --calc-line:#6B5A26; --calc-ink:#E8D49A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;
+  line-height:1.6;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);
+  z-index:40;background:var(--card)}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+/* ---------- แถบบน ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--card);
+  border-bottom:1px solid var(--line)}
+.bar-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:9px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1440px;margin:0 auto}
+.brand{margin-right:auto;min-width:0}
+.brand b{display:block;font-family:var(--f-display);font-size:15px;font-weight:700}
+.brand span{font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.ctl{display:flex;align-items:center;gap:7px}
+button{font:inherit;cursor:pointer}
+.ico{border:1px solid var(--line);background:var(--card);color:var(--ink);height:34px;
+  min-width:34px;padding:0 10px;border-radius:9px;font-family:var(--f-display);
+  font-weight:600;font-size:13px;display:inline-grid;place-items:center}
+.ico:hover{border-color:var(--amber);color:var(--amber)}
+.ico:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.ico.go{background:var(--navy);color:var(--card);border-color:var(--navy)}
+.ico.go:hover{color:var(--card);opacity:.9}
+.ico:disabled{opacity:.4;cursor:default}
+.count{font-family:var(--f-num);font-size:13px;color:var(--muted);white-space:nowrap}
+
+/* ---------- โครง ---------- */
+.wrap{display:grid;grid-template-columns:200px minmax(0,1fr) 270px;gap:18px;
+  max-width:1440px;margin:0 auto;padding-block:16px 52px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (max-width:1180px){.wrap{grid-template-columns:minmax(0,1fr) 250px}.rail{display:none}}
+@media (max-width:820px){.wrap{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- รางขั้น ---------- */
+.rail{align-self:start;position:sticky;top:calc(env(safe-area-inset-top,0px) + 60px);
+  max-height:calc(100vh - 90px);overflow:auto}
+.rail h2{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;margin-bottom:6px}
+.rail ol{list-style:none;margin:0;padding:0}
+.rl{width:100%;text-align:left;background:transparent;border:0;border-left:3px solid var(--line-soft);
+  padding:5px 9px;border-radius:0 7px 7px 0;display:grid;grid-template-columns:20px 1fr;
+  gap:7px;align-items:baseline;color:var(--muted)}
+.rl i{font-family:var(--f-num);font-size:11px;font-style:normal}
+.rl span{font-family:var(--f-display);font-size:12px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.rl:hover{background:var(--line-soft);color:var(--ink)}
+.rl[aria-current="true"]{border-color:var(--amber);background:var(--amber-soft);color:var(--ink)}
+.rl[aria-current="true"] span{font-weight:700}
+.rl.done{border-color:var(--sage-line)}
+.rl.setup i::after{content:" ·"}
+
+/* ---------- กลาง  ชีตจำลอง ---------- */
+.stage{background:var(--card);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.tabs{display:flex;gap:2px;padding:7px 10px 0;background:var(--line-soft);overflow-x:auto}
+.tab{font-family:var(--f-display);font-size:12px;font-weight:600;color:var(--muted);
+  background:transparent;border:1px solid transparent;border-bottom:0;padding:5px 11px;
+  border-radius:7px 7px 0 0;white-space:nowrap}
+.tab.on{background:var(--card);color:var(--ink);border-color:var(--line)}
+.shead{padding:12px 16px 10px;border-bottom:1px solid var(--line-soft)}
+.shead .meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:5px}
+.pill{font-family:var(--f-display);font-size:11px;font-weight:600;padding:3px 9px;
+  border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.step{border-color:var(--amber-line);color:var(--amber);background:var(--amber-soft)}
+.pill.term{border-color:var(--term-line);color:var(--term);background:var(--term-soft)}
+.shead h1{font-size:19px;font-weight:700}
+.shead p{margin:3px 0 0;font-size:13px;color:var(--muted)}
+.gridwrap{padding:14px 16px 16px;overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:100%}
+caption{caption-side:top;text-align:left;font-family:var(--f-display);font-size:12px;
+  font-weight:600;color:var(--navy);padding-bottom:6px}
+th{background:var(--navy);color:#fff;font-family:var(--f-display);font-weight:600;
+  font-size:11.5px;padding:6px 8px;text-align:left;border:1px solid var(--navy);
+  vertical-align:bottom;line-height:1.3}
+td{padding:5px 8px;border:1px solid var(--grid);vertical-align:top;background:var(--card)}
+td.n,th.n{text-align:center}
+td.in{background:var(--blue-soft);color:var(--blue)}
+td.fx{color:var(--ink);font-weight:600;background:var(--sage-soft)}
+td.ro{color:var(--muted)}
+td.hot{animation:pop .45s ease both}
+td.hot::after{content:"";position:absolute}
+tr.dim td{opacity:.45}
+.cellnew{position:relative;display:inline-block;animation:typein .5s ease both}
+.ring{box-shadow:inset 0 0 0 2px var(--amber);animation:ringpulse 1.2s ease-in-out 2}
+@keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@keyframes typein{from{opacity:0;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0)}}
+@keyframes ringpulse{0%,100%{box-shadow:inset 0 0 0 2px var(--amber)}
+  50%{box-shadow:inset 0 0 0 3px var(--amber),0 0 0 3px var(--amber-soft)}}
+.calcbox{margin:12px 16px 0;padding:9px 12px;border-radius:8px;background:var(--calc-bg);
+  border:1px solid var(--calc-line);color:var(--calc-ink);font-size:12.5px}
+.calcbox b{font-family:var(--f-display)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:0 16px 14px;font-size:11.5px;
+  color:var(--muted)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;
+  vertical-align:-1px;border:1px solid var(--grid)}
+.nav{display:flex;gap:9px;align-items:center;margin-top:13px;flex-wrap:wrap}
+.nav .hint{font-size:11.5px;color:var(--muted);margin-left:auto}
+.prog{height:3px;background:var(--line-soft);border-radius:2px;overflow:hidden;margin-top:11px}
+.prog i{display:block;height:100%;background:var(--amber);transition:width .35s ease}
+.credit{position:fixed;z-index:25;left:max(14px,env(safe-area-inset-left,0px));
+  bottom:max(12px,env(safe-area-inset-bottom,0px));font-family:var(--f-display);
+  font-size:11.5px;font-weight:600;letter-spacing:.01em;color:var(--muted);
+  background:color-mix(in srgb,var(--card) 88%,transparent);border:1px solid var(--line);
+  border-radius:999px;padding:5px 13px;backdrop-filter:blur(6px);pointer-events:none}
+.credit b{color:var(--navy);font-weight:700}
+@media (max-width:520px){.credit{font-size:10.5px;padding:4px 10px}}
+
+/* ---------- ขวา  ตัวการ์ตูนและคำอธิบาย ---------- */
+.side{display:flex;flex-direction:column;gap:12px;align-self:start;position:sticky;
+  top:calc(env(safe-area-inset-top,0px) + 60px)}
+@media (max-width:820px){.side{position:static}}
+.toon{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px;
+  display:grid;grid-template-columns:86px minmax(0,1fr);gap:8px;align-items:end}
+.toon svg{width:86px;height:104px;display:block}
+.bubble{position:relative;background:var(--amber-soft);border:1px solid var(--amber-line);
+  border-radius:11px;padding:8px 10px;font-size:13px;line-height:1.5;color:var(--ink)}
+.bubble::before{content:"";position:absolute;left:-7px;bottom:14px;width:12px;height:12px;
+  background:var(--amber-soft);border-left:1px solid var(--amber-line);
+  border-bottom:1px solid var(--amber-line);transform:rotate(45deg)}
+.who{font-size:11px;color:var(--muted);margin-top:4px;text-align:center;font-family:var(--f-display)}
+.card2{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+.card2 h3{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;margin-bottom:5px}
+.card2 p{margin:0 0 9px;font-size:13px}
+.card2 p:last-child{margin-bottom:0}
+.card2 .q{font-family:var(--f-display);font-weight:600;font-size:12.5px;color:var(--sage);
+  margin-bottom:2px}
+/* ตัวการ์ตูน */
+#arm{transform-origin:68px 56px;transition:transform .45s ease}
+.pose-point #arm{transform:rotate(-58deg)}
+.pose-think #arm{transform:rotate(22deg)}
+.pose-ok #arm{transform:rotate(-24deg)}
+.pose-warn #arm{transform:rotate(-80deg)}
+#brow{transition:transform .3s ease}
+.pose-warn #brow,.pose-think #brow{transform:translateY(-2px)}
+#mouth{transition:d .3s ease}
+#blink{animation:blink 5.5s infinite}
+@keyframes blink{0%,95%,100%{transform:scaleY(1)}97%{transform:scaleY(.08)}}
+#toonG{animation:idle 3.4s ease-in-out infinite}
+@keyframes idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;
+    transition-duration:.001s!important}
+}
+</style>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <b>กรอกไฟล์ Scrum ทีละช่อง</b>
+      <span>ตัวอย่างจริงตั้งแต่ตั้งทีม จนจบ Sprint 1 และขึ้น Sprint 2</span>
+    </div>
+    <span class="count" id="count">—</span>
+    <div class="ctl">
+      <button class="ico" id="prev">←</button>
+      <button class="ico go" id="play">▶ เล่นอัตโนมัติ</button>
+      <button class="ico" id="next">→</button>
+      <button class="ico" id="speed">ปกติ</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="rail" aria-label="ลำดับขั้น"><h2>20 ขั้นของ Scrum</h2><ol id="rail"></ol></nav>
+
+  <main>
+    <div class="stage">
+      <div class="tabs" id="tabs"></div>
+      <div class="shead" id="shead"></div>
+      <div class="gridwrap" id="grid"></div>
+      <div id="calc"></div>
+      <div class="legend">
+        <span><i style="background:var(--blue-soft);border-color:var(--blue)"></i>ช่องที่กรอกเอง</span>
+        <span><i style="background:var(--sage-soft);border-color:var(--sage-line)"></i>ช่องที่ไฟล์คำนวณให้</span>
+        <span><i style="background:var(--card)"></i>ช่องที่มีอยู่แล้ว ไม่ต้องแตะ</span>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="ico" id="prev2">← ย้อนกลับ</button>
+      <button class="ico go" id="next2">ขั้นถัดไป →</button>
+      <span class="hint">ลูกศรซ้ายขวาเลื่อน · เว้นวรรคเล่นอัตโนมัติ</span>
+    </div>
+    <div class="prog"><i id="prog"></i></div>
+  </main>
+
+  <aside class="side">
+    <div class="toon" id="toon">
+      <svg viewBox="0 0 96 112" aria-hidden="true">
+        <g id="toonG">
+          <ellipse cx="48" cy="108" rx="26" ry="4" fill="rgba(0,0,0,.12)"/>
+          <path id="arm" d="M62,54 q12,6 14,20" stroke="var(--shirt)" stroke-width="9"
+                stroke-linecap="round" fill="none"/>
+          <path d="M28,106 v-26 a20,20 0 0 1 40,0 v26 z" fill="var(--shirt)"/>
+          <path d="M34,54 q-10,6 -12,20" stroke="var(--shirt)" stroke-width="9"
+                stroke-linecap="round" fill="none"/>
+          <circle cx="48" cy="38" r="20" fill="var(--skin)"/>
+          <path d="M28,34 q4,-18 20,-18 q16,0 20,18 q-6,-7 -20,-7 q-14,0 -20,7z" fill="#36414E"/>
+          <g id="blink" style="transform-origin:48px 40px">
+            <circle cx="41" cy="40" r="2.4" fill="#2A3340"/>
+            <circle cx="55" cy="40" r="2.4" fill="#2A3340"/>
+          </g>
+          <g id="brow">
+            <rect x="37" y="33" width="8" height="2" rx="1" fill="#2A3340"/>
+            <rect x="51" y="33" width="8" height="2" rx="1" fill="#2A3340"/>
+          </g>
+          <path id="mouth" d="M43,48 q5,4 10,0" stroke="#2A3340" stroke-width="2"
+                fill="none" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <div><div class="bubble" id="say">—</div><div class="who" id="whoby"></div></div>
+    </div>
+    <div class="card2" id="info"></div>
+  </aside>
+</div>
+
+<div class="credit">วิทยากรโดย <b>Aj. NesT the Series</b></div>
+
+<script>
+/* ===== ข้อมูลจริงจากไฟล์ Excel  ค่าทุกตัวตรงกับสเปรดชีต ===== */
+// เครื่องหมายนำหน้าค่าในตาราง:  + คือช่องที่เพิ่งกรอก   = คือช่องสูตร   ปกติคือช่องเดิม
+const T = [
+
+/* ---------- ขั้นที่ 1 ---------- */
+{g:1,sh:'ก',tb:'ตารางที่ 1  บทบาทของทีม',term:'Accountabilities',
+ h:'พิมพ์ชื่อ แล้วเลือกบทบาทจากลูกศรลง',
+ sub:'ช่องหน้าที่กับข้อห้ามจะขึ้นเองเมื่อเลือกบทบาท ไม่ต้องพิมพ์',
+ cols:['คนที่','ชื่อ','บทบาท','หน้าที่หลัก','ข้อห้ามของบทบาทนี้'],
+ w:[46,110,130,260,240],
+ rows:[['1','+คุณวิไล','+Product Owner','=ตัดสินว่าอะไรสำคัญก่อนหลัง ให้คะแนนคุณค่า','=ออกเสียงตอนประมาณขนาด สั่งว่าใครทำอะไร'],
+       ['2','+คุณสมชาย','+Scrum Master','=จับเวลาทุก Event กำจัดอุปสรรค','=ตัดสินใจแทนทีม สั่งงาน รับรายงานใน Daily'],
+       ['3','+คุณปรีชา','+Developer','=ประมาณขนาด แตกงานย่อย ตรวจ DoD ตามจริง','=รับงานเพิ่มเองโดยไม่ผ่าน Product Owner'],
+       ['4','+คุณนภา','+Developer','=ประมาณขนาด แตกงานย่อย ตรวจ DoD ตามจริง','=รับงานเพิ่มเองโดยไม่ผ่าน Product Owner'],
+       ['5','+คุณอรทัย','+Developer','=ประมาณขนาด แตกงานย่อย ตรวจ DoD ตามจริง','=รับงานเพิ่มเองโดยไม่ผ่าน Product Owner']],
+ say:'พิมพ์ชื่อในช่องสีฟ้า แล้วเลือกบทบาทจากลูกศรลงเท่านั้น ห้ามพิมพ์เอง ถ้าพิมพ์เองช่องหน้าที่จะว่าง',
+ pose:'point',by:'ทุกคน · 4 นาที',
+ info:[['ทำไมต้องอ่านข้อห้ามออกเสียง','เพราะหน้าที่ทุกคนเดาได้เอง แต่ข้อห้ามคือสิ่งที่เราเผลอทำกันทุกวัน'],
+       ['อย่าให้หัวหน้าจริงเป็น Product Owner','ไม่งั้นเวลาต้องตัดงานออก จะไม่มีใครกล้าค้าน']]},
+
+{g:1,sh:'ก',tb:'ตารางที่ 2  ตรวจองค์ประกอบทีม',term:'ไฟล์ตรวจให้เอง',
+ h:'ไฟล์นับให้เอง ต้องผ่านครบ 4 ข้อ',
+ sub:'ถ้าข้อไหนขึ้นแดง ให้กลับไปแก้ช่องบทบาทในตารางที่ 1',
+ cols:['สิ่งที่ตรวจ','ตอนนี้มี','กติกา','ผลการตรวจ'],
+ w:[210,76,140,230],
+ rows:[['จำนวนสมาชิกที่กรอกชื่อแล้ว','=7','อย่างน้อย 5 คน','=ผ่าน'],
+       ['Product Owner','=1','1 คนเท่านั้น','=ผ่าน'],
+       ['Scrum Master','=1','1 คนเท่านั้น','=ผ่าน'],
+       ['Developer','=5','อย่างน้อย 3 คน','=ผ่าน']],
+ say:'ตารางนี้ไม่ต้องกรอกอะไรเลย ไฟล์นับจากตารางที่ 1 ให้เอง ถ้าเผลอใส่ Product Owner 2 คน แถวนั้นจะขึ้นแดงทันที',
+ pose:'ok',by:'Scrum Master · 2 นาที',
+ calc:'ใช้สูตร COUNTIF นับว่าในคอลัมน์บทบาทของตารางที่ 1 มีกี่แถวที่ข้อความตรงกับบทบาทนี้ แล้ว IF เทียบกับกติกา',
+ info:[['ทีมเรามีแค่ 5 คน พอไหม','พอครับ ขอแค่ PO 1 คน SM 1 คน และ Developer อย่างน้อย 3 คน']]},
+
+/* ---------- ขั้นที่ 2 ---------- */
+{g:2,sh:'ก',tb:'ตารางที่ 3  Product Goal',term:'Commitment ของ Product Backlog',
+ h:'เขียนเป้าหมายระยะยาว 1 ประโยค',
+ sub:'เขียนครั้งเดียว ใช้ยาวหลายรอบ คนละอันกับ Sprint Goal',
+ cols:['ข้อ','คำถาม','คำตอบของทีม'],
+ w:[46,290,440],
+ rows:[['1','Product Goal ของเราคืออะไร  1 ประโยค','+ทำให้พนักงานทุกฝ่ายแจ้งงานและดูสถานะงานของตัวเองได้เอง โดยไม่ต้องโทรหรือเดินมาถามฝ่ายพัฒนาระบบ'],
+       ['2','รู้ได้ยังไงว่าไปถึงแล้ว','+สายโทรเข้าฝ่ายเพื่อถามสถานะงาน ลดลงเหลือไม่เกินวันละ 3 สาย'],
+       ['3','คาดว่าใช้กี่รอบ','+ประมาณ 6 รอบ  หรือ 3 เดือน']],
+ say:'ข้อ 2 สำคัญที่สุด ถ้าเขียนไม่ได้ว่ารู้ได้ยังไงว่าไปถึงแล้ว แปลว่าเป้าหมายยังกว้างเกินไป',
+ pose:'think',by:'Product Owner · 10 นาที',
+ info:[['ต่างจาก Sprint Goal ยังไง','Product Goal คือเป้าระยะยาวหลายรอบ มีได้ทีละ 1 ข้อ ส่วน Sprint Goal เปลี่ยนทุกรอบ']]},
+
+/* ---------- ขั้นที่ 3 ---------- */
+{g:3,sh:'ข',tb:'ตารางที่ 1  รายการงานทั้งหมด',term:'Product Backlog เป็น Artifact',
+ h:'อ่านอย่างเดียว ไม่ต้องกรอก',
+ sub:'12 เรื่องนี้ใส่มาให้แล้ว ทั้ง 5 ทีมใช้ชุดเดียวกัน',
+ cols:['รหัสงาน','ประเภทงาน','ชื่อเรื่อง','User Story'],
+ w:[82,110,200,400],
+ rows:[['NYT-001','User Story','ตัวเลขยอดผลิตไม่ตรงกัน','ในฐานะผู้จัดการโรงงาน ฉันต้องการเห็นยอดผลิตชุดเดียวกับหัวหน้ากะ เพื่อไม่ต้องเสียเวลาประชุมไล่ดูว่าเลขไหนถูก'],
+       ['NYT-002','User Story','รับของเข้าคลังต้องพิมพ์รหัสด้วยมือ','ในฐานะหัวหน้าคลัง ฉันต้องการสแกนรหัสแทนการพิมพ์ เพื่อไม่ให้ยอดในระบบผิดจนต้องเดินนับใหม่ทุกปลายเดือน'],
+       ['NYT-004','Support Ticket','เครื่องพิมพ์ฉลากใช้งานไม่ได้','ในฐานะหัวหน้ากะ ฉันต้องการให้เครื่องพิมพ์ฉลากกลับมาใช้งานได้ เพื่อให้ไลน์ถัดไปไม่ต้องรอของ'],
+       ['NYT-006','Epic','รวมยอดคลังให้เป็นชุดเดียวทั้งบริษัท','ในฐานะฝ่ายวางแผนการผลิต ฉันต้องการให้ยอดคลังเป็นชุดเดียวกันทั้งบริษัท เพื่อวางแผนจากตัวเลขที่เชื่อถือได้'],
+       ['NYT-013','Bug','ใบส่งของออกเลขที่ซ้ำกัน','ในฐานะเจ้าหน้าที่ฝ่ายขาย ฉันต้องการให้เลขที่ใบส่งของไม่ซ้ำกัน เพื่อไม่ให้ลูกค้าปฏิเสธการรับของ']],
+ say:'สังเกตคอลัมน์ประเภทงาน คลังงานจริงไม่ได้เป็น User Story ทั้งหมด มีทั้ง Bug ที่ของเดิมพัง งานแจ้งซ่อม และ Epic ที่ยังใหญ่เกินไป',
+ pose:'point',by:'ทุกคนอ่านเอง · 10 นาที',
+ info:[['Epic ทำไมรับเข้ารอบไม่ได้','เพราะใหญ่เกินกว่าจะจบในรอบเดียว ต้องแตกเป็นใบย่อยก่อนเสมอ'],
+       ['ท่อนไหนของ User Story สำคัญที่สุด','ท่อนสุดท้าย เพื่ออะไร เพราะเป็นท่อนเดียวที่บอกคุณค่า และเป็นท่อนที่คนไทยมักลืม']]},
+
+/* ---------- ขั้นที่ 4 ---------- */
+{g:4,sh:'ก',tb:'ตารางที่ 4  Definition of Done',term:'Commitment ของ Increment',
+ h:'อ่านเกณฑ์ขั้นต่ำ 8 ข้อ แล้วเพิ่มของทีมเอง',
+ sub:'ข้อ 1 ถึง 8 องค์กรกำหนด แก้ไม่ได้  ข้อ 9 ถึง 10 ทีมเขียนเอง',
+ cols:['ข้อ','เกณฑ์ที่ต้องผ่าน','ใครเป็นผู้ตรวจ','ระดับ'],
+ w:[46,380,150,110],
+ rows:[['1','โค้ดถูกทบทวนโดยคนอื่นในทีมอย่างน้อย 1 คน','Developer อีกคน','องค์กร'],
+       ['2','ทดสอบตามเกณฑ์ยอมรับครบทุกข้อ และผ่านทั้งหมด','เจ้าภาพใบงาน','องค์กร'],
+       ['4','ขึ้นระบบทดสอบได้ และผู้ขอทดลองใช้แล้วอย่างน้อย 1 ครั้ง','ผู้ขอ','องค์กร'],
+       ['5','มีคู่มือการใช้งานอย่างน้อย 1 หน้า','คนที่ไม่ได้ทำใบนี้','องค์กร'],
+       ['9','+ต้องเทียบตัวเลขกับระบบหลักย้อนหลังอย่างน้อย 7 วันก่อนขึ้นระบบ','+เจ้าภาพใบงาน','ทีมเพิ่มเอง']],
+ say:'ทีมเพิ่มได้แต่ลดไม่ได้ และเกณฑ์ที่เพิ่มต้องตรวจได้ด้วยตา เขียนว่าต้องมีคุณภาพดี ใช้ไม่ได้ เพราะไม่มีใครตัดสินได้',
+ pose:'warn',by:'ทั้งทีม · 10 นาที',
+ info:[['ผ่าน 7 ข้อจาก 8 นับว่าเสร็จไหม','ไม่ได้ ขาดข้อเดียวเท่ากับยังไม่เสร็จ และนำไปแสดงใน Sprint Review ไม่ได้']]},
+
+/* ---------- ขั้นที่ 5 ---------- */
+{g:5,sh:'ก',tb:'ตารางที่ 5  ความยาวรอบ และเวลาของ Event',term:'Timebox',
+ h:'เลือกความยาวรอบ แล้วลงปฏิทินจริง',
+ sub:'Scrum Guide กำหนดเพดานไว้สำหรับรอบ 1 เดือน รอบสั้นกว่ามักสั้นลงตามสัดส่วน',
+ cols:['Event','Timebox รอบ 1 เดือน','ของทีมเรา  รอบ 2 สัปดาห์'],
+ w:[230,180,300],
+ rows:[['The Sprint  ความยาวรอบ','ไม่เกิน 1 เดือน','+2 สัปดาห์  เท่ากับ 10 วันทำการ'],
+       ['Sprint Planning','ไม่เกิน 8 ชั่วโมง','+ไม่เกิน 4 ชั่วโมง  จันทร์ 09.00'],
+       ['Daily Scrum','15 นาที','+15 นาที  ทุกวัน 09.15'],
+       ['Sprint Review','ไม่เกิน 4 ชั่วโมง','+ไม่เกิน 2 ชั่วโมง  ศุกร์ 13.00'],
+       ['Sprint Retrospective','ไม่เกิน 3 ชั่วโมง','+ไม่เกิน 1 ชั่วโมงครึ่ง  ศุกร์ 15.00']],
+ say:'ลงปฏิทินจริงทั้งรอบเลยตอนนี้ ถ้าไม่ลง Retrospective จะเป็นตัวแรกที่หายไปทุกครั้งที่มีงานด่วน',
+ pose:'warn',by:'ทั้งทีม · 5 นาที',
+ info:[['งานไม่เสร็จ ยืดรอบได้ไหม','ไม่ได้ ความยาวรอบต้องคงที่ ถ้าไม่เสร็จให้ปิดรอบตามกำหนด แล้วงานที่เหลือกลับเข้าคลัง']]},
+
+/* ---------- ขั้นที่ 6 ---------- */
+{g:6,sh:'ข',tb:'ตารางที่ 2  ขัดเกลาคลังงาน',term:'Product Backlog Refinement',
+ h:'ให้คะแนน 3 ช่อง  ช่องละ 1 ถึง 10',
+ sub:'คุณค่า คือใครได้ประโยชน์แค่ไหน · เร่งด่วน คือถ้าช้าอีก 1 เดือนเสียหายเพิ่มแค่ไหน · เสี่ยง คือถ้าไม่ทำเลยจะเกิดอะไร',
+ cols:['รหัสงาน','ชื่อเรื่อง','คุณค่า','เร่งด่วน','เสี่ยง','คะแนนรวม','อันดับ'],
+ w:[82,230,66,66,66,82,66],
+ rows:[['NYT-001','ตัวเลขยอดผลิตไม่ตรงกัน','+9','+9','+8','','' ],
+       ['NYT-002','รับของเข้าคลังต้องพิมพ์รหัสด้วยมือ','+9','+8','+7','',''],
+       ['NYT-004','เครื่องพิมพ์ฉลากใช้งานไม่ได้','+7','+10','+6','',''],
+       ['NYT-006','รวมยอดคลังให้เป็นชุดเดียวทั้งบริษัท','+10','+6','+9','',''],
+       ['NYT-013','ใบส่งของออกเลขที่ซ้ำกัน','+8','+7','+9','','']],
+ say:'ข้อที่ทุกทีมพลาดคือให้ความเร่งด่วน 10 ทุกใบ เพราะผู้ขอทุกคนบอกว่าด่วน ให้ถามใหม่ว่าถ้าช้าไปอีกเดือนหนึ่ง ความเสียหายเพิ่มขึ้นจริงไหม',
+ pose:'warn',by:'ทั้งทีม · 12 นาที',
+ info:[['แต่ละทีมให้คะแนนไม่เท่ากัน ผิดไหม','ไม่ผิด และควรต่างกัน สิ่งที่ต้องเหมือนกันคือเหตุผล ไม่ใช่ตัวเลข']]},
+
+{g:6,sh:'ข',tb:'ตารางที่ 2  ขัดเกลาคลังงาน',term:'สูตรทำงานทันที',
+ h:'พอใส่ครบ 3 ช่อง คะแนนรวมกับอันดับขึ้นเอง',
+ sub:'สองคอลัมน์นี้เป็นสูตร พิมพ์ทับไม่ได้',
+ cols:['รหัสงาน','ชื่อเรื่อง','คุณค่า','เร่งด่วน','เสี่ยง','คะแนนรวม','อันดับ'],
+ w:[82,230,66,66,66,82,66],
+ rows:[['NYT-001','ตัวเลขยอดผลิตไม่ตรงกัน','9','9','8','=53','=1'],
+       ['NYT-002','รับของเข้าคลังต้องพิมพ์รหัสด้วยมือ','9','8','7','=50','=3'],
+       ['NYT-004','เครื่องพิมพ์ฉลากใช้งานไม่ได้','7','10','6','=47','=5'],
+       ['NYT-006','รวมยอดคลังให้เป็นชุดเดียวทั้งบริษัท','10','6','9','=51','=2'],
+       ['NYT-013','ใบส่งของออกเลขที่ซ้ำกัน','8','7','9','=47','=5']],
+ say:'สูตรไม่รู้บริบทธุรกิจ มันรู้แค่ตัวเลขที่เราใส่ อันดับที่ได้เป็นข้อมูลประกอบ ไม่ใช่คำสั่ง คนตัดสินยังเป็น Product Owner',
+ pose:'point',by:'ไฟล์คำนวณให้ · ทันที',
+ calc:'คะแนนรวม เท่ากับ คุณค่า คูณ 3 บวก เร่งด่วน คูณ 2 บวก เสี่ยง คูณ 1  เต็ม 60 · ใบ NYT-001 คือ 9×3 + 9×2 + 8×1 = 27+18+8 = 53 · อันดับใช้ RANK เรียงจากคะแนนมากไปน้อย คะแนนเท่ากันได้อันดับเดียวกันแล้วข้ามเลขถัดไป',
+ info:[['อยากเปลี่ยนน้ำหนักได้ไหม','ได้ แก้เลข 3 2 1 ในสูตรได้เลย ถ้าทีมถือว่าความเสี่ยงสำคัญที่สุดก็สลับเป็น 1 2 3']]},
+
+{g:6,sh:'ข',tb:'ตารางที่ 2  ขัดเกลาคลังงาน',term:'Story Points',
+ h:'เลือกขนาดจากลูกศรลง แล้วแต้มขึ้นเอง',
+ sub:'เทียบกับใบ NYT-001 ที่เป็นงานอ้างอิง ซึ่งเท่ากับขนาด M คือ 3 แต้ม',
+ cols:['รหัสงาน','ชื่อเรื่อง','คะแนนรวม','อันดับ','ขนาด','แต้ม','พร้อมเข้ารอบ'],
+ w:[82,220,80,62,74,62,110],
+ rows:[['NYT-001','ตัวเลขยอดผลิตไม่ตรงกัน','53','1','+M','=3','+พร้อม'],
+       ['NYT-002','รับของเข้าคลังต้องพิมพ์รหัสด้วยมือ','50','3','+L','=5','+พร้อม'],
+       ['NYT-004','เครื่องพิมพ์ฉลากใช้งานไม่ได้','47','5','+S','=1','+พร้อม'],
+       ['NYT-006','รวมยอดคลังให้เป็นชุดเดียวทั้งบริษัท','51','2','+XXL','=13','+ยังไม่พร้อม'],
+       ['NYT-013','ใบส่งของออกเลขที่ซ้ำกัน','47','5','+M','=3','+พร้อม']],
+ say:'ดูใบ NYT-006 ครับ คะแนนรวม 51 อันดับ 2 แต่ขนาด XXL จึงยังไม่พร้อมเข้ารอบ ต้องแตกย่อยก่อน นี่คือเหตุผลที่ขนาดกับคะแนนไม่ต้องสัมพันธ์กัน',
+ pose:'think',by:'Developer · 14 นาที',
+ calc:'แต้มใช้ INDEX กับ MATCH ไปเปิดตารางอ้างอิง ก ว่าขนาดนี้เท่ากับกี่แต้ม · ชุดแต้มคือ S=1 M=3 L=5 XL=8 XXL=13 มาจากลำดับฟีโบนักชี เพราะงานยิ่งใหญ่ยิ่งประมาณไม่แม่น ช่องห่างจึงต้องกว้างขึ้น',
+ info:[['ขนาดต้องสัมพันธ์กับคะแนนรวมไหม','ไม่ต้อง เป็นคนละเรื่องโดยตั้งใจ คะแนนบอกว่าควรทำก่อนหลัง ขนาดบอกว่างานใหญ่แค่ไหน'],
+       ['พร้อมเข้ารอบดูจากอะไร','คำถาม 3 ข้อใต้ตาราง รู้ไหมใครได้ประโยชน์ รู้ไหมเสร็จแล้วหน้าตาเป็นยังไง และทีมทำเองได้โดยไม่ต้องรอใครไหม']]},
+
+/* ---------- ขั้นที่ 7 ---------- */
+{g:7,sh:'รอบที่ 1',tb:'ตารางที่ 1  Sprint Goal',term:'Commitment ของ Sprint Backlog',
+ h:'เขียน Sprint Goal 1 ประโยค',
+ sub:'นี่คือสิ่งเดียวที่ห้ามเปลี่ยนตลอดรอบ',
+ cols:['หัวข้อ','ข้อความ'],
+ w:[130,620],
+ rows:[['Sprint Goal','+หัวหน้ากะและผู้จัดการโรงงานเปิดดูยอดผลิตของเมื่อวานจากที่เดียวกัน และเห็นตัวเลขชุดเดียวกันได้เองทุกเช้า โดยไม่ต้องรอใครส่งให้']],
+ say:'เขียนไม่ออกให้เติมประโยคนี้ให้จบครับ เมื่อจบรอบนี้ คุณ จะสามารถ ได้ โดยไม่ต้อง',
+ pose:'think',by:'ทั้งทีม · 10 นาที',
+ info:[['ทำไมต้องมี','เวลามีงานด่วนแทรก ทีมจะใช้ประโยคนี้เป็นเกณฑ์ตัดสินว่ารับได้หรือไม่ได้']]},
+
+{g:7,sh:'รอบที่ 1',tb:'ตารางที่ 1  3 แถวตรวจประโยค',term:'ไฟล์ตรวจให้เอง',
+ h:'ไฟล์ตรวจประโยคให้ 3 ข้อ ต้องผ่านครบ',
+ sub:'ถ้าข้อไหนขึ้นแดง แปลว่ายังเป็นรายการงาน ไม่ใช่เป้าหมาย',
+ cols:['สิ่งที่ตรวจ','ค่า','เกณฑ์','ผลการตรวจ'],
+ w:[230,80,170,220],
+ rows:[['ความยาวของประโยค','=125','ไม่เกิน 160 ตัวอักษร','=ผ่าน'],
+       ['จำนวนคำว่า และ','=2','ไม่เกิน 2 ครั้ง','=ผ่าน'],
+       ['มีคำว่า ทำให้เสร็จ หรือไม่','=ไม่มี','ต้องไม่มี','=ผ่าน']],
+ say:'ถ้าเขียนว่า ทำให้เสร็จ 7 ใบที่รับมา จะขึ้นแดงทันที เพราะนั่นคือรายการงาน ไม่ได้บอกว่าใครทำอะไรได้ต่างจากเดิม',
+ pose:'ok',by:'ไฟล์ตรวจให้ · ทันที',
+ calc:'LEN นับความยาว · SUBSTITUTE ลบคำว่า และ ออกแล้วดูว่าความยาวหายไปกี่ตัว หารด้วย 3 ได้จำนวนครั้ง · SEARCH หาคำว่า ทำให้เสร็จ',
+ info:[]},
+
+/* ---------- ขั้นที่ 8 ---------- */
+{g:8,sh:'รอบที่ 1',tb:'ตารางที่ 2  กำลังของทีม',term:'Capacity',
+ h:'กรอก 4 ช่องแรกตามความจริง',
+ sub:'อีก 2 ช่องล่างไฟล์คำนวณให้',
+ cols:['รายการ','ค่า','หน่วย','กรอกยังไง'],
+ w:[260,80,90,330],
+ rows:[['จำนวนสมาชิกทีม','+7','คน','นับคนจริงที่อยู่ในรอบนี้ ไม่นับคนที่ยืมมาชั่วคราว'],
+       ['วันทำการในรอบ','+10','วัน','รอบ 2 สัปดาห์ เท่ากับ 10 วันทำการ'],
+       ['หักวันลา อบรม วันหยุดพิเศษ','+4','คน-วัน','1 คนลา 2 วัน กับอีก 1 คนไปอบรม 2 วัน เท่ากับ 4'],
+       ['สัดส่วนเวลาที่หมดไปกับงานประจำ','+40%','ร้อยละ','งานแจ้งซ่อม งานตอบคำถาม ประชุมที่ไม่อยู่ในรอบ'],
+       ['คน-วันที่เหลือจริง','=39.6','คน-วัน','ไฟล์คำนวณให้'],
+       ['คน-วันที่ใช้ต่อ 1 แต้ม','+2.3','คน-วัน','รอบแรกเดาไปก่อน รอบถัดไปคำนวณจากของจริง'],
+       ['แต้มที่รับได้ในรอบนี้','=17','แต้ม','นี่คือเพดาน ตารางที่ 3 จะเทียบกับค่านี้']],
+ say:'ช่องสัดส่วนงานประจำ ทีมส่วนใหญ่เดาต่ำเกินจริง พอจดเวลาจริง 1 รอบมักพบว่าเกิน 40 เปอร์เซ็นต์',
+ pose:'point',by:'Scrum Master · 8 นาที',
+ calc:'คน-วันที่เหลือจริง = (คน × วัน − วันลา) × (1 − สัดส่วนงานประจำ) = (7×10 − 4) × 0.6 = 66 × 0.6 = 39.6 · แต้มที่รับได้ = ROUND(39.6 ÷ 2.3) = ROUND(17.2) = 17 แต้ม',
+ info:[['ตารางนี้ฟิคไหม','ไม่ฟิค 4 ช่องแรกกรอกเองทุกรอบตามความจริงของรอบนั้น']]},
+
+{g:8,sh:'รอบที่ 1',tb:'ตารางที่ 3  งานที่รับเข้ารอบ',term:'Sprint Backlog เป็น Artifact',
+ h:'ใส่รหัสงานทีละใบจนเต็มเพดาน',
+ sub:'ชื่อเรื่องกับแต้มดึงมาจากชีต ข ให้เอง ไม่ต้องพิมพ์ซ้ำ',
+ cols:['ลำดับ','รหัสงาน','ชื่อเรื่อง','แต้ม','เจ้าภาพ','ทำเป็นลำดับที่'],
+ w:[52,88,250,62,110,110],
+ rows:[['1','+NYT-001','=ตัวเลขยอดผลิตไม่ตรงกัน','=3','+คุณสมชาย','+1'],
+       ['2','+NYT-002','=รับของเข้าคลังต้องพิมพ์รหัสด้วยมือ','=5','+คุณปรีชา','+2'],
+       ['3','+NYT-005','=แจ้งเตือนเมื่อของในคลังใกล้หมด','=3','+คุณนภา','+3'],
+       ['4','+NYT-013','=ใบส่งของออกเลขที่ซ้ำกัน','=3','+คุณอรทัย','+4'],
+       ['5','+NYT-004','=เครื่องพิมพ์ฉลากใช้งานไม่ได้','=1','+คุณธนา','+5'],
+       ['6','+NYT-011','=รายงานต้นทุนต่อหน่วยก่อนประชุมคณะกรรมการ','=1','+คุณสมชาย','+6'],
+       ['7','+NYT-016','=ขอสิทธิ์เข้าดูรายงานให้พนักงานใหม่ 3 คน','=1','+คุณนภา','+7']],
+ say:'พิมพ์แค่รหัสงานช่องเดียว ชื่อเรื่องกับแต้มขึ้นเอง ถ้าพิมพ์รหัสผิดช่องจะว่าง นั่นคือวิธีตรวจว่าพิมพ์ถูกไหม',
+ pose:'point',by:'Product Owner เสนอ  Developer ตัดสิน · 5 นาที',
+ calc:'ชื่อเรื่องและแต้มใช้ INDEX กับ MATCH ไปหาแถวที่รหัสงานตรงกันในชีต ข แล้วดึงค่ากลับมา',
+ info:[['เจ้าภาพคือคนที่ทำคนเดียวหรือเปล่า','ไม่ใช่ คือคนที่ดูให้ใบนั้นจบ คนอื่นช่วยได้และควรช่วย']]},
+
+{g:8,sh:'รอบที่ 1',tb:'ตารางที่ 3  แถวสรุปและแถบตรวจ',term:'ตรวจเพดาน',
+ h:'รวมแต้มได้ 17 พอดีกับเพดาน',
+ sub:'ถ้ารับเกินเพดาน แถบจะขึ้นแดงทันที',
+ cols:['รายการ','ค่า','หมายเหตุ'],
+ w:[260,100,420],
+ rows:[['รวมแต้มที่รับไว้','=17','SUM ของคอลัมน์แต้ม  3+5+3+3+1+1+1'],
+       ['เพดานจากตารางที่ 2','=17','มาจาก 39.6 หารด้วย 2.3'],
+       ['แถบตรวจ','=เรียบร้อย รับไว้ 17 แต้ม จากเพดาน 17 แต้ม','ถ้าเกินจะขึ้นว่า เกินกำลัง ให้เอาใบท้ายลำดับออก']],
+ say:'ถ้าขึ้นแดงว่าเกินกำลัง ห้ามแก้ด้วยการทำล่วงเวลาเด็ดขาด เพราะนั่นคือการยืมเวลาจากรอบหน้า ให้เอาใบท้ายลำดับออกแทน',
+ pose:'warn',by:'ไฟล์ตรวจให้ · ทันที',
+ info:[['ทำไมต้องให้ทีมเป็นคนรับเอง','เพราะคำมั่นที่ตัวเองให้ไว้ คนจะรักษา ส่วนเป้าที่คนอื่นกำหนด คนจะหาเหตุผลอธิบาย']]},
+
+/* ---------- ขั้นที่ 9 ---------- */
+{g:9,sh:'รอบที่ 1',tb:'ตารางที่ 4  งานย่อย',term:'แผนลงมือของ Sprint Backlog',
+ h:'แตกใบงานเป็นงานย่อยที่จบใน 1 วัน',
+ sub:'ทุกใบต้องมีงานทดสอบ และงานให้ผู้ขอลองใช้ด้วย',
+ cols:['รหัสใบงาน','ชม.ประมาณ','งานย่อย','คนทำ','สถานะ'],
+ w:[92,86,330,110,120],
+ rows:[['+NYT-001','+8','+ตรวจหาสาเหตุความต่างของตัวเลขระหว่างรายงานกับระบบหลัก','+คุณสมชาย','+เสร็จสมบูรณ์'],
+       ['+NYT-001','+6','+แก้เวลาตัดรอบของรายงานให้ตรงกับเวลาปิดกะ','+คุณสมชาย','+กำลังทำ'],
+       ['+NYT-001','+4','+ทดสอบเทียบตัวเลขย้อนหลัง 7 วัน','+คุณอรทัย','+ยังไม่เริ่ม'],
+       ['+NYT-001','+2','+ให้หัวหน้ากะลองเปิดดูเองที่หน้างาน','+คุณสมชาย','+ยังไม่เริ่ม'],
+       ['+NYT-002','+8','+ทดสอบสัญญาณเครือข่ายในคลัง','+คุณปรีชา','+กำลังทำ']],
+ say:'ทีมส่วนใหญ่แตกออกมาแต่งานเขียนโปรแกรม ไม่มีงานทดสอบและไม่มีงานให้ผู้ขอลองใช้ พอถึงตอนตรวจ Definition of Done จะติดทุกใบ',
+ pose:'warn',by:'Developer · 10 นาที',
+ info:[['งานย่อยควรละเอียดแค่ไหน','ถ้าพรุ่งนี้เช้าหยิบขึ้นมาทำแล้วเย็นปิดได้ ถือว่าพอดี ถ้าตอบว่าน่าจะ 2 ถึง 3 วัน ให้แตกต่อ']]},
+
+{g:9,sh:'รอบที่ 1',tb:'ตารางที่ 5  ความเสี่ยงและแผนรองรับ',term:'คำถามข้อที่ 3 ของ Sprint Planning',
+ h:'เขียนความเสี่ยงอย่างน้อย 2 ข้อ',
+ sub:'มี 2 คำถามที่ใช้ได้เสมอ ใบไหนมีเรื่องที่ยังไม่รู้ และใบไหนมีคนเดียวที่ทำได้',
+ cols:['ความเสี่ยงที่มองเห็นตอนนี้','ถ้าเกิดขึ้นจริงจะทำอย่างไร','ใครเฝ้าดู และสัญญาณเตือน'],
+ w:[260,300,230],
+ rows:[['+ใบ NYT-002 ยังไม่รู้ว่าสัญญาณเครือข่ายในคลังแรงพอหรือไม่','+ทดสอบสัญญาณภายในวันที่ 2 ของรอบ ถ้าไม่ผ่าน เปลี่ยนไปเก็บข้อมูลแบบออฟไลน์แล้วส่งภายหลัง','+คุณปรีชา  สัญญาณเตือนคือผลทดสอบวันที่ 2 ไม่ผ่าน'],
+       ['+ใบ NYT-005 มีคนเดียวที่ทำได้ ถ้าเขาลาจะหยุดทั้งใบ','+จับคู่ทำงานสองคนตั้งแต่วันแรก และบันทึกขั้นตอนไว้ให้คนอื่นทำแทนได้','+Scrum Master  สัญญาณเตือนคือใบนี้ไม่ขยับ 2 วันติด']],
+ say:'ความเสี่ยงที่เขียนไว้ล่วงหน้า แก้ได้ ส่วนความเสี่ยงที่ไม่เคยพูดถึง แก้ไม่ทัน',
+ pose:'think',by:'ทั้งทีม · 2 นาที',
+ info:[]},
+
+/* ---------- ขั้นที่ 10 ---------- */
+{g:10,sh:'รอบที่ 1',tb:'ตารางที่ 6  กระดานงาน',term:'Scrum Board',
+ h:'กระดานนับจากคอลัมน์สถานะให้เอง',
+ sub:'ไม่ต้องพิมพ์ซ้ำ เปลี่ยนสถานะในตารางที่ 4 แล้วกระดานขยับเอง',
+ cols:['คอลัมน์บนกระดาน','จำนวน','เพดาน WIP','ผลการตรวจเพดาน'],
+ w:[200,86,110,300],
+ rows:[['ยังไม่เริ่ม   To Do','=8','ไม่จำกัด','—'],
+       ['กำลังทำ   Doing','=3','+3','=อยู่ในเพดาน'],
+       ['รอตรวจ   Review','=0','+2','=อยู่ในเพดาน'],
+       ['เสร็จสมบูรณ์   Done','=3','ไม่จำกัด','—']],
+ say:'เพดาน WIP ตั้งเท่ากับจำนวนคู่ในทีม ถ้า Doing เกินเพดาน ช่องจะขึ้นว่าห้ามเปิดใบใหม่ ให้ไปช่วยปิดใบที่ค้างก่อน',
+ pose:'point',by:'Developer · ตั้งครั้งเดียวต่อรอบ',
+ calc:'ใช้ COUNTIF นับว่าในคอลัมน์สถานะของตารางที่ 4 มีกี่แถวที่ข้อความตรงกับชื่อคอลัมน์นี้',
+ info:[['ไฟล์ลากการ์ดไม่ได้ จะใช้ยังไง','เปลี่ยนคำในช่องสถานะแทน ผลเหมือนกันคือทุกคนเห็นพร้อมกันว่างานอยู่ตรงไหน']]},
+
+/* ---------- ขั้นที่ 11 ---------- */
+{g:11,sh:'รอบที่ 1',tb:'ตารางที่ 7  Daily Scrum 10 วัน',term:'Event  Timebox 15 นาที',
+ h:'วันที่ 1  กรอกแต้มคงเหลือและ 3 ช่อง',
+ sub:'เริ่มรอบมี 17 แต้ม วันที่ 1 ปิดใบ NYT-004 ได้ 1 แต้ม เหลือ 16',
+ cols:['วัน','แต้มคงเหลือรวม','เมื่อวานทำอะไรจบ','วันนี้จะทำอะไร','ติดอะไรอยู่'],
+ w:[96,110,210,210,190],
+ rows:[['เริ่มรอบ','17','ที่ประชุมวางแผนรอบจบ ทุกคนรู้ว่าจะเริ่มใบไหนก่อน','เริ่มตามลำดับที่ตกลงไว้','ยังไม่มี'],
+       ['วันที่ 1','+16','+ปิดใบ NYT-004 เครื่องพิมพ์ฉลากกลับมาใช้ได้','+เริ่มตรวจหาสาเหตุตัวเลขไม่ตรงของใบ NYT-001','+ยังไม่มี']],
+ say:'กติกาสำคัญที่สุดของช่องแต้มคงเหลือ ใบที่ยังไม่ผ่าน Definition of Done ให้นับแต้มเต็ม ใบที่ผ่านแล้วนับศูนย์ ห้ามลงครึ่งแต้ม',
+ pose:'warn',by:'Developer · วันละ 15 นาที',
+ info:[['คำถาม 3 ข้อยังต้องใช้ไหม','Scrum Guide 2020 ตัดข้อบังคับออกแล้ว ที่บังคับเหลือ 15 นาที โฟกัสที่ Sprint Goal และต้องได้แผนที่ลงมือได้']]},
+
+{g:11,sh:'รอบที่ 1',tb:'ตารางที่ 7  Daily Scrum 10 วัน',term:'เดินต่อถึงกลางรอบ',
+ h:'วันที่ 2 ถึง 5  เส้นลงเป็นขั้นบันได',
+ sub:'วันที่ 2 ไม่มีใบไหนปิดได้ ตัวเลขจึงเท่าเดิม นั่นคือความจริงที่ต้องบันทึก',
+ cols:['วัน','แต้มคงเหลือรวม','เมื่อวานทำอะไรจบ','ติดอะไรอยู่'],
+ w:[96,110,290,290],
+ rows:[['วันที่ 1','16','ปิดใบ NYT-004','ยังไม่มี'],
+       ['วันที่ 2','+16','+ยังไม่มีใบไหนปิดได้','+ผู้จัดการโรงงานเดินมาขอรายงานเพิ่ม'],
+       ['วันที่ 3','+15','+ปิดใบ NYT-011 รายงานต้นทุนต่อหน่วย','+ยังไม่มี'],
+       ['วันที่ 4','+15','+ยังไม่มีใบไหนปิดได้','+คนที่ถือใบงานใหญ่ที่สุดลาป่วย 3 วัน'],
+       ['วันที่ 5','+14','+ปิดใบ NYT-016 ขอสิทธิ์เข้าดูรายงาน','+ฝ่ายจัดซื้อยังไม่ตอบกลับ ตามแล้ว 2 วัน']],
+ say:'วันที่ 2 กับวันที่ 4 ตัวเลขเท่าเดิม ห้ามแต่งให้ลดลงเพื่อให้กราฟสวย เพราะช่วงที่แบนราบคือข้อมูลที่มีค่าที่สุด',
+ pose:'warn',by:'คนที่พิมพ์ของวันนั้น · วันละ 1 นาที',
+ info:[['งานทำไปครึ่งทาง ลงแต้มเท่าไร','ลงแต้มเต็มเหมือนเดิม เพราะงานที่ทำไป 80 เปอร์เซ็นต์ ยังไม่มีคุณค่าต่อผู้ใช้เลย']]},
+
+/* ---------- ขั้นที่ 12 ---------- */
+{g:12,sh:'รอบที่ 1',tb:'ตารางที่ 8  อุปสรรค',term:'Impediments',
+ h:'ได้ยินในวง Daily ปุ๊บ บันทึกปั๊บ',
+ sub:'ไม่ต้องรอจบวัน ถ้าไม่บันทึกจะไม่มีใครตามแก้',
+ cols:['วันที่พบ','ระดับ','เรื่องที่ติดขัด','ใครช่วยแก้','แก้ได้แล้วหรือยัง'],
+ w:[96,86,260,120,250],
+ rows:[['+05/11/2026','+กลาง','+ฝ่ายจัดซื้อไม่ตอบกลับเรื่องยืนยันการรับอีเมลแจ้งเตือน ตามแล้ว 2 วัน','+Product Owner','+แก้แล้ว  โทรตามเอง ได้คำตอบในวันเดียวกัน'],
+       ['+06/11/2026','+ต่ำ','+เครื่องทดสอบของทีมช้ามาก ต้องรอรอบละ 10 นาที','+Scrum Master','+ยังไม่แก้  แจ้งฝ่าย IT แล้ว รอคิว']],
+ say:'ระดับสูง แปลว่า Sprint Goal ล้มถ้าไม่แก้ภายใน 2 วัน ไม่ใช่แค่รำคาญ อย่าให้เงินเฟ้อ ไม่งั้นทุกอย่างจะเป็นสูงหมด',
+ pose:'point',by:'Scrum Master · ทันทีที่เกิด',
+ info:[['อะไรนับเป็นอุปสรรค','เรื่องที่ทีมแก้เองไม่ได้ ต้องให้คนนอกทีมช่วย ส่วนงานที่ยากแต่ทีมทำเองได้ ไม่ใช่อุปสรรค เป็นงานปกติ']]},
+
+/* ---------- ขั้นที่ 13 ---------- */
+{g:13,sh:'รอบที่ 1',tb:'ตารางที่ 9  ผลตรวจรายใบ',term:'Definition of Done',
+ h:'ตรวจทุกใบตามเกณฑ์ ตามความจริง',
+ sub:'เปิดชีต ก ตารางที่ 4 ไว้อีกหน้าต่างแล้วไล่ทีละข้อ',
+ cols:['รหัสใบงาน','แต้ม','ผ่านครบทุกข้อหรือยัง','ข้อที่ยังขาด และจะทำอย่างไรต่อ'],
+ w:[92,62,150,400],
+ rows:[['NYT-001','=3','+ยังไม่ผ่าน','+ขาดข้อ 5 คู่มือ  คุณสมชายเขียนให้เสร็จวันที่ 8 ของรอบ'],
+       ['NYT-002','=5','+ยังไม่ผ่าน','+ขาดข้อ 4 ผู้ขอยังไม่ได้ทดลองใช้  นัดหัวหน้าคลังวันที่ 9'],
+       ['NYT-005','=3','+ยังไม่ผ่าน','+ขาดข้อ 2 ยังทดสอบไม่ครบ และขาดข้อ 8'],
+       ['NYT-013','=3','+ยังไม่ผ่าน','+ขาดข้อ 1 ยังไม่มีคนทบทวนโค้ด'],
+       ['NYT-004','=1','+ผ่านครบ',''],
+       ['NYT-011','=1','+ผ่านครบ',''],
+       ['NYT-016','=1','+ผ่านครบ','']],
+ say:'ตอบตามความจริง ไม่ใช่ตามที่อยากให้ตัวเลขดูดี ถ้าติ๊กผ่านทั้งที่ยังไม่เสร็จ สิ้นรอบผู้ใช้จะพบเอง แล้วความเชื่อถือจะหายทั้งทีม',
+ pose:'warn',by:'Developer · 10 นาที',
+ info:[['ใบที่ไม่ผ่าน ลากไปรอบหน้าเลยได้ไหม','ไม่ควร ให้กลับเข้าคลังงานแล้วให้คะแนนใหม่ เพราะอาจมีงานอื่นที่สำคัญกว่าเข้ามาแล้ว']]},
+
+{g:13,sh:'รอบที่ 1',tb:'ตารางที่ 9  แถวสรุป',term:'Velocity ของรอบ',
+ h:'แต้มที่ผ่านเกณฑ์ เท่ากับ 3 จาก 17',
+ sub:'ค่านี้คือ Velocity ของรอบ ไม่ใช่แต้มที่รับไว้',
+ cols:['รายการ','ค่า','อ่านว่าอะไร'],
+ w:[240,100,430],
+ rows:[['แต้มที่ผ่านเกณฑ์','=3','รวมเฉพาะใบที่ผลตรวจเขียนว่า ผ่านครบ  คือ 1+1+1'],
+       ['จากแต้มที่รับไว้ทั้งรอบ','=17','รวมแต้มทุกใบในตาราง'],
+       ['ร้อยละของคำมั่น','=18%','คำนวณในชีต ค']],
+ say:'สามแต้มจากสิบเจ็ดไม่ได้แปลว่าทีมทำงานช้า แปลว่าเรานิยามคำว่าเสร็จไว้เข้มกว่าที่เคยทำกันมา ซึ่งเป็นเรื่องดี',
+ pose:'ok',by:'ไฟล์คำนวณให้ · ทันที',
+ calc:'ใช้ SUMIF บวกเฉพาะแต้มของแถวที่ช่องผลตรวจเขียนว่า ผ่านครบ · ตัวอย่างในไฟล์เป็นภาพกลางรอบ ตัวเลขจึงยังต่ำโดยเจตนา',
+ info:[]},
+
+/* ---------- ขั้นที่ 14 ---------- */
+{g:14,sh:'รอบที่ 1',tb:'ตารางที่ 10  งานด่วนที่แทรกเข้ามา',term:'เพิ่มงานเข้า ต้องเอางานออก',
+ h:'งานด่วน  ต้องสลับออก 1 ใบเสมอ',
+ sub:'วันที่ 2 ผู้บริหารเดินมาขอรายงานต้นทุนต่อหน่วย',
+ cols:['วันที่','ระดับ','งานที่ขอแทรก','ใครขอ','เอาใบไหนออกแลก'],
+ w:[96,96,250,110,290],
+ rows:[['+04/11/2026','+ระดับ 2','+ผู้บริหารขอรายงานต้นทุนต่อหน่วย ใช้ในประชุมวันที่ 10','+ผู้บริหาร','+รับเข้า NYT-011 ซึ่งมี 1 แต้ม และเอาใบ NYT-016 ที่มี 1 แต้มเท่ากันออกไปรอบหน้า แจ้งผู้ขอเดิมแล้ว']],
+ say:'ไม่มีทางที่สามครับ ยัดเพิ่มโดยไม่เอาอะไรออก ไม่ใช่ตัวเลือก เพราะเวลาของทีมมีเท่าเดิม การรับเพิ่มคือการผิดคำมั่นกับผู้ขอคนอื่นโดยไม่บอกเขา',
+ pose:'warn',by:'Product Owner ตัดสิน · เมื่อเกิดเหตุ',
+ info:[['ระดับ 1 2 3 ต่างกันยังไง','ระดับ 1 หยุดสายการผลิต แทรกได้ทันที · ระดับ 2 ด่วนแต่รอได้ถึงพรุ่งนี้ ต้องสลับออก · ระดับ 3 บอกว่าด่วนแต่รอได้ ไม่แทรก ใส่คลังงาน']]},
+
+{g:14,sh:'รอบที่ 1',tb:'ตารางที่ 11ก  ความต้องการเปลี่ยนระหว่างรอบ',term:'Requirement เปลี่ยน',
+ h:'ผู้ขอเปลี่ยนใจกลางรอบ  ถามข้อเดียวก่อน',
+ sub:'คำถามแรกเสมอคือ กระทบ Sprint Goal ไหม',
+ cols:['วันที่','ใบงาน','ผู้ขอบอกว่าอะไรเปลี่ยน','กระทบ Sprint Goal ไหม','ตัดสินใจยังไง'],
+ w:[90,86,230,130,300],
+ rows:[['+09/11/2026','+NYT-001','+ผู้จัดการโรงงานบอกว่า อยากได้ยอดแยกรายกะด้วย ไม่ใช่แค่ยอดรวมทั้งวัน','+ไม่กระทบ','+แยกเป็นใบใหม่เข้าคลังงาน ใบเดิมทำต่อตามขอบเขตเดิมให้จบก่อน'],
+       ['+10/11/2026','+NYT-005','+ฝ่ายจัดซื้อบอกว่าไม่อยากได้อีเมลแล้ว ขอเป็นแจ้งเตือนในระบบแทน','+กระทบบางส่วน','+เจรจาขอบเขต  รอบนี้ทำอีเมลให้จบก่อน ส่วนแจ้งเตือนในระบบแยกเป็นใบใหม่']],
+ say:'ต่างจากงานแทรกตรงนี้ครับ งานแทรกคือของใหม่ที่ไม่เคยอยู่ในรอบ ต้องเอาของเก่าออกแลก ส่วนความต้องการเปลี่ยนคือใบที่รับไว้แล้ว ส่วนใหญ่แค่เจรจาขอบเขตหรือแยกเป็นใบใหม่',
+ pose:'think',by:'Product Owner คุยกับ Developer · เมื่อเกิดเหตุ',
+ info:[['ถ้ากระทบจน Sprint Goal หมดความหมายล่ะ','มีเพียง Product Owner คนเดียวที่ยกเลิก Sprint ได้ และเป็นเรื่องที่เกิดได้จริงแต่เกิดน้อยมาก']]},
+
+/* ---------- ขั้นที่ 15 ---------- */
+{g:15,sh:'รอบที่ 1',tb:'Burndown Chart  ใต้ตารางที่ 7',term:'ไม่ได้อยู่ใน Scrum Guide',
+ h:'กราฟอ่านจากคอลัมน์แต้มคงเหลือโดยตรง',
+ sub:'ไม่มีสูตร วันที่ยังไม่กรอก เส้นจะยังไม่ลากไปถึง',
+ chart:[17,16,16,15,15,14],
+ cols:['วัน','แต้มคงเหลือ','อ่านว่าอะไร'],
+ w:[110,110,520],
+ rows:[['เริ่มรอบ','17','จุดเริ่มต้น เท่ากับแต้มที่รับไว้'],
+       ['วันที่ 1','16','ปิดได้ 1 ใบ เส้นลง 1 ขั้น'],
+       ['วันที่ 2','16','เส้นแบน เพราะยังไม่มีใบไหนปิดได้'],
+       ['วันที่ 3','15','ปิดได้อีก 1 ใบ'],
+       ['วันที่ 4','15','เส้นแบนอีกครั้ง คนถือใบใหญ่ลาป่วย'],
+       ['วันที่ 5','14','ปิดได้อีก 1 ใบ  นี่คือภาพกลางรอบ']],
+ say:'เส้นแบนสองวันไม่ได้แปลว่าทีมขี้เกียจ แปลว่ามีอะไรติดอยู่ ให้ไปดูตารางที่ 8 ว่าวันนั้นบันทึกอุปสรรคอะไรไว้',
+ pose:'point',by:'Developer ดูเอง · ทุกวันหลัง Daily',
+ info:[['เอากราฟไปรายงานหัวหน้าได้ไหม','ได้ แต่ห้ามใช้ประเมินคน ถ้าทีมรู้ว่ากราฟถูกใช้วัดตัวเอง ทีมจะรายงานให้กราฟสวยแทนที่จะบอกความจริง']]},
+
+/* ---------- ขั้นที่ 16 ---------- */
+{g:16,sh:'รอบที่ 1',tb:'ตารางที่ 12  สิ่งที่นำมาแสดงได้',term:'Increment',
+ h:'ไฟล์คัดให้เองจากผลตรวจ DoD',
+ sub:'ไม่ต้องกรอก ทั้งตารางเป็นสูตร',
+ cols:['รหัสใบงาน','แต้ม','ชื่อเรื่อง','แสดงในที่ประชุมได้ไหม','เหตุผล'],
+ w:[92,62,220,150,290],
+ rows:[['=NYT-004','=1','=เครื่องพิมพ์ฉลากใช้งานไม่ได้','=แสดงได้','=ผ่าน Definition of Done ครบทุกข้อ นับเป็น Increment'],
+       ['=NYT-011','=1','=รายงานต้นทุนต่อหน่วย','=แสดงได้','=ผ่าน Definition of Done ครบทุกข้อ นับเป็น Increment'],
+       ['=NYT-016','=1','=ขอสิทธิ์เข้าดูรายงาน','=แสดงได้','=ผ่าน Definition of Done ครบทุกข้อ นับเป็น Increment'],
+       ['=NYT-001','=3','=ตัวเลขยอดผลิตไม่ตรงกัน','=ยังแสดงไม่ได้','=ยังไม่ผ่าน DoD  ต้องกลับเข้าคลังงานในชีต ข'],
+       ['=NYT-002','=5','=รับของเข้าคลังต้องพิมพ์รหัสด้วยมือ','=ยังแสดงไม่ได้','=ยังไม่ผ่าน DoD  ต้องกลับเข้าคลังงานในชีต ข']],
+ say:'สามใบบนแสดงได้ สี่ใบล่างแสดงไม่ได้ แจ้งที่ประชุมได้ว่ามีใบนี้อยู่ แต่ห้ามสาธิต และ Sprint Review ไม่ใช่การเปิดสไลด์เล่า คือให้ผู้ใช้ลงมือใช้ของจริงต่อหน้า',
+ pose:'warn',by:'ทั้งทีมกับผู้ขอ · 8 นาทีต่อคู่',
+ calc:'ใช้ IF อ่านคอลัมน์ผลตรวจในตารางที่ 9 ถ้าเขียนว่า ผ่านครบ จะขึ้นว่าแสดงได้ ถ้าไม่ จะขึ้นเหตุผลให้เอง',
+ info:[['ต้องรอวัน Review ถึงส่งมอบได้ไหม','ไม่ต้อง ใบไหนผ่าน DoD แล้วส่งมอบได้ทันที Review เป็นจังหวะตรวจร่วมกัน ไม่ใช่ประตูส่งมอบ']]},
+
+/* ---------- ขั้นที่ 17 ---------- */
+{g:17,sh:'รอบที่ 1',tb:'ตารางที่ 13  ความเห็นจากผู้ใช้',term:'Sprint Review',
+ h:'พิมพ์คำพูดของผู้ขอตามที่เขาพูดจริง',
+ sub:'ห้ามเรียบเรียงใหม่ คำพูดดิบมีข้อมูลมากกว่าคำสรุป',
+ cols:['ใบที่สาธิต','ผ่านด่านคัดกรอง','ผู้ขอคือใคร','เขาพูดว่าอะไร','คำขอใหม่ที่เกิดขึ้น'],
+ w:[92,120,150,250,240],
+ rows:[['+NYT-004','+ยังไม่ผ่าน','+หัวหน้ากะ จากทีม Apparel','+กดได้นะ แต่ปุ่มพิมพ์ซ้ำอยู่ไหน ผมหาไม่เจอ ต้องเลื่อนลงไปล่างสุดเหรอ','+อยากให้ปุ่มพิมพ์ซ้ำอยู่ด้านบน  ยังไม่รับเข้าคลังงาน'],
+       ['+NYT-011','+ผ่าน','+ผู้บริหาร จากทีม Apparel','+ตัวเลขถูกแล้ว แต่ผมอยากเห็นเทียบกับเดือนก่อนด้วยในหน้าเดียวกัน','+เพิ่มคอลัมน์เทียบเดือนก่อน  เข้าคลังงานรอให้คะแนนรอบหน้า']],
+ say:'ประโยคว่า ปุ่มพิมพ์ซ้ำอยู่ไหน ผมหาไม่เจอ บอกได้เลยว่าปัญหาอยู่ที่ตำแหน่งปุ่ม ถ้าเขียนสรุปว่าผู้ใช้พอใจในภาพรวม จะไม่เหลือข้อมูลอะไรให้ทำต่อเลย',
+ pose:'point',by:'Scrum Master จด · 4 นาที',
+ info:[['คำขอใหม่เอาเข้ารอบนี้เลยได้ไหม','ไม่ได้ ทุกข้อเข้าคลังงานรอให้คะแนน ผ่านด่านแปลว่าได้เข้าคลัง ไม่ได้แปลว่าจะได้ทำรอบหน้า']]},
+
+/* ---------- ขั้นที่ 18 ---------- */
+{g:18,sh:'รอบที่ 1',tb:'ตารางที่ 14  Sprint Retrospective',term:'Event สุดท้ายของรอบ',
+ h:'แต่ละคนพิมพ์เฉพาะแถวของตัวเอง',
+ sub:'เขียนเงียบ 5 นาที ห้ามคุยกัน ห้ามเลื่อนไปดูแถวคนอื่น',
+ cols:['คนที่','ทำดีแล้ว ควรทำต่อ','สิ่งที่ติดขัด','อยากลองใหม่รอบหน้า'],
+ w:[56,250,250,250],
+ rows:[['1','+จับคู่ทำงานสองคนทำให้งานไม่หยุดเวลาคนหนึ่งลา','+รอฝ่ายจัดซื้อยืนยันเรื่องอีเมลแจ้งเตือน 2 วันแล้วยังไม่ตอบ','+ให้ผู้ขอทดลองใช้ตั้งแต่วันที่ 3 ของรอบ ไม่ใช่รอถึงวันที่ 7'],
+       ['2','+บันทึกอุปสรรคทันทีที่เจอ ทำให้ไม่ลืมตอนประชุม','+เปิดงานใหญ่ 2 ใบพร้อมกัน แล้วปิดไม่ได้เลยจนกลางรอบ','+ปิดใบเดิมให้จบก่อนเปิดใบใหม่  กำหนดว่าเปิดค้างได้ไม่เกิน 3 ใบ']],
+ say:'พูดถึงวิธีทำงาน ไม่พูดถึงตัวบุคคล แทนที่จะเขียนว่าคนนั้นทำช้า ให้เขียนว่างานใบนี้มีคนเดียวที่ทำได้ จึงหยุดเมื่อเขาไม่อยู่ อย่างแรกแก้ไม่ได้ อย่างหลังแก้ได้',
+ pose:'think',by:'ทุกคน แยกเครื่อง · 5 นาที',
+ info:[['ทำไมต้องเขียนก่อนพูด','เพราะถ้าเปิดวงพูดเลย คนที่พูดก่อนจะกำหนดทิศทางทั้งวง และคนที่เห็นต่างจะเงียบ']]},
+
+/* ---------- ขั้นที่ 19 ---------- */
+{g:19,sh:'รอบที่ 1',tb:'ตารางที่ 15  ข้อปรับปรุง',term:'อย่างน้อย 1 ข้อเข้ารอบหน้า',
+ h:'เลือกไม่เกิน 2 ข้อ พร้อมชื่อคนและวิธีวัด',
+ sub:'ต้องเป็นการกระทำ ไม่ใช่ความตั้งใจ',
+ cols:['จะปรับปรุงอะไร','ใครรับผิดชอบ','เสร็จเมื่อไร','รู้ได้ยังไงว่าสำเร็จ'],
+ w:[290,120,150,250],
+ rows:[['+ให้ผู้ขอทดลองใช้ตั้งแต่วันที่ 3 ของรอบ ใส่เป็นงานย่อยทุกใบตั้งแต่ต้น','+คุณสมชาย','+วันแรกของรอบถัดไป','+ทุกใบในรอบหน้ามีงานย่อยชื่อให้ผู้ขอทดลองใช้ และมีวันนัดจริง'],
+       ['+เปิดงานค้างพร้อมกันได้ไม่เกิน 3 ใบ ตั้งเพดาน WIP ในตารางที่ 6','+คุณนภา','+วันแรกของรอบถัดไป','+นับใบที่เปิดค้างทุกเช้า ถ้าเกิน 3 ใบห้ามเปิดใบใหม่']],
+ say:'เขียนว่า จะพยายามสื่อสารกันให้มากขึ้น ใช้ไม่ได้ เพราะไม่มีคนรับผิดชอบ ไม่มีวันเสร็จ และวัดไม่ได้ Retrospective ที่จบแค่บันทึกการประชุม คือประชุมที่เสียเวลาเปล่า',
+ pose:'warn',by:'ทั้งทีม · 6 นาที',
+ info:[['อยากเลือก 5 ข้อได้ไหม','ไม่ควร เลือก 5 ข้อเท่ากับไม่ได้ทำเลยสักข้อ ข้อที่เหลือยกไปรอบหน้าได้']]},
+
+/* ---------- ขั้นที่ 20 ---------- */
+{g:20,sh:'ค',tb:'ตารางที่ 1  ตัวชี้วัดของรอบที่เพิ่งจบ',term:'ไฟล์คำนวณให้ทั้งหมด',
+ h:'ไม่ต้องกรอกอะไรเลย',
+ sub:'ทุกช่องดึงมาจากชีต รอบที่ 1 ให้เอง',
+ cols:['ตัวชี้วัด','ค่า','วิธีอ่านค่านี้'],
+ w:[260,90,420],
+ rows:[['แต้มที่รับไว้ในรอบนี้','=17','คำมั่นที่ทีมให้ไว้เอง'],
+       ['แต้มที่ผ่าน Definition of Done','=3','ค่านี้คือ Velocity ของรอบ'],
+       ['ร้อยละของคำมั่นที่ทำได้','=18%','ตัวอย่างเป็นภาพกลางรอบ จึงยังต่ำ'],
+       ['แต้มคงเหลือล่าสุด','=14','ค่าต่ำสุดในคอลัมน์แต้มคงเหลือ'],
+       ['จำนวนอุปสรรคที่บันทึกไว้','=2','ศูนย์ไม่ได้แปลว่าไม่มี แปลว่าไม่ได้บันทึก'],
+       ['งานย่อยที่ปิดแล้ว','=3','ดูคู่กับ Burndown']],
+ say:'บรรทัดที่ 5 สำคัญกว่าที่คิด ถ้าทีมไหนบันทึกอุปสรรคเป็นศูนย์ ไม่ได้แปลว่าไม่มีอุปสรรค แปลว่าไม่ได้บันทึก',
+ pose:'point',by:'ทั้งทีม · 3 นาที',
+ calc:'ร้อยละของคำมั่น = แต้มที่ผ่าน ÷ แต้มที่รับไว้ × 100 = 3 ÷ 17 × 100 = 17.6 ปัดเป็น 18 · แต้มคงเหลือล่าสุดใช้ MIN เพราะแต้มคงเหลือมีแต่ลดลง',
+ info:[]},
+
+{g:20,sh:'ค',tb:'ตารางที่ 2 และ 3  Velocity กับ Cycle Time',term:'ตัวเลขที่ผู้บริหารรู้สึกได้',
+ h:'เก็บ Velocity ทุกรอบ และวัด Cycle Time',
+ sub:'ครบ 3 รอบแล้วใช้ค่าเฉลี่ยเป็นเพดาน แทนการคำนวณจากคน-วัน',
+ cols:['ช่วงเวลา','วันที่รอคิว','วันลงมือทำจริง','รวมทั้งหมด','อ่านว่าอะไร'],
+ w:[200,110,130,110,290],
+ rows:[['3 เดือนก่อนใช้ Scrum','+21','+4','=25','ผู้ใช้แจ้งแล้วรอเฉลี่ย 25 วันทำการ'],
+       ['รอบนี้','+6','+4','=10','เวลาลงมือทำจริงเท่าเดิม'],
+       ['ส่วนต่าง','=-15','=0','=-15','ค่าติดลบแปลว่าเร็วขึ้น']],
+ say:'นี่คือข้อสรุปที่แรงที่สุดของทั้งหลักสูตรครับ คอลัมน์วันลงมือทำจริงไม่เปลี่ยนเลย ยังเป็น 4 วันเท่าเดิม ที่ลดคือวันรอคิว แปลว่าการเร่งให้ทีมเขียนโปรแกรมเร็วขึ้น แก้ปัญหานี้ไม่ได้เลย',
+ pose:'ok',by:'Scrum Master · 5 นาที',
+ calc:'รวมทั้งหมด = วันรอคิว + วันลงมือทำจริง · ส่วนต่าง = แถวรอบนี้ − แถวก่อนใช้ Scrum · Velocity ใช้ค่าเฉลี่ย 3 รอบเป็นเพดานของรอบถัดไป',
+ info:[['Velocity เทียบกับทีมอื่นได้ไหม','ไม่ได้และห้ามเทียบ เพราะแต่ละทีมใช้ใบงานอ้างอิงคนละใบ แต้ม 5 ของทีมหนึ่งไม่เท่ากับแต้ม 5 ของอีกทีม']]},
+
+{g:20,sh:'ค',tb:'ตารางที่ 5  สิ่งที่ยกไปรอบหน้า',term:'จุดที่ Scrum วนกลับ',
+ h:'ไม่มีอะไรหายระหว่างรอบ ทุกอย่างมีที่ไป',
+ sub:'ตารางนี้คือหัวใจของคำว่าวนรอบ',
+ cols:['ของที่ยกไป','ยกไปไว้ที่ไหน','ใครรับผิดชอบ'],
+ w:[270,330,210],
+ rows:[['งานที่ไม่ผ่าน DoD ในรอบนี้  4 ใบ','กลับเข้าคลังงานในชีต ข และให้คะแนนใหม่ได้','Product Owner  ทันทีหลัง Review'],
+       ['คำขอใหม่จากผู้ใช้  2 ข้อ','เข้าคลังงานในชีต ข แล้ววนกลับไปขั้นที่ 6','Product Owner  ภายใน 1 วัน'],
+       ['ข้อปรับปรุงจาก Retrospective  2 ข้อ','เข้าตารางที่ 4 งานย่อย ของชีต รอบที่ 2','ทั้งทีม  ตอน Sprint Planning รอบหน้า'],
+       ['งานที่ถูกสลับออก  NYT-016','กลับเข้าคลังงาน และอยู่บนสุดของลำดับ','Product Owner  ทันทีที่สลับออก'],
+       ['Velocity ของรอบนี้  3 แต้ม','ตารางที่ 2 ของชีตนี้','Scrum Master  หลังจบรอบ']],
+ say:'ครบ 20 ขั้นแล้วครับ แล้ววนกลับไปขั้นที่ 6 ขัดเกลา Backlog ในชีต ข ไม่ต้องกลับไปขั้นที่ 1 ถึง 5 อีก เพราะทำครั้งเดียวจบไปแล้ว',
+ pose:'ok',by:'ทั้งทีม · 5 นาที',
+ info:[]},
+
+/* ---------- Sprint 2 ---------- */
+{g:21,sh:'รอบที่ 2',tb:'ชีต รอบที่ 2  ว่างทั้งชีต',term:'Sprint ถัดไป',
+ h:'รอบใหม่คือชีตใหม่  หน้าตาเหมือนกันเป๊ะ',
+ sub:'ไม่ต้องสร้างอะไรใหม่ แค่เลื่อนไปแท็บถัดไป',
+ cols:['ตาราง','สถานะตอนนี้','ต้องทำอะไร'],
+ w:[290,150,350],
+ rows:[['ตารางที่ 1  Sprint Goal','ว่าง','เขียนใหม่ เพราะ Sprint Goal เปลี่ยนทุกรอบ'],
+       ['ตารางที่ 2  กำลังของทีม','ว่าง','กรอกใหม่ เพราะวันลาของรอบนี้ไม่เท่ารอบที่แล้ว'],
+       ['ตารางที่ 3  งานที่รับเข้ารอบ','ว่าง','หยิบจากคลังงานในชีต ข ที่ขัดเกลาไว้แล้ว'],
+       ['ตารางที่ 4  งานย่อย','ว่าง','ต้องมีข้อปรับปรุงจาก Retrospective อย่างน้อย 1 ข้อ'],
+       ['ตารางที่ 6 ถึง 15','ว่าง','ทำแบบเดียวกับรอบที่ 1 ทุกประการ']],
+ say:'สังเกตว่าชีต ก กับ ข ไม่ต้องแตะอีกเลย บทบาททีม Product Goal และ Definition of Done ตั้งครั้งเดียวใช้ยาว นี่คือเหตุผลที่แยกออกมาเป็นคนละชีต',
+ pose:'point',by:'ทั้งทีม · เช้าวันจันทร์',
+ info:[['รอบที่ 3 ล่ะ','คัดลอกชีต รอบที่ 2 แล้วเปลี่ยนชื่อเป็น รอบที่ 3 ใช้ได้เลย ไม่ต้องแก้สูตรอะไร']]},
+
+{g:21,sh:'ข',tb:'วนกลับไปขั้นที่ 6',term:'ขัดเกลา Backlog',
+ h:'รอบใหม่เริ่มที่ขั้นที่ 6 ไม่ใช่ขั้นที่ 1',
+ sub:'คลังงานตอนนี้มีของเพิ่มมาจากรอบที่แล้ว',
+ cols:['รหัสงาน','ที่มา','คะแนนรวม','อันดับ','สถานะ'],
+ w:[92,280,100,80,200],
+ rows:[['NYT-001','+ยกกลับจากรอบที่ 1  ยังไม่ผ่าน DoD','=53','=1','+รอให้คะแนนใหม่'],
+       ['NYT-002','+ยกกลับจากรอบที่ 1  ยังไม่ผ่าน DoD','=50','=3','+รอให้คะแนนใหม่'],
+       ['NYT-016','+สลับออกจากรอบที่ 1 เพราะมีงานด่วนแทรก','=38','=8','+อยู่บนสุดของลำดับ'],
+       ['NYT-021','+คำขอใหม่จาก Sprint Review  ปุ่มพิมพ์ซ้ำอยู่ด้านบน','','','+ยังไม่ได้ให้คะแนน'],
+       ['NYT-022','+คำขอใหม่จาก Sprint Review  เพิ่มคอลัมน์เทียบเดือนก่อน','','','+ยังไม่ได้ให้คะแนน']],
+ say:'จบแล้วครับ นี่คือวงจรเต็มหนึ่งรอบ คลังงานไม่เคยว่างและไม่เคยปิด มีของยกกลับมา มีของสลับออก และมีคำขอใหม่เข้ามาทุกรอบ แล้วก็เริ่มใหม่ที่ขั้นที่ 7',
+ pose:'ok',by:'Product Owner กับ Developers · สัปดาห์ละครั้ง',
+ info:[['ทำไมไม่กลับไปขั้นที่ 1','เพราะขั้นที่ 1 ถึง 5 คือการตั้งทีม ตั้ง Product Goal ตกลง DoD และกำหนดความยาวรอบ ซึ่งทำครั้งเดียวจบ']]},
+];
+
+const GNAME = ['ตั้ง Scrum Team','ตั้ง Product Goal','สร้าง Product Backlog',
+ 'ตกลง Definition of Done','กำหนดความยาว Sprint','ขัดเกลา Backlog','ทำไมรอบนี้มีคุณค่า',
+ 'เลือกงานลงรอบนี้','จะทำอย่างไร','ขึ้นบอร์ด ปกป้อง Sprint Goal','Daily Scrum','เคลียร์อุปสรรค',
+ 'ตรวจผ่าน DoD','งานด่วนแทรก','ติดตาม Burndown','แสดง Increment','รับ Feedback',
+ 'Retrospective','เลือก 1-2 เรื่องมาทำ','วนรอบใหม่ + สรุป','เริ่ม Sprint 2'];
+const TABS = ['ก','ข','รอบที่ 1','รอบที่ 2','ค','ง'];
+
+/* ===== ตัวควบคุม ===== */
+const $ = s => document.querySelector(s);
+const esc = t => String(t).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let cur = 0, playing = false, timer = null, speed = 1;
+const SPEEDS = [[1,'ปกติ',7000],[2,'ช้า',11000],[0,'เร็ว',4200]];
+let spIdx = 0;
+
+try{ const a = localStorage.getItem('nyt-fill'); if(a!==null) cur = Math.min(T.length-1,Math.max(0,+a||0)); }catch(e){}
+const save = () => { try{ localStorage.setItem('nyt-fill', cur); }catch(e){} };
+
+function rail(){
+  const seen = new Set(T.slice(0, cur+1).map(x=>x.g));
+  $('#rail').innerHTML = GNAME.map((n,i)=>{
+    const g = i+1, first = T.findIndex(x=>x.g===g);
+    const on = T[cur].g===g;
+    return `<li><button class="rl${g<=5?' setup':''}${seen.has(g)&&!on?' done':''}"
+      data-i="${first}" ${on?'aria-current="true"':''}><i>${g<=20?g:'→'}</i><span>${esc(n)}</span></button></li>`;
+  }).join('');
+}
+
+function chart(vals){
+  const W=560,H=150,P=26,max=Math.max(...vals),n=vals.length;
+  const x=i=>P+i*(W-P*2)/(n-1), y=v=>H-P-(v/max)*(H-P*1.6);
+  let d=`M${x(0)},${y(vals[0])}`;
+  for(let i=1;i<n;i++){ d+=` H${x(i)} V${y(vals[i])}`; }
+  const dots=vals.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="var(--amber)"/>`).join('');
+  const lbl=vals.map((v,i)=>`<text x="${x(i)}" y="${H-7}" text-anchor="middle" font-size="9"
+      fill="var(--muted)" font-family="var(--f-num)">${i===0?'เริ่ม':i}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:560px;height:auto;margin-bottom:10px">
+    <line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" stroke="var(--grid)" stroke-width="1.5"/>
+    <line x1="${P}" y1="14" x2="${P}" y2="${H-P}" stroke="var(--grid)" stroke-width="1.5"/>
+    <line x1="${x(0)}" y1="${y(vals[0])}" x2="${x(n-1)}" y2="${y(0)}" stroke="var(--muted)"
+      stroke-width="1.5" stroke-dasharray="5 4" opacity=".5"/>
+    <path d="${d}" fill="none" stroke="var(--amber)" stroke-width="3" stroke-linejoin="round"
+      pathLength="1" style="stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s ease .2s forwards"/>
+    ${dots}${lbl}
+    <text x="${P-6}" y="${y(max)+4}" text-anchor="end" font-size="9" fill="var(--muted)"
+      font-family="var(--f-num)">${max}</text></svg>
+  <style>@keyframes draw{to{stroke-dashoffset:0}}</style>`;
+}
+
+function render(){
+  const s = T[cur];
+  $('#count').textContent = `${cur+1} / ${T.length}`;
+  $('#tabs').innerHTML = TABS.map(t=>`<button class="tab${t===s.sh?' on':''}">ชีต ${esc(t)}</button>`).join('');
+  $('#shead').innerHTML = `<div class="meta">
+      <span class="pill step">${s.g<=20?'ขั้นที่ '+s.g+' จาก 20':'Sprint 2'}</span>
+      <span class="pill">${esc(s.tb)}</span>
+      ${s.term?`<span class="pill term">${esc(s.term)}</span>`:''}</div>
+    <h1>${esc(s.h)}</h1><p>${esc(s.sub)}</p>`;
+
+  let k = 0;
+  const body = s.rows.map(r=>'<tr>'+r.map((c,ci)=>{
+    let v = String(c), cls = 'ro';
+    if(v.startsWith('+')){ v=v.slice(1); cls='in'; }
+    else if(v.startsWith('=')){ v=v.slice(1); cls='fx'; }
+    const narrow = (s.w[ci]||120) <= 120;
+    const inner = (cls==='in'||cls==='fx') && v
+      ? `<span class="cellnew" style="animation-delay:${(k++*0.12).toFixed(2)}s">${esc(v)}</span>`
+      : esc(v);
+    return `<td class="${cls}${narrow?' n':''}">${inner||'&nbsp;'}</td>`;
+  }).join('')+'</tr>').join('');
+
+  $('#grid').innerHTML = (s.chart?chart(s.chart):'') + `<table><caption>${esc(s.tb)}</caption>
+    <thead><tr>${s.cols.map((c,i)=>`<th style="min-width:${s.w[i]||120}px"
+      class="${(s.w[i]||120)<=120?'n':''}">${esc(c)}</th>`).join('')}</tr></thead>
+    <tbody>${body}</tbody></table>`;
+
+  $('#calc').innerHTML = s.calc
+    ? `<div class="calcbox"><b>วิธีคำนวณ</b> &nbsp;${esc(s.calc)}</div>` : '';
+  $('#say').textContent = s.say;
+  $('#whoby').textContent = s.by || '';
+  $('#toon').className = 'toon pose-' + (s.pose||'point');
+  $('#info').innerHTML = (s.info&&s.info.length)
+    ? '<h3>คำถามที่มักถาม</h3>' + s.info.map(q=>
+        `<p><span class="q">${esc(q[0])}</span><br>${esc(q[1])}</p>`).join('')
+    : '<h3>สรุปสั้น ๆ</h3><p>' + esc(s.sub) + '</p>';
+
+  $('#prog').style.width = ((cur+1)/T.length*100).toFixed(1)+'%';
+  for(const id of ['#prev','#prev2']) $(id).disabled = cur===0;
+  for(const id of ['#next','#next2']) $(id).disabled = cur===T.length-1;
+  rail(); save();
+}
+
+function go(i){
+  cur = Math.min(T.length-1, Math.max(0, i));
+  render();
+  if(playing && cur===T.length-1) stop();
+}
+function tick(){ if(cur < T.length-1) go(cur+1); else stop(); }
+function start(){
+  if(cur===T.length-1) cur = 0;
+  playing = true; $('#play').textContent = '❚❚ หยุด';
+  clearInterval(timer); timer = setInterval(tick, SPEEDS[spIdx][2]);
+  render();
+}
+function stop(){ playing = false; $('#play').textContent = '▶ เล่นอัตโนมัติ'; clearInterval(timer); }
+
+$('#play').onclick = () => playing ? stop() : start();
+$('#speed').onclick = e => {
+  spIdx = (spIdx+1) % SPEEDS.length;
+  e.currentTarget.textContent = SPEEDS[spIdx][1];
+  if(playing){ clearInterval(timer); timer = setInterval(tick, SPEEDS[spIdx][2]); }
+};
+for(const id of ['#prev','#prev2']) $(id).onclick = () => { stop(); go(cur-1); };
+for(const id of ['#next','#next2']) $(id).onclick = () => { stop(); go(cur+1); };
+$('#rail').onclick = e => { const b = e.target.closest('.rl'); if(b){ stop(); go(+b.dataset.i); } };
+addEventListener('keydown', e => {
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if(e.key==='ArrowRight'){ e.preventDefault(); stop(); go(cur+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); stop(); go(cur-1); }
+  if(e.key===' '){ e.preventDefault(); playing ? stop() : start(); }
+});
+render();
+</script>
+
+</body></html>

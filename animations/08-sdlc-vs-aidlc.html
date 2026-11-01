@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDLC vs AIDLC — เข้าใจแนวคิด แล้วดูตัวอย่างจริง</title>
+<style>
+:root {
+  --bg: #3b495c;
+  --ink: #1c2633;
+  --or: #f28c28;
+  --bl: #4aa8e8;
+  --gr: #2fb24a;
+  --rd: #e03131;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+body { font-family: "Leelawadee UI", "Noto Sans Thai", "Sarabun", "Thonburi", Tahoma, sans-serif; color: #fff; }
+
+#app { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; background: var(--bg); transform-origin: center; }
+#stage { position: absolute; left: 0; top: 0; width: 1600px; height: 800px; overflow: hidden; }
+#stage svg.main { position: absolute; left: 0; top: 0; width: 1600px; height: 800px; }
+svg text { font-size: 28px; font-weight: 700; font-family: inherit; }
+
+#title { position: absolute; right: 24px; top: 12px; font-size: 30px; font-weight: 700; z-index: 5; white-space: nowrap; }
+#title .no { display: inline-block; background: rgba(20,28,40,.7); border-radius: 10px; padding: 0 14px; margin-right: 10px; }
+#credit { position: absolute; right: 28px; top: 871px; font-size: 18px; line-height: 24px; font-weight: 400; color: rgba(255,255,255,.75); z-index: 5; white-space: nowrap; }
+
+/* ---------- แถบล่าง ---------- */
+#nav { position: absolute; left: 0; top: 800px; width: 1600px; height: 100px; background: #2b3645; display: flex; align-items: flex-start; gap: 8px; padding: 7px 28px 0; }
+#nav button { font: inherit; font-size: 24px; font-weight: 700; color: #fff; border: 0; border-radius: 12px; height: 62px; cursor: pointer; background: #6f7f93; }
+#nav .num { width: 46px; }
+#nav .num.seen { background: #3a3f47; }
+#nav .num.cur { background: var(--gr); }
+#nav .lab { font-size: 20px; line-height: 62px; color: #c9d3df; margin: 0 2px 0 8px; white-space: nowrap; }
+#nav .lab:first-child { margin-left: 0; }
+#nav .act { padding: 0 22px; background: #4d5d72; font-size: 26px; }
+#nav .act:hover, #nav .num:hover { filter: brightness(1.15); }
+#nav .sp { flex: 1; }
+
+/* ---------- ชิ้นส่วน HTML บนเวที ---------- */
+.tag { position: absolute; translate: -50% 0; white-space: nowrap; font-size: 28px; font-weight: 700; line-height: 1.45; padding: 1px 16px; border-radius: 10px; background: rgba(20,28,40,.88); text-align: center; }
+.tag.tl { translate: 0 0; }
+.tag.tr { translate: -100% 0; }
+.tag.sm { font-size: 24px; font-weight: 400; }
+.tag.flag { background: #fff; color: var(--ink); border: 3px solid var(--ink); }
+.tag.warn { background: #ffe066; color: var(--ink); }
+.tag.ok { background: #2fe05a; color: var(--ink); }
+.tag.bad { background: #ff4d4d; color: #fff; }
+.chip { display: inline-block; padding: 0 10px; border-radius: 8px; font-weight: 700; color: #fff; }
+.cap { position: absolute; left: 50%; bottom: 14px; translate: -50% 0; white-space: nowrap; font-size: 30px; font-weight: 600; line-height: 1.5; padding: 3px 22px; border-radius: 12px; background: rgba(20,28,40,.9); opacity: 0; }
+.cnt { position: absolute; width: 320px; height: 96px; font-size: 64px; font-weight: 800; line-height: 96px; white-space: nowrap; }
+.cnt span { position: absolute; left: 0; top: 0; opacity: 0; }
+.plain { position: absolute; font-size: 28px; font-weight: 700; white-space: nowrap; }
+.panel { position: absolute; padding: 8px 16px 10px; background: rgba(20,28,40,.94); border: 3px solid #8fa0b5; border-radius: 14px; text-align: center; font-size: 22px; line-height: 1.35; }
+.panel .ph { font-weight: 700; line-height: 38px; }
+.panel .body { font-weight: 400; }
+.closing { position: absolute; left: 50%; bottom: 6px; translate: -50% 0; text-align: center; }
+.closing div { margin: 0 auto 4px; width: max-content; white-space: nowrap; font-size: 28px; line-height: 38px; padding: 0 20px; border-radius: 10px; background: rgba(20,28,40,.92); }
+.closing .last { color: #ffe066; font-weight: 700; }
+
+/* ---------- แอนิเมชัน ---------- */
+.mv { transform: translate(var(--x0, 0px), var(--y0, 0px)); }
+@keyframes m1 { from { transform: translate(var(--x0), var(--y0)); } to { transform: translate(var(--x1), var(--y1)); } }
+@keyframes m2 { from { transform: translate(var(--x1), var(--y1)); } to { transform: translate(var(--x2), var(--y2)); } }
+@keyframes m3 { from { transform: translate(var(--x2), var(--y2)); } to { transform: translate(var(--x3), var(--y3)); } }
+@keyframes m4 { from { transform: translate(var(--x3), var(--y3)); } to { transform: translate(var(--x4), var(--y4)); } }
+@keyframes fi { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fo { to { opacity: 0; } }
+@keyframes bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+@keyframes hop { 0%, 100% { translate: 0 0; } 40% { translate: 0 -16px; } }
+@keyframes swA { 0%, 100% { rotate: 0deg; } 25% { rotate: 16deg; } 75% { rotate: -16deg; } }
+@keyframes swB { 0%, 100% { rotate: 0deg; } 25% { rotate: -16deg; } 75% { rotate: 16deg; } }
+@keyframes shake { 0%, 100% { translate: 0 0; } 25% { translate: -5px 0; } 75% { translate: 5px 0; } }
+@keyframes toGreen { to { fill: #3ddc5f; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes capIn { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes capUp { from { opacity: 1; transform: none; } to { opacity: .55; transform: translateY(-56px); } }
+@keyframes capUpK { from { opacity: 1; transform: none; } to { opacity: 1; transform: translateY(-56px); } }
+@keyframes capOut { from { opacity: .55; transform: translateY(-56px); } to { opacity: 0; transform: translateY(-92px); } }
+@keyframes ripple { 0% { opacity: 0; transform: scale(.2); } 12% { opacity: .95; } 100% { opacity: 0; transform: scale(3.2); } }
+@keyframes gather { from { transform: translate(var(--fx), var(--fy)) scale(1.9); } to { transform: translate(0, 0) scale(1); } }
+@keyframes growX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes growY { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@keyframes glow { 0%, 100% { stroke-width: 4; } 50% { stroke-width: 10; } }
+.gy { transform-box: fill-box; transform-origin: 50% 100%; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="title"></div>
+  <div id="stage"></div>
+  <div id="credit">Aj. NesT the Series</div>
+  <div id="nav"></div>
+</div>
+
+<script>
+/* ===== ค่ากลาง ===== */
+const C = { or: '#f28c28', bl: '#4aa8e8', gr: '#2fb24a', gr2: '#3ddc5f', rd: '#e03131', ink: '#1c2633', note: '#ffe066', pur: '#8e5bd0', grey: '#c9d3df' };
+const P = { po: '#1f3a6e', g: '#2f9e44', y: '#f2c230', r: '#e8504f', sm: '#8e5bd0', ds: '#2a7fb8', de: '#7b61ff' };
+
+/* ===== ตัวช่วยสร้างชิ้นส่วน ===== */
+function A(o) {
+  const v = [], a = [];
+  (o.p || []).forEach((s, i) => {
+    v.push(`--x${i}:${s[0]}px;--y${i}:${s[1]}px`);
+    if (i) a.push(`m${i} ${s[3] || 1.4}s ${s[4] || 'ease-in-out'} ${s[2]}s forwards`);
+  });
+  if (o.in != null) a.push(`fi ${o.ind || .8}s ease ${o.in}s both`);
+  if (o.out != null) a.push(`fo ${o.outd || .8}s ease ${o.out}s forwards`);
+  if (o.a) a.push(o.a);
+  return `class="mv" style="${v.join(';')}${o.s ? ';' + o.s : ''}${a.length ? ';animation:' + a.join(',') : ''}"`;
+}
+const an = a => a.length ? ` style="animation:${a.join(',')}"` : '';
+
+function person(col, p, o = {}) {
+  const ba = [], la = [], lb = [];
+  p.forEach((s, i) => {
+    if (!i) return;
+    const d = s[3] || 1.4, n = Math.max(2, Math.round(d / .5));
+    ba.push(`bob .5s ease-in-out ${s[2]}s ${n}`);
+    la.push(`swA .5s linear ${s[2]}s ${n}`);
+    lb.push(`swB .5s linear ${s[2]}s ${n}`);
+  });
+  (o.hop || []).forEach(t => ba.push(`hop .6s ease-out ${t}s 1`));
+  const folder = o.folder
+    ? `<rect x="-47" y="-98" width="30" height="40" rx="3" fill="${C.or}" stroke="#b8650f" stroke-width="2"/><rect x="-47" y="-98" width="13" height="6" fill="#b8650f"/>` : '';
+  const laptop = o.laptop
+    ? `<rect x="-30" y="-92" width="60" height="6" rx="2" fill="#27303c"/><rect x="-26" y="-126" width="52" height="34" rx="3" fill="#27303c"/><rect x="-22" y="-122" width="44" height="26" fill="${C.bl}"/>` : '';
+  return `<g ${A({ p, in: o.in, out: o.out })}><ellipse cx="0" cy="2" rx="32" ry="9" fill="rgba(0,0,0,.18)"/><g${an(ba)}>
+    <g transform="translate(-9,-54)"><rect x="-7" y="0" width="14" height="54" rx="6" fill="#27303c"${an(la)}/></g>
+    <g transform="translate(9,-54)"><rect x="-7" y="0" width="14" height="54" rx="6" fill="#27303c"${an(lb)}/></g>
+    <rect x="-36" y="-118" width="12" height="50" rx="6" fill="${col}"/><rect x="24" y="-118" width="12" height="50" rx="6" fill="${col}"/>
+    <rect x="-25" y="-122" width="50" height="74" rx="12" fill="${col}"/>
+    <circle cx="0" cy="-142" r="17" fill="#ecd3bd"/>${folder}${laptop}</g></g>`;
+}
+
+function card(o) {
+  const w = o.w || 280, h = o.h || 46, tc = o.tc || C.ink, fs = o.fs || 28;
+  const rs = o.re ? ` style="animation:${o.re.map(r => `${r[0]} .6s ease ${r[1]}s forwards`).join(',')}"` : '';
+  const t = o.txt == null ? '' : `<text x="${w / 2}" y="${h / 2 + fs * .36}" text-anchor="middle" fill="${tc}" style="font-size:${fs}px">${o.txt}</text>`;
+  return `<g ${A(o)}><g${o.inner ? ` style="${o.inner}"` : ''}><rect width="${w}" height="${h}" rx="8" fill="${o.fill || C.or}" stroke="rgba(0,0,0,.28)" stroke-width="1.5"${rs}/>${t}</g></g>`;
+}
+
+const tag = (x, y, html, t, cls = '') => `<div class="tag ${cls}" style="left:${x}px;top:${y}px${t == null ? '' : `;animation:rise .9s ease ${t}s both`}">${html}</div>`;
+function caps(list) {
+  return list.map((c, i) => {
+    const a = [`capIn .9s ease ${c[0]}s both`];
+    if (list[i + 1]) a.push(`${c[2] ? 'capUpK' : 'capUp'} .9s ease ${list[i + 1][0]}s forwards`);
+    if (list[i + 2]) a.push(`capOut .9s ease ${list[i + 2][0]}s forwards`);
+    return `<div class="cap" style="animation:${a.join(',')}">${c[1]}</div>`;
+  }).join('');
+}
+const S = (svg, html = '') => `<svg class="main" viewBox="0 0 1600 800">${svg}</svg>${html}`;
+const drawn = (t, dur = 1, ease = 'ease-in-out') => `pathLength="1" style="stroke-dasharray:1;stroke-dashoffset:1;animation:draw ${dur}s ${ease} ${t}s forwards"`;
+const txt = (x, y, s, o = {}) => `<text x="${x}" y="${y}" fill="${o.fill || '#fff'}" text-anchor="${o.anchor || 'start'}" style="font-size:${o.fs || 26}px;font-weight:${o.fw || 400}${o.t != null ? `;animation:fi .7s ease ${o.t}s both` : ''}">${s}</text>`;
+const rise = (t, inner) => `<g style="animation:rise .8s ease ${t}s both">${inner}</g>`;
+const popAt = (x, y, t, inner) => `<g transform="translate(${x},${y})"><g style="animation:pop .6s cubic-bezier(.3,1.5,.5,1) ${t}s both">${inner}</g></g>`;
+
+/* กล่องข้อความ 1–2 บรรทัด */
+const bx = (x, y, w, h, l1, l2, o = {}) => {
+  const tc = o.tc || C.ink, fs1 = o.fs1 || 24, fs2 = o.fs2 || 20;
+  const y1 = l2 ? y + h / 2 - 5 : y + h / 2 + fs1 * .36;
+  const body = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.rx || 12}" fill="${o.fill || '#fff'}" stroke="${o.stroke || 'rgba(0,0,0,.25)'}" stroke-width="${o.sw || 2}"/>` +
+    txt(x + w / 2, y1, l1, { anchor: 'middle', fs: fs1, fw: 700, fill: tc }) +
+    (l2 ? txt(x + w / 2, y + h / 2 + fs2 + 4, l2, { anchor: 'middle', fs: fs2, fill: o.tc2 || tc }) : '');
+  return o.t != null ? rise(o.t, body) : body;
+};
+
+/* สองแผงเทียบ ซ้าย SDLC / ขวา AIDLC */
+const panels = (ls, rs, h = 550) => `<rect x="40" y="90" width="730" height="${h}" rx="18" fill="#2e3a4b" stroke="${C.or}" stroke-width="4"/><rect x="830" y="90" width="730" height="${h}" rx="18" fill="#2e3a4b" stroke="${C.bl}" stroke-width="4"/>
+  <text x="405" y="140" text-anchor="middle" fill="${C.or}" style="font-size:34px">SDLC · ${ls}</text><text x="1195" y="140" text-anchor="middle" fill="${C.bl}" style="font-size:34px">AIDLC · ${rs}</text>`;
+const stepTag = (n, name) => tag(800, 12, `ขั้นที่ ${n} / 6 · ${name}`, .2, 'flag');
+const qTag = (n, q) => tag(800, 12, `คำถามที่ ${n} / 7 · ${q}`, .2, 'flag');
+const mini = (col, x, y, o = {}) => `<g transform="translate(${x},${y}) scale(.62)">${person(col, [[0, 0]], o)}</g>`;
+const check = (x, y, t, col = '#2fe05a') => popAt(x, y, t, `<circle r="22" fill="${col}"/><path d="M-10,0 l7,8 l14,-16" stroke="${C.ink}" stroke-width="5" fill="none" stroke-linecap="round"/>`);
+const warn = (x, y, t) => popAt(x, y, t, `<polygon points="0,-24 24,20 -24,20" fill="#ffe066" stroke="${C.ink}" stroke-width="3" stroke-linejoin="round"/><text x="0" y="14" text-anchor="middle" fill="${C.ink}" style="font-size:26px">!</text>`);
+const arDef = (col = '#ffe066') => `<defs><marker id="ar" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="12" refY="8" orient="auto"><path d="M0,0 L16,8 L0,16 z" fill="${col}"/></marker></defs>`;
+const arw = (d, t, col = '#ffe066', w = 4) => `<g style="animation:fi .2s ease ${t}s both"><path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" marker-end="url(#ar)" ${drawn(t, .6)}/></g>`;
+
+/* ================================================================
+   ส่วนที่ 1 · แนวคิด (8 ฉาก)   ส่วนที่ 2 · ตัวอย่างจริง (10 ฉาก)
+   ================================================================ */
+const SCENES = [
+
+/* 1 ภาพรวม — อินโฟกราฟิกประกอบทีละชิ้น */
+{ name: 'ภาพรวม SDLC vs AIDLC', build: () => {
+  const L = [['Requirements Gathering', 'เก็บและวิเคราะห์ความต้องการ'], ['System Architecture & Design', 'ออกแบบสถาปัตยกรรมระบบ'],
+    [['Overall Architecture', 'ภาพรวมระบบ'], ['Module Design', 'ออกแบบโมดูลย่อย']], ['Implementation', 'ลงมือเขียนโค้ด'],
+    ['Quality Assurance & Testing', 'ทดสอบคุณภาพ'], [['Unit Testing', 'ทดสอบทีละหน่วย'], ['Integration Testing', 'ทดสอบการเชื่อมต่อ']],
+    ['Release & Deployment', 'ปล่อยใช้งาน'], ['Maintenance & Enhancements', 'ดูแลและปรับปรุง']];
+  const R = [['Problem Framing & Use Case', 'ตั้งโจทย์ เลือก Use case'], ['Data Acquisition & Preparation', 'จัดหาและเตรียมข้อมูล'],
+    [['Data Collection', 'เก็บข้อมูล'], ['Cleaning & Annotation', 'ทำความสะอาด ติดป้าย']], ['Model Building', 'สร้างโมเดล'],
+    ['Training, Testing & Evaluation', 'ฝึก ทดสอบ ประเมินผล'], [['Model Training', 'กระบวนการฝึก'], ['Performance Validation', 'วัดและยืนยันผล']],
+    ['Deployment & Monitoring', 'ปล่อยใช้ และเฝ้าดูผล'], ['Continuous Improvement', 'ปรับปรุงโมเดลต่อเนื่อง']];
+  const RY = k => 120 + k * 68;
+  const box = (cx, cy, w, en, th, color, br, t) => popAt(cx, cy, t,
+    `<rect x="${-w / 2}" y="-28" width="${w}" height="56" rx="${br ? 10 : 28}" fill="#fff" stroke="${color}" stroke-width="3"${br ? ' stroke-dasharray="8 5"' : ''}/>` +
+    txt(0, -3, en, { anchor: 'middle', fs: br ? 18 : 20, fw: 700, fill: C.ink }) + txt(0, 20, th, { anchor: 'middle', fs: br ? 16 : 17, fill: '#5b6b7d' }));
+  const col = (rows, cx, color, title, t0) => {
+    let s = `<rect x="${cx - 370}" y="64" width="740" height="606" rx="18" fill="#f4f1ec" stroke="${color}" stroke-width="4" style="animation:fi .6s ease ${t0 - .5}s both"/>` +
+      txt(cx, 104, title, { anchor: 'middle', fs: 32, fw: 800, fill: color, t: t0 - .4 }) +
+      `<line x1="${cx}" y1="118" x2="${cx}" y2="${RY(7) + 30}" stroke="${color}" stroke-width="5" ${drawn(t0, 4.8, 'linear')}/>`;
+    rows.forEach((r, k) => {
+      const y = RY(k) + 28, t = t0 + .2 + k * .6;
+      if (Array.isArray(r[0])) r.forEach((b, j) => {
+        s += `<line x1="${j ? cx : cx - 18}" y1="${y}" x2="${j ? cx + 18 : cx}" y2="${y}" stroke="${color}" stroke-width="4" style="animation:fi .3s ease ${t}s both"/>`;
+        s += box(j ? cx + 168 : cx - 168, y, 300, b[0], b[1], color, true, t + j * .15);
+      });
+      else s += box(cx, y, 360, r[0], r[1], color, false, t);
+    });
+    return s;
+  };
+  let pair = '';
+  for (let k = 0; k < 8; k++) {
+    const t = 11.4 + k * .45, y = RY(k);
+    [410, 1190].forEach(cx => pair += `<rect x="${cx - 345}" y="${y - 4}" width="690" height="64" rx="16" fill="none" stroke="#ffe066" stroke-width="5" style="opacity:0;animation:fi .25s ease ${t}s forwards,fo .5s ease ${t + .8}s forwards"/>`);
+    pair += popAt(800, y + 28, t, `<circle r="15" fill="#ffe066"/><text x="0" y="8" text-anchor="middle" fill="${C.ink}" style="font-size:22px">≈</text>`);
+  }
+  return S(col(L, 410, C.or, 'SDLC · วงจรพัฒนาซอฟต์แวร์', .8) + col(R, 1190, C.bl, 'AIDLC · วงจรพัฒนาระบบ AI', 6.2) + pair,
+    `<div class="plain" style="left:24px;top:20px;font-size:18px;font-weight:400;color:#c9d3df;animation:fi 1s ease .4s both">ดัดแปลงจากอินโฟกราฟิกของ Sivasankar Natarajan</div>` +
+    caps([[1, 'SDLC — วงจรพัฒนาซอฟต์แวร์: จากความต้องการ จนถึงดูแลหลังใช้งาน'], [6.4, 'AIDLC — วงจรพัฒนาระบบ AI: จากโจทย์ → ข้อมูล → โมเดล → ปรับปรุงต่อเนื่อง'],
+      [11.6, 'จับคู่กันได้ทีละขั้น — แต่ของที่ไหลอยู่ข้างในต่างกัน: โค้ด vs ข้อมูล'], [16, 'ภาพนี้ยังขาด 2 อย่าง: ลูกศรวนกลับ และกรอบธรรมาภิบาล — เติมให้ในฉาก 16']]));
+} },
+
+/* 2 คืออะไร */
+{ name: 'คืออะไร', build: () => {
+  const nm = (y, col, ab, full, th, t) => rise(t, `<rect x="40" y="${y}" width="340" height="170" rx="16" fill="#2e3a4b" stroke="${col}" stroke-width="4"/>${txt(210, y + 62, ab, { anchor: 'middle', fs: 48, fw: 800, fill: col })}${txt(210, y + 100, full, { anchor: 'middle', fs: 19, fill: C.grey })}${txt(210, y + 142, th, { anchor: 'middle', fs: 26, fw: 700 })}`);
+  const A0 = 90, B0 = 320;
+  const lane = (y0, o) =>
+    bx(430, y0 + 2, 330, 72, o[0][0], o[0][1], { t: o.t }) +
+    bx(430, y0 + 92, 330, 72, o[1][0], o[1][1], { t: o.t + .7, fill: o.f2, tc: o.tc2 || C.ink }) +
+    arw(`M762,${y0 + 38} C790,${y0 + 38} 790,${y0 + 83} 814,${y0 + 83}`, o.t + 1.5) +
+    arw(`M762,${y0 + 128} C790,${y0 + 128} 790,${y0 + 83} 814,${y0 + 83}`, o.t + 1.5) +
+    bx(820, y0 + 47, 220, 72, o[2][0], o[2][1], { t: o.t + 2, fill: C.grey }) +
+    arw(`M1042,${y0 + 83} H1094`, o.t + 2.6) +
+    bx(1100, y0 + 47, 450, 72, o[3][0], o[3][1], { t: o.t + 3, fill: o.f4 });
+  return S(arDef() +
+    nm(A0, C.or, 'SDLC', 'Software Development Life Cycle', 'วงจรพัฒนาซอฟต์แวร์', .5) +
+    lane(A0, Object.assign([['ข้อมูลเข้า', 'ลูกค้าสะสมครบ 10 แก้ว'], ['กฎที่คนเขียน', 'ครบ 10 แก้ว → ฟรี 1 แก้ว'], ['โปรแกรม', 'ทำตามกฎ'], ['คำตอบ: ได้ฟรี 1 แก้ว', 'ถูกต้องทุกครั้ง']], { t: 1.2, f2: C.or, f4: '#3ddc5f' })) +
+    nm(B0, C.bl, 'AIDLC', 'AI Development Life Cycle', 'วงจรพัฒนาระบบ AI', 5.6) +
+    lane(B0, Object.assign([['ข้อมูลตัวอย่าง', 'ประวัติการสั่ง 50,000 ออเดอร์'], ['คำตอบในอดีต', 'แต่ละคนสั่งอะไรต่อ'], ['การเรียนรู้', 'หารูปแบบเอง'], ['ได้ "กฎ" ออกมา = โมเดล', 'คนชอบลาเต้ มักสั่งมอคค่าต่อ']], { t: 6.3, f2: C.bl, tc2: '#fff', f4: '#ffe066' })) +
+    arw(`M1325,441 V462`, 10) +
+    bx(1100, 466, 450, 66, 'ลูกค้าใหม่ → น่าจะชอบมอคค่า', 'ความน่าจะเป็น 72% · ผิดได้', { t: 10.2, fs1: 22, fs2: 19 }) +
+    `<rect x="424" y="${A0 + 86}" width="342" height="84" rx="14" fill="none" stroke="#ffe066" stroke-width="4" style="animation:fi .4s ease 11s both,glow .8s ease-in-out 11.2s 2"/>` +
+    `<rect x="1094" y="${B0 + 41}" width="462" height="84" rx="14" fill="none" stroke="#ffe066" stroke-width="4" style="animation:fi .4s ease 11.6s both,glow .8s ease-in-out 11.8s 2"/>`,
+    qTag(1, 'คืออะไร?') +
+    tag(595, A0 + 172, 'กฎ = สิ่งที่คนใส่เข้าไป', 11.2, 'warn sm') +
+    tag(1325, 542, 'กฎ = สิ่งที่เครื่องสร้างออกมา', 11.8, 'warn sm') +
+    tag(800, 600, 'เปรียบเทียบ: บาริสต้าทำตามสูตรที่เขียนไว้  ↔  บาริสต้าที่จำได้ว่าลูกค้าประจำชอบอะไร', 14.2, 'sm') +
+    caps([[1, 'SDLC: คนเขียนกฎ → คอมพิวเตอร์ทำตาม'], [5.6, 'AIDLC: คนให้ตัวอย่าง → คอมพิวเตอร์หากฎเอง'],
+      [11.2, '"กฎ" สลับตำแหน่ง — จากสิ่งที่ใส่เข้า กลายเป็นผลลัพธ์'], [14.8, 'กฎมาจากข้อมูล → AIDLC จึงต้องมีขั้น "ข้อมูล" และ "ประเมินผล" เพิ่มเข้ามา']]));
+} },
+
+/* 3 เกิดมาจากอะไร */
+{ name: 'เกิดมาจากอะไร', build: () => {
+  const ev = [
+    ['1968', 'NATO Conference', 'ซอฟต์แวร์ใหญ่จนคุมไม่อยู่', C.or],
+    ['1970', 'Waterfall', 'ทำทีละขั้นตามลำดับ', C.or],
+    ['1999', 'CRISP-DM', 'งานข้อมูล 6 ขั้น วนกลับได้', C.bl],
+    ['2001', 'Agile Manifesto', 'รอบสั้น ปรับตาม feedback', C.or],
+    ['2009', 'DevOps', 'ทีมพัฒนา + ทีมดูแลระบบรวมกัน', C.or],
+    ['2015', 'Google · NeurIPS', 'โค้ด ML เป็นแค่ส่วนเล็กของระบบ', C.bl],
+    ['2019', 'Microsoft · ICSE', 'ทีม ML จริงทำ 9 ขั้น และวนกลับ', C.bl],
+    ['2023', 'ISO/IEC 5338', 'มาตรฐานสากล วงจรชีวิตระบบ AI', C.bl]];
+  const LY = 320;
+  let s = `<line x1="40" y1="${LY}" x2="1560" y2="${LY}" stroke="#8fa0b5" stroke-width="6" stroke-linecap="round" ${drawn(.5, 2, 'linear')}/>`;
+  ev.forEach((e, i) => {
+    const x = 200 + i * 171, up = i % 2 === 0, t = 1.5 + i * 1.4, cy = up ? 150 : 370;
+    s += `<line x1="${x}" y1="${up ? cy + 120 : LY}" x2="${x}" y2="${up ? LY : cy}" stroke="${e[3]}" stroke-width="3" style="animation:fi .4s ease ${t}s both"/>`;
+    s += `<circle cx="${x}" cy="${LY}" r="12" fill="${e[3]}" stroke="#fff" stroke-width="3" style="animation:fi .4s ease ${t}s both"/>`;
+    s += rise(t, `<rect x="${x - 160}" y="${cy}" width="320" height="120" rx="14" fill="#2e3a4b" stroke="${e[3]}" stroke-width="3"/>${txt(x, cy + 40, e[0], { anchor: 'middle', fs: 32, fw: 800, fill: e[3] })}${txt(x, cy + 74, e[1], { anchor: 'middle', fs: 22, fw: 700 })}${txt(x, cy + 104, e[2], { anchor: 'middle', fs: 19, fill: C.grey })}`);
+  });
+  const why = (x, col, h, l1, l2, t) => rise(t, `<rect x="${x}" y="520" width="740" height="112" rx="14" fill="#1f2a38" stroke="${col}" stroke-width="4"/>${txt(x + 370, 556, h, { anchor: 'middle', fs: 26, fw: 700, fill: col })}${txt(x + 370, 590, l1, { anchor: 'middle', fs: 21 })}${txt(x + 370, 620, l2, { anchor: 'middle', fs: 21 })}`);
+  return S(s +
+    why(40, C.or, 'SDLC เกิดเพราะ…', 'ซอฟต์แวร์ใหญ่ขึ้น โครงการเกินงบ เลยกำหนด ใช้งานไม่ได้', 'จึงต้องมีขั้นตอนมาตรฐานที่ทุกทีมทำตามได้', 12.4) +
+    why(820, C.bl, 'AIDLC เกิดเพราะ…', 'ใช้วิธีทำซอฟต์แวร์กับ AI แล้วไม่พอ — ข้อมูลเปลี่ยน', 'โมเดลเสื่อม ทำซ้ำไม่ได้ จึงต้องมีขั้นตอนเพิ่ม', 13),
+    qTag(2, 'เกิดมาจากอะไร?') +
+    tag(40, 80, `<span class="chip" style="background:${C.or}">SDLC</span> สายซอฟต์แวร์`, .4, 'tl sm') +
+    tag(300, 80, `<span class="chip" style="background:${C.bl}">AIDLC</span> สายข้อมูลและ AI`, .6, 'tl sm') +
+    caps([[1, 'ซอฟต์แวร์มีวงจรมาตรฐานมาเกือบ 60 ปีแล้ว'], [5.6, 'SDLC เปลี่ยนรูปตามยุค: Waterfall → Agile → DevOps — วนเร็วขึ้นเรื่อย ๆ'],
+      [8.6, 'ฝั่ง AI: ทีมพบว่าวิธีเดิมไม่พอ ต้องคุมทั้งข้อมูลและโมเดล'], [12.8, 'AIDLC ไม่ได้มาแทน SDLC — แต่ต่อยอดจากมัน']]));
+} },
+
+/* 4 ทำไมต้องใช้ */
+{ name: 'ทำไมต้องใช้', build: () => {
+  const cost = [[120, 18, 'ตอนวางแผน', 'แก้ในเอกสาร', '#ffe066'], [285, 30, 'ตอนเขียนโค้ด', 'แก้โค้ด', '#ffc04d'],
+    [455, 48, 'ตอนทดสอบ', 'แก้ + ทดสอบใหม่', '#ff8a4d'], [650, 78, 'หลังลูกค้าใช้แล้ว', 'ขอโทษ + แก้ด่วน + เสียชื่อ', '#ff4d4d']];
+  let left = '';
+  cost.forEach((c, i) => {
+    const t = 1.2 + i * 1;
+    left += popAt(c[0], 470 - c[1], t, `<circle r="${c[1]}" fill="${c[4]}"/><text x="0" y="${c[1] * .32}" text-anchor="middle" fill="${C.ink}" style="font-size:${Math.round(c[1] * .9)}px">฿</text>`);
+    left += txt(c[0], 510, c[2], { anchor: 'middle', fs: 21, fw: 700, t }) + txt(c[0], 540, c[3], { anchor: 'middle', fs: 19, fill: C.grey, t: t + .2 });
+  });
+  left += arw('M70,585 H740', 4.8, '#8fa0b5', 4) + txt(405, 620, 'เวลาในโครงการ', { anchor: 'middle', fs: 20, fill: C.grey, t: 5 });
+  const risks = [
+    ['แม่นตอนทดลอง พังตอนใช้จริง', 'Epic Sepsis: ผู้ขายรายงาน AUC 0.76–0.83 → ใช้จริงได้ 0.63'],
+    ['เสื่อมเอง โดยไม่มีใครรู้', 'Zillow 2021: โมเดลตั้งราคาบ้านพลาด ขาดทุนกว่า 300 ล้านดอลลาร์'],
+    ['อคติจากข้อมูลในอดีต', 'Amazon 2018: AI คัดเรซูเม่ ลดคะแนนคำว่า “women’s”'],
+    ['องค์กรต้องรับผิดสิ่งที่ AI พูด', 'Air Canada 2024: แชตบอตตอบผิด ศาลให้บริษัทรับผิด']];
+  let right = '';
+  risks.forEach((r, i) => {
+    const y = 165 + i * 112, t = 8.6 + i * 1.2;
+    right += rise(t, `<rect x="850" y="${y}" width="690" height="98" rx="14" fill="#1f2a38" stroke="#4b5868" stroke-width="2"/><circle cx="892" cy="${y + 49}" r="24" fill="#ffe066"/>${txt(892, y + 58, i + 1, { anchor: 'middle', fs: 26, fw: 800, fill: C.ink })}${txt(934, y + 42, r[0], { fs: 24, fw: 700 })}${txt(934, y + 76, r[1], { fs: 19, fill: C.note })}`);
+  });
+  return S(arDef('#8fa0b5') + panels('ยิ่งเจอปัญหาช้า ยิ่งแก้แพง', 'ความเสี่ยงที่ซอฟต์แวร์ไม่มี') + left + right,
+    qTag(3, 'ทำไมต้องใช้?') +
+    tag(405, 196, 'แต่ละขั้นคือ "ด่านตรวจ" — ให้เจอปัญหาตั้งแต่ยังแก้ถูก', 5.8, 'warn sm') +
+    caps([[1, 'ซอฟต์แวร์: ปัญหาที่เจอช้า แก้แพงกว่าปัญหาที่เจอเร็วเสมอ'], [5.6, 'SDLC จึงมีด่านตรวจทุกขั้น — ให้เจอปัญหาตั้งแต่ยังแก้ถูก'],
+      [8.4, 'AI มีความเสี่ยงเพิ่ม ที่ซอฟต์แวร์ทั่วไปไม่มี'], [13.6, 'ทุกกรณีไม่ได้พังเพราะอัลกอริทึมไม่เก่ง — แต่พังเพราะข้ามขั้นตอน']]));
+} },
+
+/* 5 ไม่ใช้ได้ไหม */
+{ name: 'ไม่ใช้ได้ไหม', build: () => {
+  const steps = [['ทดลองส่วนตัว / ต้นแบบ', 'จดโจทย์ ลองเอง ก็พอ', '#2f7a55'], ['เครื่องมือใช้ในทีม', '+ ทดสอบ + เก็บเวอร์ชัน', '#6b8a2a'],
+    ['ระบบที่ลูกค้าใช้จริง', '+ ครบทุกขั้น + เฝ้าระวัง', '#b0741c'], ['AI ตัดสินเรื่องคน/เงิน', '+ ตรวจอคติ + มนุษย์ตรวจ', '#b23b3b']];
+  let st = '';
+  steps.forEach((s, i) => {
+    const x = 60 + i * 262, top = 500 - i * 110, t = 1.2 + i * 1.1;
+    st += `<rect class="gy" x="${x}" y="${top}" width="250" height="${640 - top}" rx="10" fill="${s[2]}" style="animation:growY .8s ease-out ${t}s both"/>`;
+    st += txt(x + 16, top + 34, s[0], { fs: 21, fw: 700, t: t + .5 }) + txt(x + 16, top + 64, s[1], { fs: 19, t: t + .6 });
+    for (let j = 0; j < 4; j++) st += `<circle cx="${x + 26 + j * 24}" cy="${top + 92}" r="8" fill="${j <= i ? '#fff' : 'none'}" stroke="#fff" stroke-width="2.5" style="animation:fi .4s ease ${t + .7}s both"/>`;
+  });
+  const qs = [['กฎตายตัวทำได้ดีพอไหม?', 'ถ้าได้ → ไม่ต้องใช้ AI'], ['มีข้อมูลพอ และถูกต้องไหม?', 'ไม่มีข้อมูล = ไม่มีโมเดล'],
+    ['ผิดได้กี่ % ที่ยังรับได้?', 'ต้องตอบให้ได้ก่อนเริ่ม'], ['ถ้า AI ผิด ใครรับผิดชอบ?', 'คำตอบคือองค์กร — เสมอ']];
+  let rb = rise(9.6, `<rect x="1130" y="90" width="430" height="550" rx="18" fill="#2e3a4b" stroke="${C.bl}" stroke-width="4"/>${txt(1345, 136, 'ก่อนเริ่ม ถามก่อนว่า', { anchor: 'middle', fs: 22, fill: C.grey })}${txt(1345, 178, 'ควรใช้ AI ไหม?', { anchor: 'middle', fs: 34, fw: 800, fill: C.note })}`);
+  qs.forEach((q, i) => {
+    const y = 206 + i * 92;
+    rb += rise(10 + i * .7, `<rect x="1150" y="${y}" width="390" height="78" rx="12" fill="#1f2a38" stroke="#4b5868" stroke-width="2"/><circle cx="1182" cy="${y + 39}" r="17" fill="${C.bl}"/>${txt(1182, y + 47, '?', { anchor: 'middle', fs: 22, fw: 800 })}${txt(1212, y + 34, q[0], { fs: 21, fw: 700 })}${txt(1212, y + 64, q[1], { fs: 18, fill: C.grey })}`);
+  });
+  rb += txt(1345, 614, 'ตอบไม่ได้ = ยังไม่พร้อมทำ', { anchor: 'middle', fs: 24, fw: 700, fill: C.note, t: 13 });
+  return S(arDef('#fff') + st + arw('M70,468 L960,95', 5.8, '#fff', 4) + rb,
+    qTag(4, 'ไม่ใช้ได้ไหม?') +
+    tag(330, 200, 'ความเสี่ยงสูงขึ้น = ข้ามขั้นได้น้อยลง', 6.4, 'warn sm') +
+    caps([[1, 'ไม่ใช้ได้ไหม? — ได้ ถ้าเป็นแค่การทดลอง แต่ต้องรู้ว่าข้ามอะไรไป'], [5.8, 'ยิ่งกระทบคน เงิน หรือข้อมูลส่วนบุคคลมาก ยิ่งข้ามขั้นไม่ได้'],
+      [8.4, 'Agile / Scrum ก็คือ SDLC แบบหนึ่ง — เบาได้ แต่ไม่ใช่ไม่มี'], [11.8, 'และบางโจทย์ไม่ต้องใช้ AI เลย — นั่นก็เป็นคำตอบที่ดี']]));
+} },
+
+/* 6 ใครต้องใช้ */
+{ name: 'ใครต้องใช้', build: () => {
+  const role = (x, y, w, shirt, name, duty, t, border, o = {}) => rise(t, `<rect x="${x}" y="${y}" width="${w}" height="100" rx="14" fill="#1f2a38" stroke="${border}" stroke-width="3"${o.dash ? ' stroke-dasharray="10 6"' : ''}/><g transform="translate(${x + 48},${y + 92}) scale(.48)">${person(shirt, [[0, 0]], o)}</g>${txt(x + 96, y + 42, name, { fs: 23, fw: 700 })}${txt(x + 96, y + 76, duty, { fs: 18, fill: C.grey })}`);
+  const Lr = [[P.po, 'Product Owner / BA', 'เก็บความต้องการ จัดลำดับ', { folder: 1 }], [P.g, 'Developer', 'ออกแบบ เขียนโค้ด', { laptop: 1 }],
+    [P.y, 'Tester / QA', 'ทดสอบ ผ่าน / ไม่ผ่าน', {}], [P.r, 'DevOps', 'ปล่อยระบบ ดูแลเซิร์ฟเวอร์', {}]];
+  const Rr = [['#8fa0b5', 'ทีม SDLC ทั้งหมด', 'ยังต้องมีครบทุกบทบาท', { dash: 1 }], [P.ds, 'Data Engineer', 'เก็บและล้างข้อมูล', { laptop: 1 }],
+    [P.de, 'Data Scientist', 'ทดลองโมเดล วัดผล', { laptop: 1 }], [P.sm, 'ML Engineer', 'ขึ้นระบบ เฝ้าระวัง (MLOps)', {}],
+    ['#c2410c', 'ผู้เชี่ยวชาญโดเมน', 'ตัดสินว่าผลสมเหตุสมผลไหม', {}], ['#0f766e', 'DPO / ฝ่ายกฎหมาย', 'PDPA · ความเป็นธรรม', {}]];
+  let s = `<rect x="40" y="90" width="730" height="420" rx="18" fill="#2e3a4b" stroke="${C.or}" stroke-width="4"/><rect x="830" y="90" width="730" height="420" rx="18" fill="#2e3a4b" stroke="${C.bl}" stroke-width="4"/>` +
+    txt(405, 136, 'SDLC · ทีมพัฒนาซอฟต์แวร์', { anchor: 'middle', fs: 30, fw: 700, fill: C.or }) + txt(1195, 136, 'AIDLC · ทีมเดิม + บทบาทใหม่', { anchor: 'middle', fs: 30, fw: 700, fill: C.bl, t: 5.4 });
+  Lr.forEach((r, i) => s += role(60 + (i % 2) * 350, 160 + Math.floor(i / 2) * 120, 340, r[0], r[1], r[2], 1.4 + i * .7, C.or, r[3]));
+  Rr.forEach((r, i) => s += role(845 + (i % 2) * 355, 160 + Math.floor(i / 2) * 120, 345, r[0], r[1], r[2], 5.8 + i * .7, i ? C.bl : C.or, r[3]));
+  s += rise(12, `<rect x="40" y="530" width="1520" height="100" rx="16" fill="#1f2a38" stroke="#ffe066" stroke-width="4"/><g transform="translate(96,622) scale(.5)">${person('#334155', [[0, 0]], { folder: 1 })}</g>` +
+    txt(150, 568, 'ผู้บริหาร · ฝ่ายจัดซื้อ — ไม่ได้สร้างเอง ก็ต้องรู้', { fs: 25, fw: 700, fill: C.note }) +
+    txt(150, 606, 'ซื้อ AI มาใช้ องค์กรก็ยังรับผิดชอบผล — ต้องถามผู้ขายให้ได้ว่า ใช้ข้อมูลอะไร ทดสอบอย่างไร เฝ้าระวังอย่างไร', { fs: 20 }));
+  return S(s,
+    qTag(5, 'ใครต้องใช้?') +
+    tag(405, 404, 'ทีมเล็ก: คนเดียวอาจรับหลายบทบาท', 4.4, 'sm') + tag(405, 452, 'ทีมใหญ่: บทบาทเดียวอาจมีหลายคน', 4.8, 'sm') +
+    caps([[1, 'SDLC: ทุกคนที่สร้างซอฟต์แวร์ — ไม่ว่าทีมเล็กหรือทีมใหญ่'], [5.6, 'AIDLC: ทีมเดิมยังต้องอยู่ครบ + คนที่ดูแลข้อมูลและโมเดล'],
+      [9.4, 'ผู้เชี่ยวชาญโดเมนสำคัญมาก — คือคนที่บอกได้ว่าผลลัพธ์ "สมเหตุสมผล" ไหม'], [12.4, 'ซื้อ AI สำเร็จรูปก็ยังต้องรู้ — เพราะองค์กรรับผิดชอบผลที่ AI ทำ']]));
+} },
+
+/* 7 ประโยชน์ */
+{ name: 'ประโยชน์คืออะไร', build: () => {
+  const ben = (x, y, col, t1, t2, t) => rise(t, `<circle cx="${x + 26}" cy="${y + 30}" r="22" fill="${col}"/><path d="M${x + 16},${y + 30} l7,8 l14,-16" stroke="${C.ink}" stroke-width="5" fill="none" stroke-linecap="round"/>${txt(x + 64, y + 28, t1, { fs: 25, fw: 700 })}${txt(x + 64, y + 60, t2, { fs: 19, fill: C.grey })}`);
+  const L = [['คาดการณ์เวลาและงบได้', 'รู้ว่าอยู่ขั้นไหน เหลืออีกเท่าไร'], ['เจอปัญหาเร็ว แก้ถูก', 'มีด่านตรวจก่อนไปขั้นถัดไป'],
+    ['ทุกคนเข้าใจตรงกัน', 'ทีม ลูกค้า ผู้บริหาร ใช้ภาษาเดียวกัน'], ['ตรวจสอบย้อนหลังได้', 'ใครทำอะไร เมื่อไร เพราะอะไร']];
+  const R = [['รู้ว่า "ดีพอ" เมื่อไร', 'มีตัวเลขเป้าหมาย ไม่ใช่ความรู้สึก'], ['จับความเสื่อมก่อนลูกค้าเจอ', 'เฝ้าดูผลจริงต่อเนื่อง'],
+    ['ลดความเสี่ยงอคติ และ PDPA', 'ตรวจตั้งแต่ข้อมูล ไม่ใช่หลังเกิดเรื่อง'], ['ทำซ้ำได้', 'รู้ว่าโมเดลนี้มาจากข้อมูลชุดไหน'],
+    ['ไม่จมเงินกับโปรเจกต์ที่ไม่ควรทำ', 'ขั้น 0: ทางง่ายพอแล้วหรือยัง']];
+  let s = `<rect x="40" y="90" width="730" height="500" rx="18" fill="#2e3a4b" stroke="${C.or}" stroke-width="4"/><rect x="830" y="90" width="730" height="500" rx="18" fill="#2e3a4b" stroke="${C.bl}" stroke-width="4"/>` +
+    txt(405, 138, 'SDLC · ได้อะไร', { anchor: 'middle', fs: 32, fw: 700, fill: C.or }) + txt(1195, 138, 'AIDLC · ได้ทุกข้อทางซ้าย + อีก 5 ข้อ', { anchor: 'middle', fs: 30, fw: 700, fill: C.bl, t: 5.6 });
+  L.forEach((b, i) => s += ben(80, 170 + i * 96, '#ffb067', b[0], b[1], 1.4 + i * .9));
+  R.forEach((b, i) => s += ben(870, 160 + i * 84, '#7cc6f5', b[0], b[1], 6 + i * .9));
+  return S(s,
+    qTag(6, 'ประโยชน์คืออะไร?') +
+    tag(800, 604, 'เป้าหมายเดียวกัน: จาก "demo ที่สวย" → "ระบบที่ใช้ได้จริง และไว้ใจได้"', 12, 'warn') +
+    caps([[1, 'SDLC: ทำให้งานซอฟต์แวร์ คาดการณ์ได้ และควบคุมได้'], [5.8, 'AIDLC ได้ทุกข้อของ SDLC + เรื่องที่ซอฟต์แวร์ทั่วไปไม่ต้องคิด'],
+      [10, 'ดีพอไหม · เสื่อมหรือยัง · เป็นธรรมไหม · ทำซ้ำได้ไหม'], [12.6, 'ไม่ใช่แค่ทำให้เสร็จ — แต่ทำให้ใช้ได้จริง และไว้ใจได้']]));
+} },
+
+/* 8 ต่างกันยังไง */
+{ name: 'ต่างกันยังไง', build: () => {
+  const ys = [120, 250, 380, 510], H = 112;
+  const labels = ['พฤติกรรมมาจาก', 'ผลลัพธ์', 'ทดสอบว่า "เสร็จ"', 'หลังใช้งาน'];
+  const side = (x, y, a, b) => txt(x, y + 50, a, { fs: 24, fw: 700 }) + txt(x, y + 84, b, { fs: 19, fill: C.grey });
+  const cont = [
+    y => [`<rect x="66" y="${y + 18}" width="268" height="76" rx="8" fill="#141b25"/><text x="82" y="${y + 50}" fill="#ffe066" style="font:600 20px Consolas,Menlo,monospace">if แต้ม >= 10:</text><text x="112" y="${y + 80}" fill="#ffe066" style="font:600 20px Consolas,Menlo,monospace">ให้ฟรี 1 แก้ว</text>` + side(360, y, 'โค้ดที่คนเขียน', 'อ่านกฎได้ทุกบรรทัด'),
+      Array.from({ length: 26 }, (_, j) => `<circle cx="${(1006 + (Math.sin(j * 12.99 + 1) * 43758.55 % 1 + 1) % 1 * 140).toFixed(1)}" cy="${(y + 22 + (Math.sin(j * 78.23 + 2) * 12345.67 % 1 + 1) % 1 * 70).toFixed(1)}" r="5" fill="#7cc6f5"/>`).join('') +
+      `<path d="M1158,${y + 56} H1192" stroke="#ffe066" stroke-width="4"/><polygon points="1190,${y + 48} 1204,${y + 56} 1190,${y + 64}" fill="#ffe066"/><rect x="1208" y="${y + 32}" width="104" height="48" rx="10" fill="#ffe066"/>` + txt(1260, y + 64, 'โมเดล', { anchor: 'middle', fs: 22, fw: 700, fill: C.ink }) + side(1335, y, 'เรียนจากข้อมูล', 'กฎซ่อนอยู่ในโมเดล')],
+    y => [[0, 1, 2].map(j => `<rect x="${66 + j * 90}" y="${y + 36}" width="80" height="40" rx="8" fill="#3ddc5f"/>` + txt(106 + j * 90, y + 63, 'ฟรี ✓', { anchor: 'middle', fs: 19, fw: 700, fill: C.ink })).join('') + side(360, y, 'ผลเหมือนเดิมทุกครั้ง', 'แน่นอน 100%'),
+      [['ลาเต้', 72], ['มอคค่า', 18], ['ชาเขียว', 10]].map((b, j) => txt(1000, y + 36 + j * 28, b[0], { fs: 18 }) + `<rect x="1072" y="${y + 20 + j * 28}" width="${b[1] * 2.6}" height="20" rx="4" fill="${C.bl}"/>` + txt(1080 + b[1] * 2.6, y + 36 + j * 28, b[1] + '%', { fs: 17, fw: 700 })).join('') + side(1335, y, 'ความน่าจะเป็น', 'ตอบได้ แต่ผิดได้เสมอ')],
+    y => [txt(66, y + 74, '60 / 60 ✓', { fs: 44, fw: 800, fill: '#3ddc5f' }) + side(360, y, 'ผ่าน / ไม่ผ่าน', 'มีคำตอบชัดว่าเสร็จ'),
+      `<rect x="1070" y="${y + 60}" width="60" height="40" fill="#8fa0b5"/><rect x="1160" y="${y + 30}" width="60" height="70" fill="${C.bl}"/><line x1="1060" y1="${y + 40}" x2="1232" y2="${y + 40}" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="8 6"/>` +
+      txt(1060, y + 88, 'ทางง่าย', { anchor: 'end', fs: 16, fill: C.grey }) + txt(1100, y + 55, '8%', { anchor: 'middle', fs: 16, fw: 700 }) + txt(1190, y + 24, 'AI 14%', { anchor: 'middle', fs: 16, fw: 700 }) + txt(1238, y + 46, 'เป้า 12%', { fs: 15, fill: '#ff9b9b' }) + side(1335, y, 'ดีพอไหม?', 'เทียบเป้า และเทียบทางง่าย')],
+    y => [`<polyline points="70,${y + 56} 320,${y + 56}" fill="none" stroke="#3ddc5f" stroke-width="5" stroke-linecap="round"/>` + [70, 133, 196, 259, 320].map(x => `<circle cx="${x}" cy="${y + 56}" r="6" fill="#3ddc5f"/>`).join('') + side(360, y, 'คงที่', 'ไม่เสื่อม ถ้าไม่มีใครแก้'),
+      `<line x1="995" y1="${y + 66}" x2="1310" y2="${y + 66}" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="8 6"/><polyline points="1000,${y + 28} 1060,${y + 32} 1120,${y + 40} 1180,${y + 56} 1240,${y + 76} 1300,${y + 90}" fill="none" stroke="${C.bl}" stroke-width="5" stroke-linejoin="round"/>` + side(1335, y, 'เสื่อมได้เอง', 'เมื่อลูกค้าและโลกเปลี่ยน')]];
+  let s = txt(330, 100, 'SDLC', { anchor: 'middle', fs: 36, fw: 800, fill: C.or, t: .3 }) + txt(1270, 100, 'AIDLC', { anchor: 'middle', fs: 36, fw: 800, fill: C.bl, t: .3 });
+  ys.forEach((y, i) => {
+    const t = 1 + i * 3.2, c = cont[i](y);
+    s += rise(t, `<rect x="40" y="${y}" width="580" height="${H}" rx="14" fill="#2e3a4b" stroke="${C.or}" stroke-width="3"/>${c[0]}`);
+    s += popAt(800, y + 56, t + .5, `<rect x="-150" y="-30" width="300" height="60" rx="30" fill="#fff"/>${txt(0, 9, labels[i], { anchor: 'middle', fs: 24, fw: 700, fill: C.ink })}`);
+    s += rise(t + 1.2, `<rect x="980" y="${y}" width="580" height="${H}" rx="14" fill="#2e3a4b" stroke="${C.bl}" stroke-width="3"/>${c[1]}`);
+  });
+  return S(s,
+    qTag(7, 'ต่างกันยังไง?') +
+    caps([[1.2, 'ข้อ 1: ซอฟต์แวร์ทำตามกฎที่คนเขียน · AI ทำตามรูปแบบที่เรียนจากข้อมูล'], [4.4, 'ข้อ 2: ซอฟต์แวร์ตอบเหมือนเดิมทุกครั้ง · AI ตอบเป็นความน่าจะเป็น'],
+      [7.6, 'ข้อ 3: ซอฟต์แวร์ถามว่า "ผ่านไหม" · AI ถามว่า "ดีพอไหม"'], [10.8, 'ข้อ 4: ซอฟต์แวร์ไม่เสื่อมเอง · AI เสื่อมได้แม้ไม่มีใครแตะโค้ด'],
+      [14, 'ต่อไป: ดูทั้ง 4 ข้อนี้เกิดขึ้นจริง ผ่านแอปร้านกาแฟหนึ่งแอป']]));
+} },
+
+/* ============================= ส่วนที่ 2 · ตัวอย่างจริง ============================= */
+
+/* 9 โจทย์ */
+{ name: 'ตัวอย่าง: แอปร้านกาแฟ', build: () => {
+  const item = (y, a, b) => `<rect x="724" y="${y}" width="152" height="32" rx="6" fill="#fdf1e6"/>${txt(732, y + 22, a, { fill: C.ink, fs: 16, fw: 700 })}${txt(868, y + 22, b, { fill: '#8a5a2b', fs: 15, anchor: 'end' })}`;
+  const rec = (y, a, b) => `<rect x="724" y="${y}" width="152" height="54" rx="8" fill="#e6f3fc"/>${txt(800, y + 24, a, { anchor: 'middle', fs: 16, fw: 700, fill: C.ink })}${txt(800, y + 45, b, { anchor: 'middle', fs: 13, fill: '#44546a' })}`;
+  const phone = rise(1.4, `<rect x="700" y="160" width="200" height="450" rx="30" fill="#1c2633"/><rect x="712" y="180" width="176" height="410" rx="16" fill="#fff"/>
+    <rect x="712" y="180" width="176" height="38" rx="16" fill="#6b4226"/><rect x="712" y="200" width="176" height="18" fill="#6b4226"/>${txt(800, 206, 'Coffee Buddy', { anchor: 'middle', fs: 17, fw: 700 })}
+    ${item(234, 'ลาเต้', '65.-')}${item(272, 'อเมริกาโน่', '55.-')}${item(310, 'ชาเขียว', '60.-')}
+    ${txt(800, 364, '☕ แต้มสะสม 7 / 10', { anchor: 'middle', fs: 15, fill: C.ink })}
+    <rect x="724" y="374" width="152" height="34" rx="8" fill="${C.or}"/>${txt(800, 397, 'จ่ายเงิน (2 แก้ว)', { anchor: 'middle', fs: 16, fw: 700 })}
+    ${txt(800, 446, 'แนะนำสำหรับคุณ ✨', { anchor: 'middle', fs: 15, fw: 700, fill: '#1f6fa8' })}${rec(458, 'มอคค่าเย็น', 'ตรงใจ 72%')}${rec(520, 'ครัวซองต์', 'ตรงใจ 41%')}`);
+  const sideBox = (x, col, h, l, t) => rise(t, `<rect x="${x}" y="200" width="600" height="200" rx="16" fill="#2e3a4b" stroke="${col}" stroke-width="4"/>${txt(x + 300, 244, h, { anchor: 'middle', fs: 28, fw: 700, fill: col })}` +
+    l.map((s, i) => txt(x + 300, 290 + i * 40, s, { anchor: 'middle', fs: 23, fill: i === 2 ? C.grey : '#fff' })).join(''));
+  return S(
+    rise(.3, `<rect x="300" y="64" width="1000" height="80" rx="16" fill="#fff"/>${txt(800, 92, 'ร้านกาแฟ 30 สาขา (ข้อมูลจำลองเพื่อการสอน)', { anchor: 'middle', fs: 20, fill: '#5b6b7d' })}${txt(800, 130, '"อยากมีแอปสั่งกาแฟล่วงหน้า + แนะนำเมนูที่ลูกค้าน่าจะชอบ"', { anchor: 'middle', fs: 30, fw: 700, fill: C.ink })}`) +
+    phone +
+    `<rect x="717" y="226" width="166" height="190" rx="10" fill="none" stroke="${C.or}" stroke-width="4" style="animation:fi .6s ease 4.4s both"/>` +
+    `<rect x="717" y="424" width="166" height="158" rx="10" fill="none" stroke="${C.bl}" stroke-width="4" style="animation:fi .6s ease 7.4s both"/>` +
+    `<path d="M717,320 L660,300" stroke="${C.or}" stroke-width="4" stroke-dasharray="8 6" ${drawn(4.6, .5)}/>` +
+    `<path d="M883,503 C915,503 905,300 940,300" fill="none" stroke="${C.bl}" stroke-width="4" stroke-dasharray="8 6" ${drawn(7.6, .6)}/>` +
+    sideBox(60, C.or, 'ส่วนที่เป็นซอฟต์แวร์ทั่วไป → SDLC', ['เมนู · ตะกร้า · จ่ายเงิน · สะสมแต้ม · แจ้งเตือน', 'กฎชัด เช่น "ครบ 10 แก้ว ฟรี 1 แก้ว"', 'เขียนครั้งเดียว ทำงานเหมือนเดิมทุกวัน'], 4.8) +
+    sideBox(940, C.bl, 'ส่วนที่เป็น AI → AIDLC', ['เมนูแนะนำสำหรับคุณ', 'เรียนจากประวัติการสั่ง 50,000 ออเดอร์', 'ลูกค้าเปลี่ยน → โมเดลต้องเปลี่ยนตาม'], 7.8) +
+    person(P.g, [[-120, 640], [220, 640, 9, 2.2]], { laptop: 1 }) + person(P.y, [[-220, 640], [330, 640, 9.2, 2.2]]) + person(P.r, [[-320, 640], [440, 640, 9.4, 2.2]]) +
+    person(P.ds, [[1720, 640], [1180, 640, 9.2, 2.2]], { laptop: 1 }) + person(P.de, [[1820, 640], [1290, 640, 9.4, 2.2]], { laptop: 1 }),
+    tag(330, 418, 'ทีมพัฒนาแอป', 11.4, 'sm') + tag(1235, 418, 'ทีมข้อมูล / AI', 11.6, 'sm') +
+    caps([[1, 'ตัวอย่างที่ใช้ทั้งเรื่อง: แอปร้านกาแฟ (ข้อมูลจำลองเพื่อการสอน)'], [4.6, 'ส่วนใหญ่ของแอปคือซอฟต์แวร์ปกติ — สร้างด้วย SDLC'],
+      [7.6, 'ส่วน "แนะนำเมนู" คือ AI — สร้างด้วย AIDLC'], [11, 'สองทีมเดินคู่กันในแอปเดียว — ต่อไปดูทีละขั้น']]));
+} },
+
+/* 10 ขั้น 1 */
+{ name: 'ขั้น 1 · ความต้องการ vs ตั้งโจทย์', build: () => {
+  const us = ['ดูเมนูและราคาได้ทุกสาขา', 'สั่งและจ่ายเงินได้ใน 3 ขั้นตอน', 'สะสมแต้ม ครบ 10 แก้ว ฟรี 1 แก้ว', 'แจ้งเตือนเมื่อเครื่องดื่มพร้อมรับ'];
+  const fr = ['ทำนายอะไร: เมนูที่ลูกค้าน่าจะสั่งครั้งถัดไป', 'ดีพอแค่ไหน: ลูกค้ากดสั่งจากที่แนะนำ ≥ 12%', 'ห้ามทำ: แนะนำเมนูที่หมด · ใช้ข้อมูลที่ไม่ได้รับยินยอม'];
+  return S(
+    panels('เก็บความต้องการ', 'ตั้งโจทย์ให้ AI') +
+    us.map((s, i) => card({ w: 620, h: 52, txt: s, fs: 25, p: [[-700, 185 + i * 66], [95, 185 + i * 66, .8 + i * .6, 1.2, 'ease-out']] })).join('') +
+    rise(.8, `<rect x="860" y="176" width="670" height="156" rx="14" fill="#1f2a38" stroke="#ffe066" stroke-width="4"/>
+     ${txt(1195, 218, 'ขั้น 0: ควรใช้ AI ไหม?', { fill: C.note, anchor: 'middle', fs: 30, fw: 700 })}
+     ${txt(1195, 262, 'ทางง่ายที่สุด: โชว์ 3 เมนูขายดีให้ทุกคนเหมือนกัน', { anchor: 'middle', fs: 23 })}
+     ${txt(1195, 302, '→ ลูกค้ากดสั่งจากที่โชว์ 8%', { anchor: 'middle', fs: 24, fw: 700 })}`) +
+    fr.map((s, i) => card({ w: 670, h: 56, txt: s, fs: 23, fill: C.bl, p: [[1600, 356 + i * 66], [860, 356 + i * 66, 5.5 + i * 1.3, 1.2, 'ease-out']] })).join('') +
+    mini(P.g, 200, 630, { laptop: 1 }) + mini(P.po, 610, 630, { folder: 1 }),
+    stepTag(1, 'เริ่มต้น') +
+    tag(405, 465, 'เกณฑ์รับงาน: ทดสอบได้ · ผ่าน / ไม่ผ่าน', 4.2, 'flag') +
+    tag(1195, 578, 'ทางง่าย 8% = Baseline · คู่แข่งที่ AI ต้องชนะให้ได้', 10.2, 'warn sm') +
+    caps([[1.4, 'SDLC: เขียนว่าแอปต้องทำอะไร — ชัดเจน ทดสอบได้'], [3.8, 'AIDLC เริ่มก่อนหนึ่งขั้น: ทางง่ายที่สุดทำได้แค่ไหน?'],
+      [7.2, 'ต้องตกลงตัวเลข "ดีพอ" ก่อนเริ่ม — ไม่งั้นไม่มีวันรู้ว่าเสร็จ'], [10.6, 'ถ้า AI ชนะ 8% ไม่ขาด — ใช้ทางง่ายก็พอ ไม่ต้องลงทุน AI']]));
+} },
+
+/* 11 ขั้น 2 */
+{ name: 'ขั้น 2 · ออกแบบ vs เตรียมข้อมูล', build: () => {
+  const arch = ['แอปมือถือ', 'API', 'ระบบสั่งซื้อ / แต้ม', 'ฐานข้อมูล'];
+  let left = '';
+  arch.forEach((s, i) => {
+    const y = 180 + i * 108;
+    left += card({ w: 300, h: 56, txt: s, fs: 26, fill: '#fff', p: [[150, y]], in: .6 + i * .8 });
+    if (i) left += `<path d="M300,${y - 52} V${y}" fill="none" stroke="#fff" stroke-width="5" ${drawn(.3 + i * .8, .5)}/><polygon points="290,${y - 10} 310,${y - 10} 300,${y + 2}" fill="#fff" style="animation:fi .3s ease ${.7 + i * .8}s both"/>`;
+  });
+  left += card({ w: 230, h: 56, txt: 'ขอเมนูแนะนำ', fs: 24, fill: C.bl, p: [[500, 396]], in: 4.2 }) +
+    `<path d="M450,424 H500" fill="none" stroke="${C.bl}" stroke-width="5" stroke-dasharray="10 6" ${drawn(4.2, .5)}/>` +
+    `<path d="M730,424 H830" fill="none" stroke="#ffe066" stroke-width="5" stroke-dasharray="12 8" ${drawn(4.8, .6)}/>`;
+  const rows = [
+    ['ประวัติการสั่ง 6 เดือน', '60,000 ออเดอร์', 600, '#8fa0b5', 1],
+    ['ออเดอร์ทดสอบของพนักงาน → ตัดทิ้ง', '−4,000', 560, '#8fa0b5', 2.6, 40],
+    ['ยกเลิก / ซ้ำ → ลบออก', '−6,000', 500, '#8fa0b5', 4.2, 60],
+    ['PDPA: รหัสสมาชิกแทนชื่อ-เบอร์', 'เฉพาะคนที่ยินยอม', 500, C.pur, 5.8],
+    ['เพิ่มข้อมูล: เวลา · สาขา · อากาศ', '+3 คอลัมน์', 500, C.bl, 7.4]];
+  let right = '';
+  rows.forEach((r, i) => {
+    const y = 160 + i * 68;
+    right += txt(870, y + 24, r[0], { fs: 23, t: r[4] }) +
+      `<g transform="translate(870,${y + 36})"><rect width="${r[2]}" height="22" rx="5" fill="${r[3]}" style="animation:growX .9s ease-out ${r[4]}s both"/>` +
+      (r[5] ? `<rect x="${r[2]}" width="${r[5]}" height="22" rx="5" fill="#ff4d4d" style="animation:fi .4s ease ${r[4] + .9}s both,fo .6s ease ${r[4] + 1.5}s forwards"/>` : '') + `</g>` +
+      txt(1530, y + 24, r[1], { fs: 22, anchor: 'end', t: r[4] + .9, fill: r[5] ? '#ff9b9b' : C.grey });
+  });
+  right += rise(9.6, `<rect x="860" y="506" width="670" height="54" rx="10" fill="#2fe05a"/>${txt(1195, 543, 'พร้อมฝึก: 50,000 ออเดอร์ · ลูกค้า 4,200 คน · 35 เมนู', { fill: C.ink, anchor: 'middle', fs: 25, fw: 700 })}`);
+  right += `<g transform="translate(870,578)"><rect width="640" height="24" rx="6" fill="#4b5868" style="animation:fi .5s ease 12s both"/><rect width="240" height="24" rx="6" fill="#ffe066" style="animation:growX 1.4s ease-out 12.2s both"/></g>` +
+    txt(990, 626, 'เตรียมข้อมูล 3 สัปดาห์', { fs: 21, anchor: 'middle', fill: C.note, t: 13.2 }) + txt(1340, 626, 'ทั้งโครงการ 8 สัปดาห์', { fs: 21, anchor: 'middle', fill: C.grey, t: 13.2 });
+  return S(panels('ออกแบบโครงสร้าง', 'หาและทำความสะอาดข้อมูล') + left + right,
+    stepTag(2, 'ก่อนลงมือ') +
+    tag(405, 585, 'ออกแบบก่อน → เขียนโค้ดตามแบบ', 5.4, 'flag') +
+    caps([[1.4, 'SDLC: วางโครงสร้างระบบก่อน แล้วค่อยลงมือเขียน'], [4.6, 'AIDLC: ขั้นนี้ไม่ใช่การออกแบบ — แต่คือหา ล้าง และกรองข้อมูล'],
+      [8.4, 'ออเดอร์ทดสอบของพนักงาน ถ้าไม่ตัดทิ้ง โมเดลจะเรียนพฤติกรรมผิด ๆ'], [12.6, 'ขั้นนี้กินเวลามากที่สุด: แบบสำรวจ Anaconda ≈ 40–45% ของโครงการ']]));
+} },
+
+/* 12 ขั้น 3 */
+{ name: 'ขั้น 3 · เขียนโค้ด vs สร้างโมเดล', build: () => {
+  const kslot = (c, i) => [92 + c * 222, 222 + i * 54];
+  const feats = ['หน้าเมนู', 'ตะกร้า + จ่ายเงิน', 'สะสมแต้ม', 'แจ้งเตือน'];
+  const mv = [[1.5, 4], [3, 6], [5.5, 8], [7.5, 10]];
+  let left = `<rect x="70" y="160" width="670" height="300" rx="10" fill="#f6f8fa" stroke="#6b7785" stroke-width="4"/>
+    <line x1="293" y1="172" x2="293" y2="448" stroke="#c3cbd4" stroke-width="3"/><line x1="516" y1="172" x2="516" y2="448" stroke="#c3cbd4" stroke-width="3"/>
+    <line x1="82" y1="206" x2="728" y2="206" stroke="#c3cbd4" stroke-width="3"/>
+    ${txt(181, 196, 'To Do', { fill: C.ink, anchor: 'middle', fs: 26, fw: 700 })}${txt(404, 196, 'กำลังทำ', { fill: C.ink, anchor: 'middle', fs: 26, fw: 700 })}${txt(627, 196, 'เสร็จ', { fill: C.ink, anchor: 'middle', fs: 26, fw: 700 })}`;
+  feats.forEach((f, k) => {
+    left += card({ w: 200, h: 46, txt: f, fs: 21, p: [kslot(0, k), [...kslot(1, k), mv[k][0], 1.1], [...kslot(2, k), mv[k][1], 1.1]], re: [['toGreen', mv[k][1] + .9]] });
+  });
+  const exps = [['0', 'ทางง่าย: เมนูขายดี', '8%', 'base'], ['1', 'เมนูที่คนนั้นสั่งบ่อย', '10%', ''], ['2', 'ลูกค้าที่คล้ายกันชอบอะไร', '12%', ''], ['3', 'ข้อ 2 + เวลา + อากาศ', '14%', 'ok'], ['4', 'Deep Learning', '14%', 'ช้ากว่า 5 เท่า']];
+  let right = txt(880, 200, '#', { fs: 24, fill: C.grey, fw: 700 }) + txt(925, 200, 'วิธีที่ลอง', { fs: 24, fill: C.grey, fw: 700 }) + txt(1430, 200, 'กดสั่ง', { fs: 24, fill: C.grey, fw: 700, anchor: 'middle' }) +
+    `<line x1="865" y1="212" x2="1525" y2="212" stroke="#8fa0b5" stroke-width="3"/>`;
+  exps.forEach((e, i) => {
+    const y = 258 + i * 62, t = 1.5 + i * 2, g = e[3] === 'base' ? '#8fa0b5' : '#fff';
+    right += `<g style="animation:fi .7s ease ${t}s both">` + (e[3] === 'ok' ? `<rect x="865" y="${y - 36}" width="660" height="52" rx="8" fill="#2fe05a" fill-opacity=".22" stroke="#2fe05a" stroke-width="3"/>` : '') +
+      txt(880, y, e[0], { fs: 26, fill: g }) + txt(925, y, e[1], { fs: 26, fw: e[3] === 'ok' ? 700 : 400, fill: g }) + txt(1430, y, e[2], { fs: 26, anchor: 'middle', fw: 700, fill: g }) +
+      (e[3] && e[3] !== 'ok' && e[3] !== 'base' ? txt(1430, y + 24, e[3], { fs: 17, anchor: 'middle', fill: '#ff9b9b' }) : '') + `</g>`;
+    if (e[3] === 'ok') right += check(1500, y - 10, t + .8);
+  });
+  return S(panels('เขียนโค้ดทีละฟีเจอร์', 'ทดลองหลายวิธี') + left + right + mini(P.g, 200, 632, { laptop: 1 }) + mini(P.y, 300, 632),
+    stepTag(3, 'ลงมือสร้าง') +
+    tag(405, 478, 'โค้ด 8,000 บรรทัด · ทดสอบอัตโนมัติ 60 ชุด', 11, 'sm') +
+    tag(1195, 568, 'จดทุกรอบ: data v2 · seed 42 · params → Experiment Tracking', 12, 'warn sm') +
+    caps([[1.2, 'SDLC: เขียนครั้งเดียว ผลลัพธ์เหมือนเดิมทุกครั้งที่รัน'], [4.2, 'AIDLC: ต้องลองหลายวิธี — ไม่มีใครรู้ล่วงหน้าว่าวิธีไหนดีที่สุด'],
+      [9.6, 'วิธีซับซ้อนกว่า ไม่ได้ดีกว่าเสมอ — เลือกจากตัวเลขที่ตกลงไว้'], [12.6, 'ต้องเก็บเวอร์ชัน 3 อย่าง: โค้ด + ข้อมูล + โมเดล']]));
+} },
+
+/* 13 ขั้น 4 */
+{ name: 'ขั้น 4 · ทดสอบ vs ประเมินผล', build: () => {
+  const cv = (v, a, b, col = '#fff') => `<span style="color:${col};animation:fi .3s ease ${a}s both${b ? `,fo .3s ease ${b}s forwards` : ''}">${v}</span>`;
+  const seg = [['ลูกค้าประจำ (≥ 10 ครั้ง)', 17, '#3ddc5f'], ['ลูกค้าทั่วไป', 13, '#3ddc5f'], ['ลูกค้าใหม่ (< 3 ครั้ง)', 5, '#ff4d4d']];
+  let sb = '';
+  seg.forEach((s, i) => {
+    const y = 388 + i * 44, t = 9.4 + i * .6;
+    sb += txt(870, y + 22, s[0], { fs: 20, t }) + `<g transform="translate(1100,${y})"><rect width="${s[1] * 18}" height="30" rx="6" fill="${s[2]}" style="animation:growX .8s ease-out ${t}s both"/></g>` + txt(1110 + s[1] * 18, y + 23, s[1] + '%', { fs: 21, fw: 700, t: t + .5 });
+  });
+  return S(panels('ผ่าน / ไม่ผ่าน', 'ดีพอไหม · ทุกกลุ่มไหม') +
+    txt(405, 200, 'รันทดสอบอัตโนมัติ 60 ชุด', { anchor: 'middle', fs: 28, fw: 700, t: .8 }) +
+    card({ w: 540, h: 56, txt: '✗ กดจ่ายซ้ำ แต้มเพิ่ม 2 เท่า', fs: 24, fill: '#ff4d4d', tc: '#fff', p: [[135, 390]], in: 3, out: 7, inner: 'animation:shake .3s ease-in-out 3.4s 4' }) +
+    card({ w: 540, h: 56, txt: 'แก้โค้ด → รันใหม่', fs: 24, fill: '#fff', p: [[135, 470]], in: 5.2, out: 7 }) +
+    card({ w: 540, h: 56, txt: '✓ 60 / 60 — เสร็จ ปล่อยได้', fs: 26, fill: '#3ddc5f', p: [[135, 430]], in: 7.6 }) +
+    txt(1195, 186, 'ทดสอบกับออเดอร์เดือนล่าสุด (โมเดลไม่เคยเห็น)', { anchor: 'middle', fs: 22, fill: C.grey, t: 1.6 }) +
+    txt(870, 236, 'ทางง่าย', { fs: 22, t: 2.4 }) + `<g transform="translate(1030,210)"><rect width="192" height="36" rx="6" fill="#8fa0b5" style="animation:growX .8s ease-out 2.4s both"/></g>` + txt(1232, 236, '8%', { fs: 22, fw: 700, t: 3 }) +
+    txt(870, 284, 'AI (วิธีที่ 3)', { fs: 22, t: 3.2 }) + `<g transform="translate(1030,258)"><rect width="336" height="36" rx="6" fill="${C.bl}" style="animation:growX .8s ease-out 3.2s both"/></g>` + txt(1376, 284, '14% ✓', { fs: 22, fw: 700, fill: '#2fe05a', t: 3.8 }) +
+    `<line x1="1318" y1="202" x2="1318" y2="302" stroke="#ff6b6b" stroke-width="4" stroke-dasharray="8 6" style="animation:fi .5s ease 4.2s both"/>` +
+    txt(870, 370, 'แยกดูทีละกลุ่ม — เทียบกับทางง่าย 8%', { fs: 22, fw: 700, fill: C.note, t: 9 }) + sb +
+    `<line x1="1244" y1="380" x2="1244" y2="522" stroke="#c9d3df" stroke-width="3" stroke-dasharray="6 6" style="animation:fi .5s ease 9.2s both"/>` + warn(1300, 491, 11),
+    stepTag(4, 'ตรวจก่อนปล่อย') +
+    `<div class="cnt" style="left:130px;top:220px">${cv('58 ผ่าน', 1.5, 7.2, '#2fe05a')}${cv('60 ผ่าน', 7.2, 0, '#2fe05a')}</div>
+     <div class="cnt" style="left:450px;top:220px">${cv('2 ไม่ผ่าน', 1.5, 7.2, '#ff6b6b')}${cv('0 ไม่ผ่าน', 7.2, 0, '#8fa0b5')}</div>` +
+    tag(1318, 306, 'เป้า 12%', 4.4, 'bad sm') +
+    tag(405, 550, 'ซอฟต์แวร์ตอบได้ว่า "เสร็จหรือยัง"', 8.4, 'flag') +
+    tag(1195, 532, 'ทางแก้: ลูกค้าใหม่ → ใช้เมนูขายดีไปก่อน (Fallback)', 12.6, 'ok sm') +
+    tag(1195, 582, 'งานตัดสินเรื่องคน: กลุ่มที่ได้ผลแย่ = อคติ (Amazon 2018)', 14, 'warn sm') +
+    caps([[1.5, 'SDLC: 60/60 — มีคำตอบชัดว่าเสร็จหรือยัง'], [5.2, 'AIDLC: ทดสอบกับข้อมูลที่โมเดลไม่เคยเห็น แล้วเทียบเป้าและทางง่าย'],
+      [9.4, 'ค่าเฉลี่ยดี ไม่ได้แปลว่าทุกกลุ่มดี — ลูกค้าใหม่แย่กว่าทางง่ายเสียอีก'], [13, 'ทางแก้ไม่ใช่ซ่อนตัวเลข แต่ออกแบบระบบรองรับ']]));
+} },
+
+/* 14 ขั้น 5 */
+{ name: 'ขั้น 5 · ปล่อยใช้งาน', build: () => {
+  const users = [P.y, P.r, P.sm, P.g, P.de];
+  return S(panels('ปล่อยทีเดียว', 'ปล่อยทีละน้อย') +
+    `<g ${A({ p: [[405, 215], [405, 360, 2.2, 1.4]], in: .6 })}>${popAt(0, 0, .6, `<rect x="-90" y="-45" width="180" height="90" rx="12" fill="#fff" stroke="${C.ink}" stroke-width="4"/>${txt(0, 12, 'v1.0', { fill: C.ink, anchor: 'middle', fs: 40, fw: 800 })}`)}</g>` +
+    `<g style="animation:fi .6s ease 2.4s both"><rect x="230" y="310" width="350" height="100" rx="14" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="12 8"/>${txt(600, 368, 'App Store', { fs: 22, fill: C.grey })}</g>` +
+    users.map((c, k) => `<g transform="translate(${215 + k * 95},628) scale(.62)">${person(c, [[0, 0]], { in: 4 + k * .3 })}</g>`).join('') +
+    `<g transform="translate(870,165)"><rect width="594" height="44" rx="8" fill="#6f7f93" style="animation:growX 1s ease-out 1.6s both"/><rect x="596" width="64" height="44" rx="8" fill="#2a7fb8" style="animation:fi .6s ease 2.4s both"/></g>` +
+    txt(886, 195, 'กลุ่ม A 90% — เห็นเมนูขายดี', { fs: 21, fw: 700, t: 2.2 }) + txt(1498, 195, 'B', { fs: 22, fw: 800, anchor: 'middle', t: 2.6 }) +
+    txt(1530, 238, 'กลุ่ม B 10% — เห็นเมนูจาก AI', { fs: 20, fill: C.bl, anchor: 'end', t: 2.8 }) +
+    txt(870, 282, 'ผลหลัง 2 สัปดาห์: ลูกค้ากดสั่งจากที่แนะนำ', { fs: 22, fw: 700, fill: C.note, t: 4.6 }) +
+    txt(870, 318, 'A', { fs: 22, fw: 700, t: 5 }) + `<g transform="translate(900,296)"><rect width="243" height="30" rx="6" fill="#8fa0b5" style="animation:growX .8s ease-out 5s both"/></g>` + txt(1153, 318, '8.1%', { fs: 22, fw: 700, t: 5.6 }) +
+    txt(870, 360, 'B', { fs: 22, fw: 700, t: 5.6 }) + `<g transform="translate(900,338)"><rect width="408" height="30" rx="6" fill="${C.bl}" style="animation:growX .8s ease-out 5.6s both"/></g>` + txt(1318, 360, '13.6%', { fs: 22, fw: 700, t: 6.2 }) + check(1420, 352, 6.4) +
+    [['10%', 870, 90, '#2a7fb8', 7.2], ['50%', 1000, 90, '#2a7fb8', 7.8], ['100%', 1130, 110, '#27a447', 8.4]].map(c => rise(c[4], `<rect x="${c[1]}" y="388" width="${c[2]}" height="40" rx="8" fill="${c[3]}"/>${txt(c[1] + c[2] / 2, 416, c[0], { anchor: 'middle', fs: 22, fw: 700 })}`)).join('') +
+    txt(966, 416, '→', { fs: 24, t: 7.6 }) + txt(1096, 416, '→', { fs: 24, t: 8.2 }) + txt(1260, 416, 'ขยายทีละขั้น', { fs: 20, fill: C.grey, t: 8.6 }) +
+    rise(9.8, `<rect x="860" y="448" width="670" height="78" rx="14" fill="#1f2a38" stroke="#ffe066" stroke-width="4"/>${txt(1195, 480, 'ปุ่มปิด AI (Kill switch)', { fill: C.note, anchor: 'middle', fs: 25, fw: 700 })}${txt(1195, 512, 'ผลแย่ลง → กลับไปใช้เมนูขายดีได้ภายใน 1 นาที', { anchor: 'middle', fs: 21 })}`) +
+    rise(12.2, `<rect x="860" y="540" width="670" height="78" rx="14" fill="#1f2a38" stroke="${C.pur}" stroke-width="4"/>${txt(1195, 572, 'บอกลูกค้าตรง ๆ', { anchor: 'middle', fs: 24, fw: 700 })}${txt(1195, 604, '"แนะนำจากประวัติการสั่งของคุณ" · ปิดได้ในหน้าตั้งค่า', { anchor: 'middle', fs: 20, fill: C.grey })}`),
+    stepTag(5, 'ขึ้นระบบจริง') +
+    tag(405, 432, 'ผ่านเทส → ปล่อยทุกคนพร้อมกัน · มีบั๊กก็ออก v1.0.1', 7.4, 'sm') +
+    caps([[1.4, 'SDLC: ผ่านเทส → ปล่อยให้ทุกคนพร้อมกันได้'], [4.8, 'AIDLC: ผลในห้องทดลองยังไม่ใช่ผลจริง — ลองกับลูกค้าส่วนน้อยก่อน (A/B Test)'],
+      [9.8, 'ต้องมีปุ่มปิด AI เสมอ — ถอยกลับไปทางง่ายได้ทันที'], [12.4, 'บอกลูกค้าว่าใช้ข้อมูลอะไรแนะนำ และให้ปิดได้ — โปร่งใส เคารพสิทธิ์ตาม PDPA']]));
+} },
+
+/* 15 ขั้น 6 */
+{ name: 'ขั้น 6 · ดูแล vs เฝ้าระวัง', build: () => {
+  const X = d => 905 + (d - 1) * 52, Y = v => +(520 - (v - 4) / 14 * 300).toFixed(1);
+  const v1 = [14, 14, 13, 13, 12, 11, 9], v2 = [[7, 9], [8, 14], [9, 14], [10, 15], [11, 14], [12, 14]];
+  let d = `M${X(1)},${Y(v1[0])}`, dots = '';
+  const T0 = 2.5, DUR = 4.5;
+  v1.forEach((v, i) => {
+    if (i) d += ` L${X(i + 1)},${Y(v)}`;
+    dots += `<circle cx="${X(i + 1)}" cy="${Y(v)}" r="7" fill="${C.bl}" stroke="#fff" stroke-width="2.5" style="animation:fi .3s ease ${(T0 + DUR * i / 6).toFixed(2)}s both"/>`;
+  });
+  const d2 = 'M' + v2.map(p => `${X(p[0])},${Y(p[1])}`).join(' L');
+  const dots2 = v2.slice(1).map((p, i) => `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="7" fill="#3ddc5f" stroke="#fff" stroke-width="2.5" style="animation:fi .3s ease ${(9.4 + i * .4).toFixed(2)}s both"/>`).join('');
+  const yT = [4, 8, 12, 16].map(v => `<g style="animation:fi .5s ease 1.6s both"><line x1="895" y1="${Y(v)}" x2="905" y2="${Y(v)}" stroke="#fff" stroke-width="3"/>${txt(888, Y(v) + 9, v, { fs: 22, anchor: 'end' })}</g>`).join('');
+  const xT = Array.from({ length: 12 }, (_, i) => `<g style="animation:fi .5s ease ${(1.7 + i * .06).toFixed(2)}s both"><line x1="${X(i + 1)}" y1="520" x2="${X(i + 1)}" y2="528" stroke="#fff" stroke-width="3"/>${txt(X(i + 1), 552, i + 1, { fs: 20, anchor: 'middle' })}</g>`).join('');
+  return S(panels('แก้เมื่อมีบั๊ก', 'ผลแย่ลงได้เอง') +
+    card({ w: 560, h: 56, txt: 'บั๊ก #42: แจ้งเตือนไม่เด้งบนมือถือบางรุ่น', fs: 23, fill: '#ff4d4d', tc: '#fff', p: [[125, 172]], in: 1.4, inner: 'animation:shake .3s ease-in-out 1.8s 4' }) +
+    `<path d="M405,228 V266" fill="none" stroke="#fff" stroke-width="5" ${drawn(3.8, .5)}/>` +
+    card({ w: 560, h: 56, txt: 'แก้โค้ด → ทดสอบ → ปล่อย v1.1', fs: 24, fill: '#fff', p: [[125, 270]], in: 4.3 }) +
+    check(690, 298, 5.6) +
+    `<g style="animation:fi .6s ease 8.6s both"><rect x="70" y="395" width="670" height="225" rx="10" fill="#1f2a38" stroke="#6b7785" stroke-width="3"/>
+     <line x1="120" y1="580" x2="710" y2="580" stroke="#fff" stroke-width="3"/><line x1="120" y1="412" x2="120" y2="580" stroke="#fff" stroke-width="3"/>
+     ${txt(415, 608, 'เดือนที่ 1 → 12 (ไม่มีใครแตะโค้ด)', { fs: 20, anchor: 'middle', fill: C.grey })}</g>` +
+    `<line x1="120" y1="440" x2="710" y2="440" stroke="#3ddc5f" stroke-width="6" stroke-linecap="round" ${drawn(9.2, 2.5, 'linear')}/>` +
+    `<rect x="870" y="175" width="660" height="400" rx="10" fill="#1f2a38" stroke="#6b7785" stroke-width="3" style="animation:fi .6s ease .8s both"/>` +
+    `<path d="M905,520 V190" fill="none" stroke="#fff" stroke-width="4" ${drawn(1.3, .8)}/><path d="M905,520 H1500" fill="none" stroke="#fff" stroke-width="4" ${drawn(1.3, .8)}/>` + yT + xT +
+    `<line x1="905" y1="${Y(10)}" x2="1500" y2="${Y(10)}" stroke="#ff4d4d" stroke-width="4" stroke-dasharray="14 10" ${drawn(2, 1.2)}/>` +
+    `<line x1="905" y1="${Y(8)}" x2="1500" y2="${Y(8)}" stroke="#8fa0b5" stroke-width="3" stroke-dasharray="6 8" ${drawn(2.2, 1.2)}/>` +
+    `<g style="animation:fi .8s ease 5.4s both"><rect x="${X(5)}" y="192" width="${X(7) - X(5)}" height="326" fill="#ffe066" fill-opacity=".22" style="animation:blink .8s ease-in-out 6s 2"/></g>` +
+    `<path d="${d}" fill="none" stroke="${C.bl}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" ${drawn(T0, DUR, 'linear')}/>` + dots +
+    [0, 1, 2].map(k => `<g transform="translate(${X(7)},${Y(9)})"><circle r="30" fill="none" stroke="#ff4d4d" stroke-width="4" style="opacity:0;animation:ripple 2s ease-out ${7.2 + k * .45}s both"/></g>`).join('') +
+    `<path d="${d2}" fill="none" stroke="#3ddc5f" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" ${drawn(9.2, 2.2, 'linear')}/>` + dots2,
+    stepTag(6, 'หลังส่งมอบ') +
+    tag(405, 335, 'ไม่มีใครแตะโค้ด = ระบบไม่เปลี่ยน', 6.4, 'flag') +
+    tag(415, 470, 'ทำงานถูกต้อง คงที่ตลอด 12 เดือน', 11.2, 'sm') +
+    tag(920, 188, 'กดสั่งจากที่แนะนำ (%)', 1.8, 'tl sm') + tag(1300, 548, 'เดือนหลังปล่อยใช้', 1.9, 'sm') +
+    tag(915, Y(10) + 6, 'ต่ำกว่า 10% = ฝึกใหม่', 3.2, 'tl bad sm') +
+    tag(1505, Y(8) + 6, 'ทางง่าย 8% = ปิด AI', 3.4, 'tr sm') +
+    tag(1195, 148, 'เดือน 5–7: เข้าหน้าฝน + เมนูใหม่ = Data Drift', 5.6, 'warn sm') +
+    tag(X(12) + 10, 232, 'ฝึกใหม่ด้วยข้อมูล 3 เดือนล่าสุด', 10.4, 'tr ok sm') +
+    caps([[1.4, 'SDLC: ไม่มีบั๊กใหม่ = ระบบเหมือนเดิม ไม่เสื่อมเอง'], [4.6, 'AIDLC: โค้ดไม่เปลี่ยนเลย แต่ผลแย่ลงเรื่อย ๆ'],
+      [7.4, 'เพราะลูกค้าเปลี่ยน: หน้าฝนคนสั่งเมนูร้อนมากขึ้น และมีเมนูใหม่ที่โมเดลไม่รู้จัก'], [10.6, 'ตั้งเกณฑ์ไว้ก่อน: ต่ำกว่า 10% = ฝึกใหม่ · ต่ำกว่าทางง่าย = ปิด AI'],
+      [14, 'บทเรียน Zillow 2021: ไม่มีเพดาน ไม่มีปุ่มปิด — ขาดทุนกว่า 300 ล้านดอลลาร์']]));
+} },
+
+/* 16 วงจรวนซ้ำ + ธรรมาภิบาล */
+{ name: 'วงจรวนซ้ำ + ธรรมาภิบาล', build: () => {
+  const cx = 800, cy = 372, R = 192, ink = C.ink;
+  const names = ['ควรใช้ AI ไหม?', 'ตั้งโจทย์', 'เตรียมข้อมูล', 'สร้างโมเดล', 'ประเมินผล', 'ปล่อยใช้', 'เฝ้าระวัง', 'ปลดระวาง'];
+  const from = [[200, 150], [1300, 120], [1400, 500], [1150, 700], [500, 720], [250, 560], [700, 300], [1000, 300]];
+  let nodes = '', tags = '';
+  names.forEach((n, k) => {
+    const a = (-90 + k * 45) * Math.PI / 180, cs = Math.cos(a), sn = Math.sin(a), x = Math.round(cx + R * cs), y = Math.round(cy + R * sn);
+    const col = k === 0 ? C.note : k === 7 ? '#8fa0b5' : '#fff';
+    nodes += `<g transform="translate(${x},${y})"><g style="--fx:${from[k][0] - x}px;--fy:${from[k][1] - y}px;animation:gather 2s ease-in-out .4s both"><circle r="34" fill="${col}" stroke="${ink}" stroke-width="4"/>${txt(0, 11, k, { fill: ink, anchor: 'middle', fs: 30, fw: 800 })}</g></g>`;
+    let lx, ly, cls;
+    if (k === 0) { lx = cx; ly = y - 84; cls = ''; }
+    else if (k === 4) { lx = cx; ly = y + 40; cls = ''; }
+    else { lx = Math.round(cx + (R + 46) * cs); ly = Math.round(cy + (R + 46) * sn) - 22; cls = cs > 0 ? 'tl' : 'tr'; }
+    tags += tag(lx, ly, n, 2.4 + k * .1, cls + ' sm');
+  });
+  const arrowDef = `<defs><marker id="ah" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="14" refY="9" orient="auto"><path d="M0,0 L18,9 L0,18 z" fill="#ff6b6b"/></marker></defs>`;
+  const fb1 = `<path d="M${cx + 22},${cy + 168} Q${cx + 160},${cy + 125} ${cx + 182},${cy + 40}" fill="none" stroke="#ff6b6b" stroke-width="5" stroke-dasharray="12 8" marker-end="url(#ah)" ${drawn(6, 1.2)}/>`;
+  const fb2 = `<path d="M${cx - 160},${cy - 20} Q${cx - 80},${cy - 125} ${cx + 100},${cy - 138}" fill="none" stroke="#ff6b6b" stroke-width="5" stroke-dasharray="12 8" marker-end="url(#ah)" ${drawn(7.4, 1.4)}/>`;
+  const band = `<rect x="420" y="58" width="760" height="600" rx="26" fill="none" stroke="#ffe066" stroke-width="5" stroke-dasharray="18 12" ${drawn(9.2, 2)}/>`;
+  const corner = (x, y, s, t, cls) => tag(x, y, s, t, cls + ' warn sm');
+  const refL = `<div class="panel" style="left:40px;top:240px;width:360px;animation:rise .9s ease 11.6s both"><div class="ph">กรอบสากล</div><div class="body">NIST AI RMF<br>(Govern · Map · Measure · Manage)<br>ISO/IEC 42001 · ISO/IEC 5338<br>EU AI Act</div></div>`;
+  const refR = `<div class="panel" style="left:1200px;top:240px;width:360px;animation:rise .9s ease 12.6s both"><div class="ph">บริบทไทย</div><div class="body">ETDA AI Governance Guideline 2023<br>แนวนโยบาย ธปท. ก.ย. 2025<br>แนวปฏิบัติ PDPC ด้าน AI 2026<br>PDPA บังคับใช้อยู่แล้ว</div></div>`;
+  return S(arrowDef +
+    `<circle cx="${cx}" cy="${cy}" r="${R}" transform="rotate(-90 ${cx} ${cy})" fill="none" stroke="#4b5868" stroke-width="7" ${drawn(1.5, 1.2)}/>` +
+    `<polygon points="${cx + R - 14},${cy - 60} ${cx + R + 14},${cy - 60} ${cx + R},${cy - 36}" fill="#8fa0b5" style="animation:fi .4s ease 2.6s both"/>` +
+    nodes + fb1 + fb2 + band,
+    tags +
+    tag(cx, cy + 58, 'ไม่ผ่าน → แก้ข้อมูล', 7, 'bad sm') +
+    tag(cx, cy - 62, 'โลกเปลี่ยน → ทบทวนโจทย์', 8.4, 'bad sm') +
+    corner(445, 66, 'PDPA · ธรรมาภิบาลข้อมูล', 10.4, 'tl') + corner(1155, 66, 'ตรวจอคติ · ความเป็นธรรม', 10.7, 'tr') +
+    corner(445, 612, 'อธิบายผลได้ (XAI)', 11, 'tl') + corner(1155, 612, 'มนุษย์ตัดสินใจสุดท้าย', 11.3, 'tr') +
+    refL + refR +
+    caps([[2.8, 'ของจริงเป็นวงกลม — ไม่ใช่บันไดทางเดียวอย่างในภาพแรก'], [6.4, 'ลูกศรย้อนกลับเป็นเรื่องปกติ: ผลไม่ดี → แก้ข้อมูล · โลกเปลี่ยน → ทบทวนโจทย์'],
+      [9.6, 'ธรรมาภิบาลไม่ใช่ขั้นสุดท้าย — แต่เป็นกรอบที่ครอบทุกขั้น'], [13.4, 'และต้องมีวันปลดระวาง — โมเดลที่ไม่มีใครดูแลคือความเสี่ยง']]));
+} },
+
+/* 17 ยุค GenAI */
+{ name: 'ยุค GenAI', build: () => {
+  const opts = [['สร้าง LLM เอง', 'ฝึกจากศูนย์ · ต้นทุนสูงมาก', '#ff6b6b', '✗', 1], ['ใช้ API สำเร็จรูป', 'เร็ว ถูก · ข้อมูลเมนูไม่อ่อนไหว', '#3ddc5f', '✓', 2], ['โมเดลเปิด ติดตั้งในองค์กร', 'เหมาะกับข้อมูลอ่อนไหว เช่น รพ. ธนาคาร', '#ffb067', '–', 3]];
+  let top = '';
+  opts.forEach((o, i) => {
+    const x = 80 + i * 490;
+    top += rise(o[4], `<rect x="${x}" y="150" width="460" height="110" rx="14" fill="#2e3a4b" stroke="${o[2]}" stroke-width="4"/>${txt(x + 20, 192, o[0], { fs: 27, fw: 700 })}${txt(x + 20, 236, o[1], { fs: 21, fill: C.grey })}${txt(x + 425, 205, o[3], { fs: 40, fw: 800, fill: o[2], anchor: 'middle' })}`);
+  });
+  const steps = [['1 เลือกโมเดล', 'API ที่รองรับภาษาไทย', 'ต้นทุนต่อครั้งต่ำ'], ['2 Prompt + RAG', 'ข้อมูลเมนู + ส่วนผสม', '→ ตอบจากข้อมูลจริง'], ['3 ประเมิน', 'คำถามจริง 150 ข้อ', '→ ตอบถูก 90%'], ['4 Guardrail', 'แพ้อาหาร → ส่งต่อพนักงาน', '→ ตอบถูก 98%'], ['5 เฝ้าระวัง', 'ตอบมั่ว · คำถามใหม่', 'ค่าใช้จ่ายต่อเดือน']];
+  let pipe = '';
+  steps.forEach((s, i) => {
+    const x = 60 + i * 300, t = 5.2 + i * 1.5;
+    pipe += rise(t, `<rect x="${x}" y="310" width="270" height="140" rx="14" fill="#fff"/>${txt(x + 135, 350, s[0], { fill: C.ink, anchor: 'middle', fs: 26, fw: 700 })}${txt(x + 135, 390, s[1], { fill: '#44546a', anchor: 'middle', fs: 19 })}${txt(x + 135, 424, s[2], { fill: C.ink, anchor: 'middle', fs: 21, fw: 700 })}`);
+    if (i < 4) pipe += `<path d="M${x + 272},380 H${x + 298}" fill="none" stroke="#ffe066" stroke-width="6" ${drawn(t + .9, .4)}/><polygon points="${x + 290},370 ${x + 290},390 ${x + 304},380" fill="#ffe066" style="animation:fi .2s ease ${t + 1.3}s both"/>`;
+  });
+  return S(`<rect x="40" y="90" width="1520" height="550" rx="18" fill="#2e3a4b" stroke="${C.bl}" stroke-width="4"/>` +
+    txt(800, 132, 'ร้านกาแฟเพิ่ม "แชตบอตตอบคำถามเมนู" — เลือกทางไหน?', { anchor: 'middle', fs: 32, fw: 700, fill: C.bl }) +
+    `<rect x="568" y="146" width="468" height="118" rx="16" fill="none" stroke="#3ddc5f" stroke-width="6" style="animation:fi .5s ease 4.4s both,glow .8s ease-in-out 4.6s 2"/>` +
+    top + pipe +
+    rise(13.8, `<rect x="90" y="478" width="1420" height="140" rx="14" fill="#1f2a38" stroke="#ff6b6b" stroke-width="4"/>
+     ${txt(800, 518, 'บทเรียน Air Canada (คำตัดสิน ก.พ. 2024)', { anchor: 'middle', fs: 28, fw: 700, fill: '#ff9b9b' })}
+     ${txt(800, 558, 'แชตบอตบอกลูกค้าผิดว่าขอส่วนลดย้อนหลังได้ — บริษัทอ้างว่าแชตบอต "รับผิดชอบตัวเอง"', { anchor: 'middle', fs: 24 })}
+     ${txt(800, 598, 'ศาลไม่รับฟัง: องค์กรต้องรับผิดต่อทุกข้อมูลที่ระบบของตนให้ลูกค้า', { anchor: 'middle', fs: 24, fw: 700, fill: C.note })}`),
+    tag(800, 272, 'Prompt → RAG → Fine-tune: เริ่มจากทางที่ถูกและเร็วที่สุดก่อน', 4.8, 'warn sm') +
+    caps([[1.4, 'ยุค GenAI: ไม่ต้องสร้างโมเดลเอง — งานย้ายไปที่ "เลือก ประเมิน กำกับ"'], [4.6, 'ร้านกาแฟ: ข้อมูลเมนูไม่อ่อนไหว ใช้ API ได้ — ธนาคารหรือ รพ. อาจต้องติดตั้งเอง'],
+      [9.6, 'ทดสอบด้วยคำถามจริง 150 ข้อ ไม่ใช่ลองเล่น 3 คำถามแล้วปล่อย'], [14.2, 'ตอบเรื่องแพ้อาหารผิดครั้งเดียวอันตรายจริง — Guardrail จึงไม่ใช่ของแถม']]));
+} },
+
+/* 18 สรุป */
+{ name: 'สรุปเทียบข้างกัน', build: () => {
+  const rows = [
+    ['พฤติกรรมมาจาก', 'โค้ดที่คนเขียน', 'ข้อมูลที่โมเดลเรียนรู้'],
+    ['ผลลัพธ์', 'แน่นอน เหมือนเดิมทุกครั้ง', 'ความน่าจะเป็น — มีโอกาสผิดเสมอ'],
+    ['เกณฑ์ว่า "เสร็จ"', 'ทดสอบผ่าน 60 / 60', '≥ 12% และชนะทางง่ายทุกกลุ่ม'],
+    ['ควบคุมเวอร์ชัน', 'โค้ด', 'โค้ด + ข้อมูล + โมเดล'],
+    ['ปล่อยใช้', 'ทุกคนพร้อมกัน', 'A/B 10% → 50% → 100% + ปุ่มปิด AI'],
+    ['หลังส่งมอบ', 'แก้บั๊กเมื่อมี ไม่เสื่อมเอง', 'เฝ้าระวัง drift · ฝึกใหม่ · ปลดระวาง'],
+    ['ความเสี่ยงเฉพาะ', 'บั๊ก · ความปลอดภัย', 'อคติ · PDPA · ตอบมั่ว (hallucination)']];
+  const x0 = 60;
+  let tbl = `<g style="animation:fi .6s ease .3s both"><rect x="${x0}" y="80" width="1480" height="56" rx="10" fill="#1f2a38"/>
+    ${txt(x0 + 160, 118, 'มิติ', { anchor: 'middle', fs: 26, fw: 700, fill: C.grey })}${txt(x0 + 580, 118, 'SDLC — ซอฟต์แวร์', { anchor: 'middle', fs: 28, fw: 700, fill: C.or })}${txt(x0 + 1160, 118, 'AIDLC — ระบบ AI', { anchor: 'middle', fs: 28, fw: 700, fill: C.bl })}</g>`;
+  rows.forEach((r, i) => {
+    const y = 144 + i * 56, t = .8 + i * .9;
+    tbl += `<g style="animation:fi .7s ease ${t}s both"><rect x="${x0}" y="${y}" width="1480" height="48" rx="8" fill="${i % 2 ? '#2e3a4b' : '#344254'}"/>
+      ${txt(x0 + 18, y + 34, r[0], { fs: 24, fw: 700 })}${txt(x0 + 338, y + 34, r[1], { fs: 24 })}${txt(x0 + 858, y + 34, r[2], { fs: 24 })}</g>`;
+  });
+  tbl += rise(8.4, `<rect x="${x0}" y="546" width="1480" height="92" rx="14" fill="#1f2a38" stroke="#ffe066" stroke-width="4"/>
+    ${txt(800, 582, 'อย่าสับสน 2 คำนี้', { anchor: 'middle', fs: 26, fw: 700, fill: C.note })}
+    ${txt(800, 620, 'AIDLC = สร้างระบบ AI (เรื่องของวันนี้)   ≠   AI-DLC (AWS, 2025) = ใช้ AI Agent ช่วยสร้างซอฟต์แวร์', { anchor: 'middle', fs: 24 })}`);
+  const cl = (t, html, c = '') => `<div class="${c}" style="animation:rise .9s ease ${t}s both">${html}</div>`;
+  return S(tbl,
+    `<div class="closing">` +
+    cl(10.4, 'สองวงจรไม่ใช่ทางเลือก — ระบบ AI จริงต้องใช้ทั้งคู่') +
+    cl(12, 'ซอฟต์แวร์เสร็จแล้วจบ · โมเดลเสร็จแล้วต้องดูแลตลอดอายุการใช้งาน') +
+    cl(13.6, 'ข้อมูลเปลี่ยน = โมเดลเปลี่ยน — นี่คือเหตุผลที่ AIDLC ไม่มีวันจบ', 'last') + `</div>`);
+} }
+];
+
+/* ===== ตัวควบคุมฉาก ===== */
+const stage = document.getElementById('stage'), title = document.getElementById('title'), nav = document.getElementById('nav'), app = document.getElementById('app');
+const seen = new Set();
+let cur = 0;
+const GROUPS = [['แนวคิด', 0, 8], ['ตัวอย่างจริง', 8, SCENES.length]];
+const nums = [];
+GROUPS.forEach(g => {
+  const l = document.createElement('span'); l.className = 'lab'; l.textContent = g[0]; nav.appendChild(l);
+  for (let i = g[1]; i < g[2]; i++) {
+    const b = document.createElement('button');
+    b.className = 'num'; b.textContent = i + 1; b.title = SCENES[i].name;
+    b.onclick = () => { show(i); b.blur(); };
+    nav.appendChild(b); nums.push(b);
+  }
+});
+nav.insertAdjacentHTML('beforeend', '<span class="sp"></span><button class="act" id="bR">เล่นซ้ำ</button><button class="act" id="bP" title="ย้อนกลับ">‹</button><button class="act" id="bN" title="ถัดไป">›</button>');
+
+function show(i) {
+  cur = Math.max(0, Math.min(SCENES.length - 1, i));
+  seen.add(cur);
+  stage.innerHTML = SCENES[cur].build();   // สร้างใหม่ทุกครั้ง = แอนิเมชันเริ่มจากต้น แล้วค้างภาพสุดท้าย
+  title.innerHTML = `<span class="no">${cur + 1} / ${SCENES.length}</span>${SCENES[cur].name}`;
+  nums.forEach((b, k) => { b.classList.toggle('cur', k === cur); b.classList.toggle('seen', k !== cur && seen.has(k)); });
+}
+document.getElementById('bR').onclick = e => { show(cur); e.currentTarget.blur(); };
+document.getElementById('bP').onclick = e => { show(cur - 1); e.currentTarget.blur(); };
+document.getElementById('bN').onclick = e => { show(cur + 1); e.currentTarget.blur(); };
+addEventListener('keydown', e => {
+  if (e.code === 'Space') { e.preventDefault(); show(cur); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); show(cur + 1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); show(cur - 1); }
+});
+function fit() { app.style.transform = `translate(-50%,-50%) scale(${Math.min(innerWidth / 1600, innerHeight / 900)})`; }
+addEventListener('resize', fit);
+fit();
+show(0);
+</script>
+</body>
+</html>
